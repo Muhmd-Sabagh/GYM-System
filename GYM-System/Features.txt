@@ -1,0 +1,27 @@
+﻿What's Next?
+
+1- Foundation: Established the basic ASP.NET Core project structure.
+
+2- Database Setup: Configured Entity Framework Core with SQL Server and created initial Client and Subscription models.
+
+3- Client Management (Basic CRUD): You can now add, list, edit, and delete clients.
+
+4- Subscriptions Management: Implement the UI and logic for adding and managing subscriptions for each client.
+
+5- Google Sheets Integration: Set up the service to connect to Google Sheets API and import client form responses.
+
+Image and File Storage: Configure local storage for client images and generated PDFs.
+
+Diet Plan Maker: Build the UI, logic, and PDF generation for diet plans.
+
+Workout Plan Maker: Build the UI, logic, and PDF generation for workout plans.
+
+Database Customization: Allow managing food items, exercises, and customizing package names, currencies, etc.
+
+Search Functionality: Implement robust search and filtering for saved plans.
+
+
+Note:
+
+// Function to calculate macros for a single meal food item row   DietPlanMaker/Index.cshtml
+الارقام في الجزء دا مبتسمعش كويس

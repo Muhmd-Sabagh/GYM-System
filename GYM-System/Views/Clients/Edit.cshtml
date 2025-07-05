@@ -1,0 +1,64 @@
+﻿@model GYM_System.Models.Client
+
+@{
+    ViewData["Title"] = "Edit Client";
+}
+
+<h1>Edit Client</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ClientCode" />
+            <input type="hidden" asp-for="JoinDate" />
+            <input type="hidden" asp-for="FormCode" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Phone" class="control-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<GYM_System.Models.SubscriptionStatus>()" class="form-control"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="DietStatus" class="control-label"></label>
+                <select asp-for="DietStatus" asp-items="Html.GetEnumSelectList<GYM_System.Models.PlanStatus>()" class="form-control"></select>
+                <span asp-validation-for="DietStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="WorkoutStatus" class="control-label"></label>
+                <select asp-for="WorkoutStatus" asp-items="Html.GetEnumSelectList<GYM_System.Models.PlanStatus>()" class="form-control"></select>
+                <span asp-validation-for="WorkoutStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

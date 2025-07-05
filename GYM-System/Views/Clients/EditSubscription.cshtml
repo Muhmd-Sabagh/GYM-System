@@ -1,0 +1,67 @@
+﻿@model GYM_System.Models.Subscription
+
+@{
+    ViewData["Title"] = $"Edit Subscription for {ViewBag.ClientName}";
+}
+
+<h1>Edit Subscription for @ViewBag.ClientName</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="EditSubscription">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ClientId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="PackageType" class="control-label"></label>
+                <input asp-for="PackageType" class="form-control" />
+                <span asp-validation-for="PackageType" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="StartDate" class="control-label"></label>
+                <input asp-for="StartDate" class="form-control" type="date" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="DurationMonths" class="control-label"></label>
+                <input asp-for="DurationMonths" class="form-control" />
+                <span asp-validation-for="DurationMonths" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Currency" class="control-label"></label>
+                <input asp-for="Currency" class="form-control" />
+                <span asp-validation-for="Currency" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="PaymentAccount" class="control-label"></label>
+                <input asp-for="PaymentAccount" class="form-control" />
+                <span asp-validation-for="PaymentAccount" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="RenewalCount" class="control-label"></label>
+                <input asp-for="RenewalCount" class="form-control" />
+                <span asp-validation-for="RenewalCount" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Details" asp-route-id="@Model.ClientId">Back to Client Details</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

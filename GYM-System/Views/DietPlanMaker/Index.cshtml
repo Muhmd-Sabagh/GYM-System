@@ -1,0 +1,529 @@
+﻿@model GYM_System.ViewModels.DietPlanViewModel
+
+@{
+    ViewData["Title"] = "Diet Plan Maker";
+    var foodItems = ViewBag.FoodItems as List<GYM_System.Models.FoodItem>;
+    var clients = ViewBag.Clients as List<GYM_System.Models.Client>;
+    int versionIndex = 0; // Helper for dynamic naming
+    int mealIndex = 0;    // Helper for dynamic naming
+    int foodItemIndex = 0; // Helper for dynamic naming
+}
+
+<h1>Diet Plan Maker</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info mt-3" role="alert">
+        @TempData["InfoMessage"]
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        Diet Plan Details
+    </div>
+    <div class="card-body">
+        <form asp-action="Save" method="post" id="dietPlanForm">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="PlanName" class="control-label"></label>
+                <input asp-for="PlanName" class="form-control" />
+                <span asp-validation-for="PlanName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ClientId" class="control-label"></label>
+                <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
+                    <option value="">-- Select Client (Optional) --</option>
+                </select>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="GeneralNotes" class="control-label"></label>
+                <textarea asp-for="GeneralNotes" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="GeneralNotes" class="text-danger"></span>
+            </div>
+
+            <hr />
+            <h3>Diet Plan Versions</h3>
+            <div id="versionsContainer">
+                @for (int i = 0; i < Model.Versions.Count; i++)
+                {
+                    <div class="card mb-3 version-card" data-version-index="@i">
+                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Version <span class="version-number">@(i + 1)</span>:
+                                <input type="text" asp-for="Versions[i].VersionName" class="form-control d-inline-block w-auto" placeholder="Version Name" />
+                                <span asp-validation-for="Versions[i].VersionName" class="text-warning"></span>
+                            </h5>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" asp-for="Versions[i].IsActiveForPdf" />
+                                    <label class="form-check-label" asp-for="Versions[i].IsActiveForPdf">Include in PDF</label>
+                                </div>
+                                <button type="button" class="btn btn-danger btn-sm remove-version">Remove Version</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label asp-for="Versions[i].VersionNotes" class="control-label"></label>
+                                <textarea asp-for="Versions[i].VersionNotes" class="form-control" rows="2" placeholder="Notes for this version"></textarea>
+                                <span asp-validation-for="Versions[i].VersionNotes" class="text-danger"></span>
+                            </div>
+
+                            <h5>Meals for this Version</h5>
+                            <div id="mealsContainer_@i">
+                                @for (int j = 0; j < Model.Versions[i].Meals.Count; j++)
+                                {
+                                    <div class="card mb-2 meal-card" data-meal-index="@j">
+                                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                            <h6>
+                                                Meal <span class="meal-number">@(j + 1)</span>:
+                                                <input type="text" asp-for="Versions[i].Meals[j].MealName" class="form-control d-inline-block w-auto" placeholder="Meal Name" />
+                                                <span asp-validation-for="Versions[i].Meals[j].MealName" class="text-warning"></span>
+                                            </h6>
+                                            <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group mb-2">
+                                                <label asp-for="Versions[i].Meals[j].MealNotes" class="control-label"></label>
+                                                <textarea asp-for="Versions[i].Meals[j].MealNotes" class="form-control" rows="1" placeholder="Notes for this meal"></textarea>
+                                                <span asp-validation-for="Versions[i].Meals[j].MealNotes" class="text-danger"></span>
+                                            </div>
+
+                                            <h6>Food Items for this Meal</h6>
+                                            <div id="foodItemsContainer_@($"{i}_{j}")">
+                                                @* Existing food items will be rendered here by JavaScript if loading an existing plan *@
+                                                @for (int k = 0; k < Model.Versions[i].Meals[j].MealFoodItems.Count; k++)
+                                                {
+                                                    var mfi = Model.Versions[i].Meals[j].MealFoodItems[k];
+                                                    <div class="row mb-2 align-items-center meal-food-item-row" data-food-item-index="@k">
+                                                        <input type="hidden" asp-for="Versions[i].Meals[j].MealFoodItems[k].Id" />
+                                                        <input type="hidden" asp-for="Versions[i].Meals[j].MealFoodItems[k].FoodItemId" />
+
+                                                        <div class="col-md-5">
+                                                            <span class="fw-bold">@mfi.FoodItem?.Name</span> (@mfi.FoodItem?.Unit)
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <input type="number" asp-for="Versions[i].Meals[j].MealFoodItems[k].Quantity" class="form-control quantity-input" step="0.01" min="0.01" />
+                                                            <span asp-validation-for="Versions[i].Meals[j].MealFoodItems[k].Quantity" class="text-danger"></span>
+                                                        </div>
+                                                        <div class="col-md-3 text-end">
+                                                            Calories: <span class="item-calories">@mfi.Calories.ToString("F1")</span> | Protein: <span class="item-protein">@mfi.Protein.ToString("F1")</span> | Carbs: <span class="item-carbs">@mfi.Carbs.ToString("F1")</span> | Fat: <span class="item-fat">@mfi.Fat.ToString("F1")</span>
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <button type="button" class="btn btn-danger btn-sm remove-food-item">X</button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="input-group mt-3">
+                                                <select class="form-select food-item-selector" data-version-index="@i" data-meal-index="@j">
+                                                    <option value="">Select Food Item...</option>
+                                                    @foreach (var item in foodItems)
+                                                    {
+                                                        <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
+                                                            @item.Name (@item.Unit) - @item.CaloriesPer100Units Cal
+                                                        </option>
+                                                    }
+                                                </select>
+                                                <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
+                                            </div>
+                                            <div class="text-end mt-2 fw-bold">
+                                                Meal Totals:
+                                                Calories: <span class="meal-total-calories">@Model.Versions[i].Meals[j].TotalCalories.ToString("F1")</span> |
+                                                Protein: <span class="meal-total-protein">@Model.Versions[i].Meals[j].TotalProtein.ToString("F1")</span> |
+                                                Carbs: <span class="meal-total-carbs">@Model.Versions[i].Meals[j].TotalCarbs.ToString("F1")</span> |
+                                                Fat: <span class="meal-total-fat">@Model.Versions[i].Meals[j].TotalFat.ToString("F1")</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-end">
+                                            <button type="button" class="btn btn-sm btn-outline-primary add-meal">Add Another Meal</button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-outline-info add-version">Add Another Version</button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-success">Save Diet Plan</button>
+                <a asp-action="Index" class="btn btn-secondary">New Empty Plan</a>
+                <button type="submit" asp-action="GeneratePdf" asp-route-id="@Model.Id" class="btn btn-info @(Model.Id == 0 ? "disabled" : "")">Generate PDF</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+
+            // Function to update the naming of inputs/selects after adding/removing elements
+            function updateElementNames() {
+                $('#versionsContainer').find('.version-card').each(function (versionIdx) {
+                    $(this).find('.version-number').text(versionIdx + 1);
+                    $(this).find('input, select, textarea').each(function () {
+                        var currentName = $(this).attr('name');
+                        if (currentName) {
+                            var newName = currentName.replace(/Versions\[\d+\]/, 'Versions[' + versionIdx + ']');
+                            $(this).attr('name', newName);
+                            // Also update id for asp-validation-for linkage
+                            var currentId = $(this).attr('id');
+                            if (currentId) {
+                                var newId = currentId.replace(/Versions_\d+__/, 'Versions_' + versionIdx + '__');
+                                $(this).attr('id', newId);
+                            }
+                        }
+                    });
+
+                    $(this).find('.meal-card').each(function (mealIdx) {
+                        $(this).find('.meal-number').text(mealIdx + 1);
+                        $(this).find('input, select, textarea').each(function () {
+                            var currentName = $(this).attr('name');
+                            if (currentName) {
+                                var newName = currentName.replace(/Meals\[\d+\]/, 'Meals[' + mealIdx + ']');
+                                newName = newName.replace(/Versions\[\d+\]/, 'Versions[' + versionIdx + ']'); // Ensure version index is also updated
+                                $(this).attr('name', newName);
+                                var currentId = $(this).attr('id');
+                                if (currentId) {
+                                    var newId = currentId.replace(/Meals_\d+__/, 'Meals_' + mealIdx + '__');
+                                    newId = newId.replace(/Versions_\d+__/, 'Versions_' + versionIdx + '__');
+                                    $(this).attr('id', newId);
+                                }
+                            }
+                        });
+
+                        $(this).find('.meal-food-item-row').each(function (foodItemIdx) {
+                            $(this).find('input, select').each(function () {
+                                var currentName = $(this).attr('name');
+                                if (currentName) {
+                                    var newName = currentName.replace(/MealFoodItems\[\d+\]/, 'MealFoodItems[' + foodItemIdx + ']');
+                                    newName = newName.replace(/Meals\[\d+\]/, 'Meals[' + mealIdx + ']');
+                                    newName = newName.replace(/Versions\[\d+\]/, 'Versions[' + versionIdx + ']');
+                                    $(this).attr('name', newName);
+
+                                    var currentId = $(this).attr('id');
+                                    if (currentId) {
+                                        var newId = currentId.replace(/MealFoodItems_\d+__/, 'MealFoodItems_' + foodItemIdx + '__');
+                                        newId = newId.replace(/Meals_\d+__/, 'Meals_' + mealIdx + '__');
+                                        newId = newId.replace(/Versions_\d+__/, 'Versions_' + versionIdx + '__');
+                                        $(this).attr('id', newId);
+                                    }
+                                }
+                            });
+                        });
+                    });
+                });
+            }
+
+            // Function to calculate macros for a single meal food item row
+            function calculateItemMacros(row) {
+                var quantity = parseFloat(row.find('.quantity-input').val());
+                var foodItemId = row.find('input[name$=".FoodItemId"]').val();
+
+                var foodItemData = foodItems.find(item => item.id == foodItemId); // Using the foodItems array from ViewBag
+
+                if (foodItemData && quantity > 0) {
+                    var factor = quantity / 100;
+                    row.find('.item-calories').text((foodItemData.caloriesPer100Units * factor).toFixed(1));
+                    row.find('.item-protein').text((foodItemData.proteinPer100Units * factor).toFixed(1));
+                    row.find('.item-carbs').text((foodItemData.carbsPer100Units * factor).toFixed(1));
+                    row.find('.item-fat').text((foodItemData.fatPer100Units * factor).toFixed(1));
+                } else {
+                    row.find('.item-calories, .item-protein, .item-carbs, .item-fat').text('0.0');
+                }
+            }
+
+            // Function to calculate and update meal totals
+            function updateMealTotals(mealCard) {
+                var totalCalories = 0;
+                var totalProtein = 0;
+                var totalCarbs = 0;
+                var totalFat = 0;
+
+                mealCard.find('.meal-food-item-row').each(function () {
+                    totalCalories += parseFloat($(this).find('.item-calories').text());
+                    totalProtein += parseFloat($(this).find('.item-protein').text());
+                    totalCarbs += parseFloat($(this).find('.item-carbs').text());
+                    totalFat += parseFloat($(this).find('.item-fat').text());
+                });
+
+                mealCard.find('.meal-total-calories').text(totalCalories.toFixed(1));
+                mealCard.find('.meal-total-protein').text(totalProtein.toFixed(1));
+                mealCard.find('.meal-total-carbs').text(totalCarbs.toFixed(1));
+                mealCard.find('.meal-total-fat').text(totalFat.toFixed(1));
+            }
+
+
+            // Add new Version
+            $('#versionsContainer').on('click', '.add-version', function () {
+                var currentVersionCount = $('#versionsContainer .version-card').length;
+                var newVersionIndex = currentVersionCount;
+
+                var newVersionHtml = `
+                    <div class="card mb-3 version-card" data-version-index="${newVersionIndex}">
+                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Version <span class="version-number">${newVersionIndex + 1}</span>:
+                                <input type="text" name="Versions[${newVersionIndex}].VersionName" class="form-control d-inline-block w-auto" placeholder="Version Name" value="Version ${newVersionIndex + 1}" />
+                                <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].VersionName"></span>
+                            </h5>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="Versions[${newVersionIndex}].IsActiveForPdf" value="true" checked />
+                                    <label class="form-check-label">Include in PDF</label>
+                                </div>
+                                <button type="button" class="btn btn-danger btn-sm remove-version">Remove Version</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label class="control-label">Version Notes</label>
+                                <textarea name="Versions[${newVersionIndex}].VersionNotes" class="form-control" rows="2" placeholder="Notes for this version"></textarea>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].VersionNotes"></span>
+                            </div>
+
+                            <h5>Meals for this Version</h5>
+                            <div id="mealsContainer_${newVersionIndex}">
+                                <!-- Initial meal for new version -->
+                                <div class="card mb-2 meal-card" data-meal-index="0">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <h6>
+                                            Meal <span class="meal-number">1</span>:
+                                            <input type="text" name="Versions[${newVersionIndex}].Meals[0].MealName" class="form-control d-inline-block w-auto" placeholder="Meal Name" value="Breakfast" />
+                                            <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].Meals[0].MealName"></span>
+                                        </h6>
+                                        <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group mb-2">
+                                            <label class="control-label">Meal Notes</label>
+                                            <textarea name="Versions[${newVersionIndex}].Meals[0].MealNotes" class="form-control" rows="1" placeholder="Notes for this meal"></textarea>
+                                            <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].Meals[0].MealNotes"></span>
+                                        </div>
+                                        <h6>Food Items for this Meal</h6>
+                                        <div id="foodItemsContainer_${newVersionIndex}_0">
+                                        </div>
+                                        <div class="input-group mt-3">
+                                            <select class="form-select food-item-selector" data-version-index="${newVersionIndex}" data-meal-index="0">
+                                                <option value="">Select Food Item...</option>
+                                                @foreach (var item in foodItems)
+                                                {
+                                                        <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
+                                                            @item.Name (@item.Unit) - @item.CaloriesPer100Units Cal
+                                                        </option>
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
+                                        </div>
+                                        <div class="text-end mt-2 fw-bold">
+                                            Meal Totals:
+                                            Calories: <span class="meal-total-calories">0.0</span> |
+                                            Protein: <span class="meal-total-protein">0.0</span> |
+                                            Carbs: <span class="meal-total-carbs">0.0</span> |
+                                            Fat: <span class="meal-total-fat">0.0</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-primary add-meal">Add Another Meal</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-outline-info add-version">Add Another Version</button>
+                        </div>
+                    </div>
+                `;
+                $('#versionsContainer').append(newVersionHtml);
+                updateElementNames(); // Update all names after adding
+            });
+
+            // Remove Version
+            $('#versionsContainer').on('click', '.remove-version', function () {
+                if ($('#versionsContainer .version-card').length > 1) {
+                    $(this).closest('.version-card').remove();
+                    updateElementNames(); // Update all names after removal
+                } else {
+                    alert("You must have at least one version.");
+                }
+            });
+
+            // Add new Meal
+            $('#versionsContainer').on('click', '.add-meal', function () {
+                var currentVersionCard = $(this).closest('.version-card');
+                var versionIndex = currentVersionCard.data('version-index');
+                var mealsContainer = currentVersionCard.find(`#mealsContainer_${versionIndex}`);
+                var currentMealCount = mealsContainer.find('.meal-card').length;
+                var newMealIndex = currentMealCount;
+
+                var mealNames = ["Breakfast", "Lunch", "Dinner", "Snack", "Post Workout"];
+                var defaultMealName = mealNames[newMealIndex % mealNames.length] || `Meal ${newMealIndex + 1}`;
+
+
+                var newMealHtml = `
+                    <div class="card mb-2 meal-card" data-meal-index="${newMealIndex}">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6>
+                                Meal <span class="meal-number">${newMealIndex + 1}</span>:
+                                <input type="text" name="Versions[${versionIndex}].Meals[${newMealIndex}].MealName" class="form-control d-inline-block w-auto" placeholder="Meal Name" value="${defaultMealName}" />
+                                <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${versionIndex}].Meals[${newMealIndex}].MealName"></span>
+                            </h6>
+                            <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-2">
+                                <label class="control-label">Meal Notes</label>
+                                <textarea name="Versions[${versionIndex}].Meals[${newMealIndex}].MealNotes" class="form-control" rows="1" placeholder="Notes for this meal"></textarea>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${versionIndex}].Meals[${newMealIndex}].MealNotes"></span>
+                            </div>
+                            <h6>Food Items for this Meal</h6>
+                            <div id="foodItemsContainer_${versionIndex}_${newMealIndex}">
+                            </div>
+                            <div class="input-group mt-3">
+                                <select class="form-select food-item-selector" data-version-index="${versionIndex}" data-meal-index="${newMealIndex}">
+                                    <option value="">Select Food Item...</option>
+                                    @foreach (var item in foodItems)
+                                    {
+                                            <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
+                                                @item.Name (@item.Unit) - @item.CaloriesPer100Units Cal
+                                            </option>
+                                    }
+                                </select>
+                                <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
+                            </div>
+                            <div class="text-end mt-2 fw-bold">
+                                Meal Totals:
+                                Calories: <span class="meal-total-calories">0.0</span> |
+                                Protein: <span class="meal-total-protein">0.0</span> |
+                                Carbs: <span class="meal-total-carbs">0.0</span> |
+                                Fat: <span class="meal-total-fat">0.0</span>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary add-meal">Add Another Meal</button>
+                        </div>
+                    </div>
+                `;
+                mealsContainer.append(newMealHtml);
+                updateElementNames(); // Update all names after adding
+            });
+
+            // Remove Meal
+            $('#versionsContainer').on('click', '.remove-meal', function () {
+                var mealCard = $(this).closest('.meal-card');
+                var mealsContainer = mealCard.parent();
+                if (mealsContainer.find('.meal-card').length > 1) {
+                    mealCard.remove();
+                    updateElementNames(); // Update all names after removal
+                } else {
+                    alert("You must have at least one meal per version.");
+                }
+            });
+
+
+            // Add Food Item to Meal
+            $('#versionsContainer').on('click', '.add-food-item', function () {
+                var versionIndex = $(this).siblings('.food-item-selector').data('version-index');
+                var mealIndex = $(this).siblings('.food-item-selector').data('meal-index');
+                var foodItemSelector = $(this).siblings('.food-item-selector');
+                var selectedFoodItemId = foodItemSelector.val();
+
+                if (selectedFoodItemId) {
+                    var selectedOption = foodItemSelector.find('option:selected');
+                    var foodItemName = selectedOption.data('name');
+                    var foodItemUnit = selectedOption.data('unit');
+                    var foodItemCalories = selectedOption.data('calories');
+                    var foodItemProtein = selectedOption.data('protein');
+                    var foodItemCarbs = selectedOption.data('carbs');
+                    var foodItemFat = selectedOption.data('fat');
+
+                    var foodItemsContainer = $(`#foodItemsContainer_${versionIndex}_${mealIndex}`);
+                    var currentFoodItemCount = foodItemsContainer.find('.meal-food-item-row').length;
+                    var newFoodItemIndex = currentFoodItemCount;
+
+                    var newFoodItemHtml = `
+                        <div class="row mb-2 align-items-center meal-food-item-row" data-food-item-index="${newFoodItemIndex}">
+                            <input type="hidden" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].FoodItemId" value="${selectedFoodItemId}" />
+                            <input type="hidden" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Id" value="0" /> @* For new items, Id is 0 *@
+
+                            <div class="col-md-5">
+                                <span class="fw-bold">${foodItemName}</span> (${foodItemUnit})
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Quantity" class="form-control quantity-input" step="0.01" min="0.01" value="100" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Quantity"></span>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                Calories: <span class="item-calories">0.0</span> | Protein: <span class="item-protein">0.0</span> | Carbs: <span class="item-carbs">0.0</span> | Fat: <span class="item-fat">0.0</span>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm remove-food-item">X</button>
+                            </div>
+                        </div>
+                    `;
+                    foodItemsContainer.append(newFoodItemHtml);
+                    updateElementNames(); // Update names after adding
+
+                    var newRow = foodItemsContainer.find(`.meal-food-item-row[data-food-item-index="${newFoodItemIndex}"]`);
+                    calculateItemMacros(newRow); // Calculate initial macros for new item
+                    updateMealTotals($(this).closest('.meal-card')); // Update meal totals
+
+                    foodItemSelector.val(''); // Reset select dropdown
+                } else {
+                    alert("Please select a food item to add.");
+                }
+            });
+
+            // Remove Food Item from Meal
+            $('#versionsContainer').on('click', '.remove-food-item', function () {
+                var mealCard = $(this).closest('.meal-card');
+                $(this).closest('.meal-food-item-row').remove();
+                updateElementNames(); // Update names after removal
+                updateMealTotals(mealCard); // Recalculate meal totals
+            });
+
+            // Recalculate macros when quantity changes
+            $('#versionsContainer').on('input', '.quantity-input', function () {
+                var row = $(this).closest('.meal-food-item-row');
+                var mealCard = $(this).closest('.meal-card');
+                calculateItemMacros(row);
+                updateMealTotals(mealCard);
+            });
+
+            // Initial calculation on page load for existing items
+            $('.meal-food-item-row').each(function() {
+                calculateItemMacros($(this));
+            });
+            $('.meal-card').each(function() {
+                updateMealTotals($(this));
+            });
+
+            // Initialize select2 if you have it (optional, but good for long lists)
+            // $('.food-item-selector').select2();
+
+        });
+    </script>
+}
