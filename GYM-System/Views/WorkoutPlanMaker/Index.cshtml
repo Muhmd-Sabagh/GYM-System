@@ -1,0 +1,331 @@
+﻿@model GYM_System.ViewModels.WorkoutPlanViewModel
+
+@{
+    ViewData["Title"] = "Workout Plan Maker";
+    var exercises = ViewBag.Exercises as List<GYM_System.Models.Exercise>;
+    var clients = ViewBag.Clients as List<GYM_System.Models.Client>;
+    int dayIndex = 0; // Helper for dynamic naming
+    int exerciseIndex = 0; // Helper for dynamic naming
+}
+
+<h1>Workout Plan Maker</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info mt-3" role="alert">
+        @TempData["InfoMessage"]
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        Workout Plan Details
+    </div>
+    <div class="card-body">
+        <form asp-action="Save" method="post" id="workoutPlanForm">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="PlanName" class="control-label"></label>
+                <input asp-for="PlanName" class="form-control" />
+                <span asp-validation-for="PlanName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ClientId" class="control-label"></label>
+                <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
+                    <option value="">-- Select Client (Optional) --</option>
+                </select>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="GeneralNotes" class="control-label"></label>
+                <textarea asp-for="GeneralNotes" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="GeneralNotes" class="text-danger"></span>
+            </div>
+
+            <hr />
+            <h3>Workout Days</h3>
+            <div id="workoutDaysContainer">
+                @for (int i = 0; i < Model.WorkoutDays.Count; i++)
+                {
+                    <div class="card mb-3 workout-day-card" data-day-index="@i">
+                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Day <span class="day-number">@(i + 1)</span>:
+                                <input type="text" asp-for="WorkoutDays[i].DayName" class="form-control d-inline-block w-auto" placeholder="Day Name" />
+                                <span asp-validation-for="WorkoutDays[i].DayName" class="text-warning"></span>
+                            </h5>
+                            <div>
+                                <button type="button" class="btn btn-danger btn-sm remove-day">Remove Day</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label asp-for="WorkoutDays[i].Subtitle" class="control-label"></label>
+                                <input type="text" asp-for="WorkoutDays[i].Subtitle" class="form-control" placeholder="e.g., Push, Pull, Legs" />
+                                <span asp-validation-for="WorkoutDays[i].Subtitle" class="text-danger"></span>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label asp-for="WorkoutDays[i].DayNotes" class="control-label"></label>
+                                <textarea asp-for="WorkoutDays[i].DayNotes" class="form-control" rows="2" placeholder="Notes for this day"></textarea>
+                                <span asp-validation-for="WorkoutDays[i].DayNotes" class="text-danger"></span>
+                            </div>
+
+                            <h5>Exercises for this Day</h5>
+                            <div id="exercisesContainer_@i">
+                                @* Existing exercises will be rendered here by JavaScript if loading an existing plan *@
+                                @for (int j = 0; j < Model.WorkoutDays[i].WorkoutExercises.Count; j++)
+                                {
+                                    var we = Model.WorkoutDays[i].WorkoutExercises[j];
+                                    <div class="row mb-2 align-items-center workout-exercise-row" data-exercise-item-index="@j">
+                                        <input type="hidden" asp-for="WorkoutDays[i].WorkoutExercises[j].Id" />
+                                        <input type="hidden" asp-for="WorkoutDays[i].WorkoutExercises[j].ExerciseId" />
+
+                                        <div class="col-md-3">
+                                            <span class="fw-bold">@we.Exercise?.Name</span>
+                                            @if (!string.IsNullOrEmpty(we.Exercise?.YouTubeLink))
+                                            {
+                                                <a href="@we.Exercise.YouTubeLink" target="_blank" class="ms-2"><i class="bi bi-play-circle-fill"></i> Watch</a>
+                                            }
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" asp-for="WorkoutDays[i].WorkoutExercises[j].Sets" class="form-control form-control-sm" placeholder="Sets" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" asp-for="WorkoutDays[i].WorkoutExercises[j].Reps" class="form-control form-control-sm" placeholder="Reps" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" asp-for="WorkoutDays[i].WorkoutExercises[j].Rest" class="form-control form-control-sm" placeholder="Rest" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" asp-for="WorkoutDays[i].WorkoutExercises[j].Tempo" class="form-control form-control-sm" placeholder="Tempo" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" asp-for="WorkoutDays[i].WorkoutExercises[j].RpeRir" class="form-control form-control-sm" placeholder="RPE/RIR" />
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-danger btn-sm remove-exercise">X</button>
+                                        </div>
+                                        <div class="col-md-12 mt-1">
+                                            <textarea asp-for="WorkoutDays[i].WorkoutExercises[j].ExerciseNotes" class="form-control form-control-sm" rows="1" placeholder="Notes for this exercise"></textarea>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="input-group mt-3">
+                                <select class="form-select exercise-selector" data-day-index="@i">
+                                    <option value="">Select Exercise...</option>
+                                    @foreach (var item in exercises)
+                                    {
+                                        <option value="@item.Id" data-name="@item.Name" data-youtube="@item.YouTubeLink">
+                                            @item.Name
+                                        </option>
+                                    }
+                                </select>
+                                <button type="button" class="btn btn-success add-exercise">Add Exercise</button>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary add-day">Add Another Day</button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-success">Save Workout Plan</button>
+                <a asp-action="Index" class="btn btn-secondary">New Empty Plan</a>
+                <button type="submit" asp-action="GeneratePdf" asp-route-id="@Model.Id" class="btn btn-info @(Model.Id == 0 ? "disabled" : "")">Generate PDF</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+
+            // Function to update the naming of inputs/selects after adding/removing elements
+            function updateElementNames() {
+                $('#workoutDaysContainer').find('.workout-day-card').each(function (dayIdx) {
+                    $(this).find('.day-number').text(dayIdx + 1);
+                    $(this).find('input, select, textarea').each(function () {
+                        var currentName = $(this).attr('name');
+                        if (currentName) {
+                            var newName = currentName.replace(/WorkoutDays\[\d+\]/, 'WorkoutDays[' + dayIdx + ']');
+                            $(this).attr('name', newName);
+                            // Also update id for asp-validation-for linkage
+                            var currentId = $(this).attr('id');
+                            if (currentId) {
+                                var newId = currentId.replace(/WorkoutDays_\d+__/, 'WorkoutDays_' + dayIdx + '__');
+                                $(this).attr('id', newId);
+                            }
+                        }
+                    });
+
+                    $(this).find('.workout-exercise-row').each(function (exerciseIdx) {
+                        $(this).find('input, select, textarea').each(function () {
+                            var currentName = $(this).attr('name');
+                            if (currentName) {
+                                var newName = currentName.replace(/WorkoutExercises\[\d+\]/, 'WorkoutExercises[' + exerciseIdx + ']');
+                                newName = newName.replace(/WorkoutDays\[\d+\]/, 'WorkoutDays[' + dayIdx + ']'); // Ensure day index is also updated
+                                $(this).attr('name', newName);
+
+                                var currentId = $(this).attr('id');
+                                if (currentId) {
+                                    var newId = currentId.replace(/WorkoutExercises_\d+__/, 'WorkoutExercises_' + exerciseIdx + '__');
+                                    newId = newId.replace(/WorkoutDays_\d+__/, 'WorkoutDays_' + dayIdx + '__');
+                                    $(this).attr('id', newId);
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+
+            // Add new Day
+            $('#workoutDaysContainer').on('click', '.add-day', function () {
+                var currentDayCount = $('#workoutDaysContainer .workout-day-card').length;
+                var newDayIndex = currentDayCount;
+
+                var newDayHtml = `
+                    <div class="card mb-3 workout-day-card" data-day-index="${newDayIndex}">
+                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Day <span class="day-number">${newDayIndex + 1}</span>:
+                                <input type="text" name="WorkoutDays[${newDayIndex}].DayName" class="form-control d-inline-block w-auto" placeholder="Day Name" value="Day ${newDayIndex + 1}" />
+                                <span class="text-warning field-validation-valid" data-valmsg-for="WorkoutDays[${newDayIndex}].DayName"></span>
+                            </h5>
+                            <div>
+                                <button type="button" class="btn btn-danger btn-sm remove-day">Remove Day</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label class="control-label">Subtitle (e.g., Push, Pull, Legs)</label>
+                                <input type="text" name="WorkoutDays[${newDayIndex}].Subtitle" class="form-control" placeholder="e.g., Push, Pull, Legs" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="WorkoutDays[${newDayIndex}].Subtitle"></span>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="control-label">Day Notes</label>
+                                <textarea name="WorkoutDays[${newDayIndex}].DayNotes" class="form-control" rows="2" placeholder="Notes for this day"></textarea>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="WorkoutDays[${newDayIndex}].DayNotes"></span>
+                            </div>
+
+                            <h5>Exercises for this Day</h5>
+                            <div id="exercisesContainer_${newDayIndex}">
+                            </div>
+                            <div class="input-group mt-3">
+                                <select class="form-select exercise-selector" data-day-index="${newDayIndex}">
+                                    <option value="">Select Exercise...</option>
+                                    @foreach (var item in exercises)
+                                    {
+                                            <option value="@item.Id" data-name="@item.Name" data-youtube="@item.YouTubeLink">
+                                                @item.Name
+                                            </option>
+                                    }
+                                </select>
+                                <button type="button" class="btn btn-success add-exercise">Add Exercise</button>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary add-day">Add Another Day</button>
+                        </div>
+                    </div>
+                `;
+                $('#workoutDaysContainer').append(newDayHtml);
+                updateElementNames(); // Update all names after adding
+            });
+
+            // Remove Day
+            $('#workoutDaysContainer').on('click', '.remove-day', function () {
+                if ($('#workoutDaysContainer .workout-day-card').length > 1) {
+                    $(this).closest('.workout-day-card').remove();
+                    updateElementNames(); // Update all names after removal
+                } else {
+                    alert("You must have at least one workout day.");
+                }
+            });
+
+            // Add Exercise to Day
+            $('#workoutDaysContainer').on('click', '.add-exercise', function () {
+                var dayIndex = $(this).siblings('.exercise-selector').data('day-index');
+                var exerciseSelector = $(this).siblings('.exercise-selector');
+                var selectedExerciseId = exerciseSelector.val();
+
+                if (selectedExerciseId) {
+                    var selectedOption = exerciseSelector.find('option:selected');
+                    var exerciseName = selectedOption.data('name');
+                    var youtubeLink = selectedOption.data('youtube');
+
+                    var exercisesContainer = $(`#exercisesContainer_${dayIndex}`);
+                    var currentExerciseCount = exercisesContainer.find('.workout-exercise-row').length;
+                    var newExerciseIndex = currentExerciseCount;
+
+                    var youtubeLinkHtml = youtubeLink ? `<a href="${youtubeLink}" target="_blank" class="ms-2"><i class="bi bi-play-circle-fill"></i> Watch</a>` : '';
+
+                    var newExerciseHtml = `
+                        <div class="row mb-2 align-items-center workout-exercise-row" data-exercise-item-index="${newExerciseIndex}">
+                            <input type="hidden" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].ExerciseId" value="${selectedExerciseId}" />
+                            <input type="hidden" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].Id" value="0" /> @* For new items, Id is 0 *@
+
+                            <div class="col-md-3">
+                                <span class="fw-bold">${exerciseName}</span>
+                                ${youtubeLinkHtml}
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].Sets" class="form-control form-control-sm" placeholder="Sets" />
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].Reps" class="form-control form-control-sm" placeholder="Reps" />
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].Rest" class="form-control form-control-sm" placeholder="Rest" />
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].Tempo" class="form-control form-control-sm" placeholder="Tempo" />
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].RpeRir" class="form-control form-control-sm" placeholder="RPE/RIR" />
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm remove-exercise">X</button>
+                            </div>
+                            <div class="col-md-12 mt-1">
+                                <textarea name="WorkoutDays[${dayIndex}].WorkoutExercises[${newExerciseIndex}].ExerciseNotes" class="form-control form-control-sm" rows="1" placeholder="Notes for this exercise"></textarea>
+                            </div>
+                        </div>
+                    `;
+                    exercisesContainer.append(newExerciseHtml);
+                    updateElementNames(); // Update names after adding
+
+                    exerciseSelector.val(''); // Reset select dropdown
+                } else {
+                    alert("Please select an exercise to add.");
+                }
+            });
+
+            // Remove Exercise from Day
+            $('#workoutDaysContainer').on('click', '.remove-exercise', function () {
+                $(this).closest('.workout-exercise-row').remove();
+                updateElementNames(); // Update names after removal
+            });
+        });
+    </script>
+}

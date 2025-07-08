@@ -20,6 +20,9 @@ namespace GYM_System.Data
         public DbSet<DietPlanVersion> DietPlanVersions { get; set; } = default!;
         public DbSet<Meal> Meals { get; set; } = default!;
         public DbSet<MealFoodItem> MealFoodItems { get; set; } = default!;
+        public DbSet<WorkoutPlan> WorkoutPlans { get; set; } = default!;
+        public DbSet<WorkoutDay> WorkoutDays { get; set; } = default!;
+        public DbSet<WorkoutExercise> WorkoutExercises { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -73,9 +76,28 @@ namespace GYM_System.Data
 
             modelBuilder.Entity<MealFoodItem>()
                 .HasOne(mfi => mfi.FoodItem)
-                .WithMany() // No navigation property on FoodItem back to MealFoodItems directly needed for this one-to-many
+                .WithMany()
                 .HasForeignKey(mfi => mfi.FoodItemId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent deleting food item if it's used in a plan
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Workout Plan relationships (New)
+            modelBuilder.Entity<WorkoutPlan>()
+                .HasMany(wp => wp.WorkoutDays)
+                .WithOne(wd => wd.WorkoutPlan)
+                .HasForeignKey(wd => wd.WorkoutPlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WorkoutDay>()
+                .HasMany(wd => wd.WorkoutExercises)
+                .WithOne(we => we.WorkoutDay)
+                .HasForeignKey(we => we.WorkoutDayId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WorkoutExercise>()
+                .HasOne(we => we.Exercise)
+                .WithMany()
+                .HasForeignKey(we => we.ExerciseId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

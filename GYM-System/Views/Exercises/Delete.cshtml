@@ -1,0 +1,47 @@
+﻿@model GYM_System.Models.Exercise
+
+@{
+    ViewData["Title"] = "Delete Exercise";
+}
+
+<h1>Delete Exercise</h1>
+
+<h3>Are you sure you want to delete this exercise?</h3>
+<div>
+    <h4>Exercise Details</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Name:</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+        <dt class="col-sm-3">Image:</dt>
+        <dd class="col-sm-9">
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="@Model.ImagePath" alt="@Model.Name" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;" />
+            }
+            else
+            {
+                <span>No Image</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">YouTube Link:</dt>
+        <dd class="col-sm-9">
+            @if (!string.IsNullOrEmpty(Model.YouTubeLink))
+            {
+                <a href="@Model.YouTubeLink" target="_blank">@Html.DisplayFor(model => model.YouTubeLink)</a>
+            }
+            else
+            {
+                <span>No Video</span>
+            }
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
