@@ -16,6 +16,9 @@ builder.Services.AddDbContext<GymDbContext>(options =>
 // This means one instance will be created and reused across the application
 builder.Services.AddSingleton<GoogleSheetsService>();
 
+// Add PdfService to the DI container as a Scoped service
+builder.Services.AddScoped<PdfService>(); // Changed from Singleton to Scoped for better practice, though Singleton would also work here.
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
