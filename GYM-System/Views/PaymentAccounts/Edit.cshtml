@@ -4,37 +4,48 @@
     ViewData["Title"] = "Edit Payment Account";
 }
 
-<h1>Edit Payment Account</h1>
+<h1 class="mb-4">Edit Payment Account</h1>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Payment Account Details</h5>
+    </div>
+    <div class="card-body">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group mb-3">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="Details" class="control-label"></label>
-                <textarea asp-for="Details" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Details" class="text-danger"></span>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group mb-3">
+                        <label asp-for="Details" class="form-label"></label>
+                        <textarea asp-for="Details" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Details" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group form-check mb-3">
-                <input class="form-check-input" asp-for="IsActive" />
-                <label class="form-check-label" asp-for="IsActive"></label>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-check mb-3">
+                        <input class="form-check-input" asp-for="IsActive" />
+                        <label class="form-check-label" asp-for="IsActive"></label>
+                    </div>
+                </div>
             </div>
-            <div class="form-group mb-3">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <div class="form-group mt-3">
+                <input type="submit" value="Save" class="btn btn-primary me-2" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

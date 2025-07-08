@@ -7,19 +7,6 @@
 
 <h1>Saved Plans</h1>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success mt-3" role="alert">
-        @TempData["SuccessMessage"]
-    </div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger mt-3" role="alert">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
 <div class="card mb-4">
     <div class="card-header bg-info text-white">
         Search & Filter Plans
@@ -32,7 +19,7 @@
                     <input type="text" name="searchString" id="searchString" class="form-control" value="@ViewData["CurrentSearchString"]" />
                 </div>
                 <div class="col-md-6">
-                    <label for="clientCode" class="form-label">Filter by Client Code:</label>
+                    <label for="clientCode" class="form-label">Filter by Client Name:</label>
                     @* <input type="text" name="clientCode" id="clientCode" class="form-control" value="@ViewData["CurrentClientCode"]" /> *@
                     @* Alternatively, use a dropdown for client names: *@
                     <select name="clientId" id="clientId" class="form-select" asp-items="@(new SelectList(clients, "Id", "Name"))">

@@ -4,61 +4,45 @@
     ViewData["Title"] = "Diet Plan Maker";
     var foodItems = ViewBag.FoodItems as List<GYM_System.Models.FoodItem>;
     var clients = ViewBag.Clients as List<GYM_System.Models.Client>;
-    int versionIndex = 0; // Helper for dynamic naming
-    int mealIndex = 0;    // Helper for dynamic naming
-    int foodItemIndex = 0; // Helper for dynamic naming
 }
 
-<h1>Diet Plan Maker</h1>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success mt-3" role="alert">
-        @TempData["SuccessMessage"]
-    </div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger mt-3" role="alert">
-        @TempData["ErrorMessage"]
-    </div>
-}
-@if (TempData["InfoMessage"] != null)
-{
-    <div class="alert alert-info mt-3" role="alert">
-        @TempData["InfoMessage"]
-    </div>
-}
+<h1 class="mb-4">Diet Plan Maker</h1>
 
 <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-        Diet Plan Details
+        <h5 class="mb-0">Diet Plan Details</h5>
     </div>
     <div class="card-body">
         <form asp-action="Save" method="post" id="dietPlanForm">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="Id" />
 
-            <div class="form-group mb-3">
-                <label asp-for="PlanName" class="control-label"></label>
-                <input asp-for="PlanName" class="form-control" />
-                <span asp-validation-for="PlanName" class="text-danger"></span>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="PlanName" class="form-label"></label>
+                        <input asp-for="PlanName" class="form-control" />
+                        <span asp-validation-for="PlanName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ClientId" class="form-label"></label>
+                        <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
+                            <option value="">-- Select Client (Optional) --</option>
+                        </select>
+                        <span asp-validation-for="ClientId" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="form-group mb-3">
-                <label asp-for="ClientId" class="control-label"></label>
-                <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
-                    <option value="">-- Select Client (Optional) --</option>
-                </select>
-                <span asp-validation-for="ClientId" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="GeneralNotes" class="control-label"></label>
+                <label asp-for="GeneralNotes" class="form-label"></label>
                 <textarea asp-for="GeneralNotes" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="GeneralNotes" class="text-danger"></span>
             </div>
 
-            <hr />
-            <h3>Diet Plan Versions</h3>
+            <hr class="my-4" />
+            <h3 class="mb-3">Diet Plan Versions</h3>
             <div id="versionsContainer">
                 @for (int i = 0; i < Model.Versions.Count; i++)
                 {
@@ -66,11 +50,11 @@
                         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 Version <span class="version-number">@(i + 1)</span>:
-                                <input type="text" asp-for="Versions[i].VersionName" class="form-control d-inline-block w-auto" placeholder="Version Name" />
+                                <input type="text" asp-for="Versions[i].VersionName" class="form-control d-inline-block w-auto me-2" placeholder="Version Name" />
                                 <span asp-validation-for="Versions[i].VersionName" class="text-warning"></span>
                             </h5>
                             <div>
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline me-3">
                                     <input class="form-check-input" type="checkbox" asp-for="Versions[i].IsActiveForPdf" />
                                     <label class="form-check-label" asp-for="Versions[i].IsActiveForPdf">Include in PDF</label>
                                 </div>
@@ -79,32 +63,32 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group mb-3">
-                                <label asp-for="Versions[i].VersionNotes" class="control-label"></label>
+                                <label asp-for="Versions[i].VersionNotes" class="form-label"></label>
                                 <textarea asp-for="Versions[i].VersionNotes" class="form-control" rows="2" placeholder="Notes for this version"></textarea>
                                 <span asp-validation-for="Versions[i].VersionNotes" class="text-danger"></span>
                             </div>
 
-                            <h5>Meals for this Version</h5>
+                            <h5 class="mt-4 mb-3">Meals for this Version</h5>
                             <div id="mealsContainer_@i">
                                 @for (int j = 0; j < Model.Versions[i].Meals.Count; j++)
                                 {
-                                    <div class="card mb-2 meal-card" data-meal-index="@j">
+                                    <div class="card mb-3 meal-card" data-meal-index="@j">
                                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                            <h6>
+                                            <h6 class="mb-0">
                                                 Meal <span class="meal-number">@(j + 1)</span>:
-                                                <input type="text" asp-for="Versions[i].Meals[j].MealName" class="form-control d-inline-block w-auto" placeholder="Meal Name" />
+                                                <input type="text" asp-for="Versions[i].Meals[j].MealName" class="form-control d-inline-block w-auto me-2" placeholder="Meal Name" />
                                                 <span asp-validation-for="Versions[i].Meals[j].MealName" class="text-warning"></span>
                                             </h6>
                                             <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
                                         </div>
                                         <div class="card-body">
-                                            <div class="form-group mb-2">
-                                                <label asp-for="Versions[i].Meals[j].MealNotes" class="control-label"></label>
+                                            <div class="form-group mb-3">
+                                                <label asp-for="Versions[i].Meals[j].MealNotes" class="form-label"></label>
                                                 <textarea asp-for="Versions[i].Meals[j].MealNotes" class="form-control" rows="1" placeholder="Notes for this meal"></textarea>
                                                 <span asp-validation-for="Versions[i].Meals[j].MealNotes" class="text-danger"></span>
                                             </div>
 
-                                            <h6>Food Items for this Meal</h6>
+                                            <h6 class="mt-3 mb-2">Food Items for this Meal</h6>
                                             <div id="foodItemsContainer_@($"{i}_{j}")">
                                                 @* Existing food items will be rendered here by JavaScript if loading an existing plan *@
                                                 @for (int k = 0; k < Model.Versions[i].Meals[j].MealFoodItems.Count; k++)
@@ -114,18 +98,18 @@
                                                         <input type="hidden" asp-for="Versions[i].Meals[j].MealFoodItems[k].Id" />
                                                         <input type="hidden" asp-for="Versions[i].Meals[j].MealFoodItems[k].FoodItemId" />
 
-                                                        <div class="col-md-5">
+                                                        <div class="col-md-4 col-sm-12">
                                                             <span class="fw-bold">@mfi.FoodItem?.Name</span> (@mfi.FoodItem?.Unit)
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <input type="number" asp-for="Versions[i].Meals[j].MealFoodItems[k].Quantity" class="form-control quantity-input" step="0.01" min="0.01" />
+                                                        <div class="col-md-2 col-sm-6">
+                                                            <input type="number" asp-for="Versions[i].Meals[j].MealFoodItems[k].Quantity" class="form-control form-control-sm quantity-input" step="0.01" min="0.01" />
                                                             <span asp-validation-for="Versions[i].Meals[j].MealFoodItems[k].Quantity" class="text-danger"></span>
                                                         </div>
-                                                        <div class="col-md-3 text-end">
-                                                            Calories: <span class="item-calories">@mfi.Calories.ToString("F1")</span> | Protein: <span class="item-protein">@mfi.Protein.ToString("F1")</span> | Carbs: <span class="item-carbs">@mfi.Carbs.ToString("F1")</span> | Fat: <span class="item-fat">@mfi.Fat.ToString("F1")</span>
+                                                        <div class="col-md-5 col-sm-6 text-end text-sm-start mt-2 mt-sm-0">
+                                                            Cal: <span class="item-calories">@mfi.Calories.ToString("F1")</span> | Prot: <span class="item-protein">@mfi.Protein.ToString("F1")</span> | Carb: <span class="item-carbs">@mfi.Carbs.ToString("F1")</span> | Fat: <span class="item-fat">@mfi.Fat.ToString("F1")</span>
                                                         </div>
-                                                        <div class="col-md-1">
-                                                            <button type="button" class="btn btn-danger btn-sm remove-food-item">X</button>
+                                                        <div class="col-md-1 col-sm-12 text-end">
+                                                            <button type="button" class="btn btn-danger btn-sm remove-food-item mt-2 mt-md-0">X</button>
                                                         </div>
                                                     </div>
                                                 }
@@ -142,11 +126,11 @@
                                                 </select>
                                                 <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
                                             </div>
-                                            <div class="text-end mt-2 fw-bold">
+                                            <div class="text-end mt-3 fw-bold">
                                                 Meal Totals:
-                                                Calories: <span class="meal-total-calories">@Model.Versions[i].Meals[j].TotalCalories.ToString("F1")</span> |
-                                                Protein: <span class="meal-total-protein">@Model.Versions[i].Meals[j].TotalProtein.ToString("F1")</span> |
-                                                Carbs: <span class="meal-total-carbs">@Model.Versions[i].Meals[j].TotalCarbs.ToString("F1")</span> |
+                                                Cal: <span class="meal-total-calories">@Model.Versions[i].Meals[j].TotalCalories.ToString("F1")</span> |
+                                                Prot: <span class="meal-total-protein">@Model.Versions[i].Meals[j].TotalProtein.ToString("F1")</span> |
+                                                Carb: <span class="meal-total-carbs">@Model.Versions[i].Meals[j].TotalCarbs.ToString("F1")</span> |
                                                 Fat: <span class="meal-total-fat">@Model.Versions[i].Meals[j].TotalFat.ToString("F1")</span>
                                             </div>
                                         </div>
@@ -164,10 +148,10 @@
                 }
             </div>
 
-            <div class="form-group mt-4">
-                <button type="submit" class="btn btn-success">Save Diet Plan</button>
-                <a asp-action="Index" class="btn btn-secondary">New Empty Plan</a>
-                <button type="submit" asp-action="GeneratePdf" asp-route-id="@Model.Id" class="btn btn-info @(Model.Id == 0 ? "disabled" : "")">Generate PDF</button>
+            <div class="form-group mt-4 text-center">
+                <button type="submit" class="btn btn-success btn-lg me-3">Save Diet Plan</button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg me-3">New Empty Plan</a>
+                <button type="submit" asp-action="GeneratePdf" asp-route-id="@Model.Id" class="btn btn-info btn-lg @(Model.Id == 0 ? "disabled" : "")">Generate PDF</button>
             </div>
         </form>
     </div>
@@ -189,7 +173,6 @@
                         if (currentName) {
                             var newName = currentName.replace(/Versions\[\d+\]/, 'Versions[' + versionIdx + ']');
                             $(this).attr('name', newName);
-                            // Also update id for asp-validation-for linkage
                             var currentId = $(this).attr('id');
                             if (currentId) {
                                 var newId = currentId.replace(/Versions_\d+__/, 'Versions_' + versionIdx + '__');
@@ -204,7 +187,7 @@
                             var currentName = $(this).attr('name');
                             if (currentName) {
                                 var newName = currentName.replace(/Meals\[\d+\]/, 'Meals[' + mealIdx + ']');
-                                newName = newName.replace(/Versions\[\d+\]/, 'Versions[' + versionIdx + ']'); // Ensure version index is also updated
+                                newName = newName.replace(/Versions\[\d+\]/, 'Versions[' + versionIdx + ']');
                                 $(this).attr('name', newName);
                                 var currentId = $(this).attr('id');
                                 if (currentId) {
@@ -243,10 +226,16 @@
                 var quantity = parseFloat(row.find('.quantity-input').val());
                 var foodItemId = row.find('input[name$=".FoodItemId"]').val();
 
-                var foodItemData = foodItems.find(item => item.id == foodItemId); // Using the foodItems array from ViewBag
+                // Ensure foodItems is accessible (it's from ViewBag, so need to pass it from Razor to JS)
+                // In Razor: var foodItemsJs = @Html.Raw(Json.Serialize(foodItems));
+                // In JS: var foodItems = foodItemsJs;
+                // For now, assuming foodItems is globally available or passed correctly.
+                var foodItemsData = @Html.Raw(Json.Serialize(foodItems)); // Pass foodItems from ViewBag to JS
+
+                var foodItemData = foodItemsData.find(item => item.id == foodItemId);
 
                 if (foodItemData && quantity > 0) {
-                    var factor = quantity / 100;
+                    var factor = quantity / 100; // Calories/macros are per 100 units
                     row.find('.item-calories').text((foodItemData.caloriesPer100Units * factor).toFixed(1));
                     row.find('.item-protein').text((foodItemData.proteinPer100Units * factor).toFixed(1));
                     row.find('.item-carbs').text((foodItemData.carbsPer100Units * factor).toFixed(1));
@@ -282,16 +271,22 @@
                 var currentVersionCount = $('#versionsContainer .version-card').length;
                 var newVersionIndex = currentVersionCount;
 
+                var foodItemsHtmlOptions = '';
+                var foodItemsData = @Html.Raw(Json.Serialize(foodItems));
+                foodItemsData.forEach(function(item) {
+                    foodItemsHtmlOptions += `<option value="${item.id}" data-calories="${item.caloriesPer100Units}" data-protein="${item.proteinPer100Units}" data-carbs="${item.carbsPer100Units}" data-fat="${item.fatPer100Units}" data-unit="${item.unit}" data-name="${item.name}">${item.name} (${item.unit}) - ${item.caloriesPer100Units} Cal</option>`;
+                });
+
                 var newVersionHtml = `
                     <div class="card mb-3 version-card" data-version-index="${newVersionIndex}">
                         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 Version <span class="version-number">${newVersionIndex + 1}</span>:
-                                <input type="text" name="Versions[${newVersionIndex}].VersionName" class="form-control d-inline-block w-auto" placeholder="Version Name" value="Version ${newVersionIndex + 1}" />
+                                <input type="text" name="Versions[${newVersionIndex}].VersionName" class="form-control d-inline-block w-auto me-2" placeholder="Version Name" value="Version ${newVersionIndex + 1}" />
                                 <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].VersionName"></span>
                             </h5>
                             <div>
-                                <div class="form-check form-check-inline">
+                                <div class="form-check form-check-inline me-3">
                                     <input class="form-check-input" type="checkbox" name="Versions[${newVersionIndex}].IsActiveForPdf" value="true" checked />
                                     <label class="form-check-label">Include in PDF</label>
                                 </div>
@@ -300,49 +295,44 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group mb-3">
-                                <label class="control-label">Version Notes</label>
+                                <label class="form-label">Version Notes</label>
                                 <textarea name="Versions[${newVersionIndex}].VersionNotes" class="form-control" rows="2" placeholder="Notes for this version"></textarea>
                                 <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].VersionNotes"></span>
                             </div>
 
-                            <h5>Meals for this Version</h5>
+                            <h5 class="mt-4 mb-3">Meals for this Version</h5>
                             <div id="mealsContainer_${newVersionIndex}">
                                 <!-- Initial meal for new version -->
-                                <div class="card mb-2 meal-card" data-meal-index="0">
+                                <div class="card mb-3 meal-card" data-meal-index="0">
                                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h6>
+                                        <h6 class="mb-0">
                                             Meal <span class="meal-number">1</span>:
-                                            <input type="text" name="Versions[${newVersionIndex}].Meals[0].MealName" class="form-control d-inline-block w-auto" placeholder="Meal Name" value="Breakfast" />
+                                            <input type="text" name="Versions[${newVersionIndex}].Meals[0].MealName" class="form-control d-inline-block w-auto me-2" placeholder="Meal Name" value="Breakfast" />
                                             <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].Meals[0].MealName"></span>
                                         </h6>
                                         <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
                                     </div>
                                     <div class="card-body">
-                                        <div class="form-group mb-2">
-                                            <label class="control-label">Meal Notes</label>
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Meal Notes</label>
                                             <textarea name="Versions[${newVersionIndex}].Meals[0].MealNotes" class="form-control" rows="1" placeholder="Notes for this meal"></textarea>
                                             <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].Meals[0].MealNotes"></span>
                                         </div>
-                                        <h6>Food Items for this Meal</h6>
+                                        <h6 class="mt-3 mb-2">Food Items for this Meal</h6>
                                         <div id="foodItemsContainer_${newVersionIndex}_0">
                                         </div>
                                         <div class="input-group mt-3">
                                             <select class="form-select food-item-selector" data-version-index="${newVersionIndex}" data-meal-index="0">
                                                 <option value="">Select Food Item...</option>
-                                                @foreach (var item in foodItems)
-                                                {
-                                                        <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
-                                                            @item.Name (@item.Unit) - @item.CaloriesPer100Units Cal
-                                                        </option>
-                                                }
+                                                ${foodItemsHtmlOptions}
                                             </select>
                                             <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
                                         </div>
-                                        <div class="text-end mt-2 fw-bold">
+                                        <div class="text-end mt-3 fw-bold">
                                             Meal Totals:
-                                            Calories: <span class="meal-total-calories">0.0</span> |
-                                            Protein: <span class="meal-total-protein">0.0</span> |
-                                            Carbs: <span class="meal-total-carbs">0.0</span> |
+                                            Cal: <span class="meal-total-calories">0.0</span> |
+                                            Prot: <span class="meal-total-protein">0.0</span> |
+                                            Carb: <span class="meal-total-carbs">0.0</span> |
                                             Fat: <span class="meal-total-fat">0.0</span>
                                         </div>
                                     </div>
@@ -382,43 +372,43 @@
                 var mealNames = ["Breakfast", "Lunch", "Dinner", "Snack", "Post Workout"];
                 var defaultMealName = mealNames[newMealIndex % mealNames.length] || `Meal ${newMealIndex + 1}`;
 
+                var foodItemsHtmlOptions = '';
+                var foodItemsData = @Html.Raw(Json.Serialize(foodItems));
+                foodItemsData.forEach(function(item) {
+                    foodItemsHtmlOptions += `<option value="${item.id}" data-calories="${item.caloriesPer100Units}" data-protein="${item.proteinPer100Units}" data-carbs="${item.carbsPer100Units}" data-fat="${item.fatPer100Units}" data-unit="${item.unit}" data-name="${item.name}">${item.name} (${item.unit}) - ${item.caloriesPer100Units} Cal</option>`;
+                });
 
                 var newMealHtml = `
-                    <div class="card mb-2 meal-card" data-meal-index="${newMealIndex}">
+                    <div class="card mb-3 meal-card" data-meal-index="${newMealIndex}">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <h6>
+                            <h6 class="mb-0">
                                 Meal <span class="meal-number">${newMealIndex + 1}</span>:
-                                <input type="text" name="Versions[${versionIndex}].Meals[${newMealIndex}].MealName" class="form-control d-inline-block w-auto" placeholder="Meal Name" value="${defaultMealName}" />
+                                <input type="text" name="Versions[${versionIndex}].Meals[${newMealIndex}].MealName" class="form-control d-inline-block w-auto me-2" placeholder="Meal Name" value="${defaultMealName}" />
                                 <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${versionIndex}].Meals[${newMealIndex}].MealName"></span>
                             </h6>
                             <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
                         </div>
                         <div class="card-body">
-                            <div class="form-group mb-2">
-                                <label class="control-label">Meal Notes</label>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Meal Notes</label>
                                 <textarea name="Versions[${versionIndex}].Meals[${newMealIndex}].MealNotes" class="form-control" rows="1" placeholder="Notes for this meal"></textarea>
                                 <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${versionIndex}].Meals[${newMealIndex}].MealNotes"></span>
                             </div>
-                            <h6>Food Items for this Meal</h6>
+                            <h6 class="mt-3 mb-2">Food Items for this Meal</h6>
                             <div id="foodItemsContainer_${versionIndex}_${newMealIndex}">
                             </div>
                             <div class="input-group mt-3">
                                 <select class="form-select food-item-selector" data-version-index="${versionIndex}" data-meal-index="${newMealIndex}">
                                     <option value="">Select Food Item...</option>
-                                    @foreach (var item in foodItems)
-                                    {
-                                            <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
-                                                @item.Name (@item.Unit) - @item.CaloriesPer100Units Cal
-                                            </option>
-                                    }
+                                    ${foodItemsHtmlOptions}
                                 </select>
                                 <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
                             </div>
-                            <div class="text-end mt-2 fw-bold">
+                            <div class="text-end mt-3 fw-bold">
                                 Meal Totals:
-                                Calories: <span class="meal-total-calories">0.0</span> |
-                                Protein: <span class="meal-total-protein">0.0</span> |
-                                Carbs: <span class="meal-total-carbs">0.0</span> |
+                                Cal: <span class="meal-total-calories">0.0</span> |
+                                Prot: <span class="meal-total-protein">0.0</span> |
+                                Carb: <span class="meal-total-carbs">0.0</span> |
                                 Fat: <span class="meal-total-fat">0.0</span>
                             </div>
                         </div>
@@ -467,31 +457,31 @@
                     var newFoodItemHtml = `
                         <div class="row mb-2 align-items-center meal-food-item-row" data-food-item-index="${newFoodItemIndex}">
                             <input type="hidden" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].FoodItemId" value="${selectedFoodItemId}" />
-                            <input type="hidden" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Id" value="0" /> @* For new items, Id is 0 *@
+                            <input type="hidden" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Id" value="0" />
 
-                            <div class="col-md-5">
+                            <div class="col-md-4 col-sm-12">
                                 <span class="fw-bold">${foodItemName}</span> (${foodItemUnit})
                             </div>
-                            <div class="col-md-3">
-                                <input type="number" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Quantity" class="form-control quantity-input" step="0.01" min="0.01" value="100" />
+                            <div class="col-md-2 col-sm-6">
+                                <input type="number" name="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Quantity" class="form-control form-control-sm quantity-input" step="0.01" min="0.01" value="100" />
                                 <span class="text-danger field-validation-valid" data-valmsg-for="Versions[${versionIndex}].Meals[${mealIndex}].MealFoodItems[${newFoodItemIndex}].Quantity"></span>
                             </div>
-                            <div class="col-md-3 text-end">
-                                Calories: <span class="item-calories">0.0</span> | Protein: <span class="item-protein">0.0</span> | Carbs: <span class="item-carbs">0.0</span> | Fat: <span class="item-fat">0.0</span>
+                            <div class="col-md-5 col-sm-6 text-end text-sm-start mt-2 mt-sm-0">
+                                Cal: <span class="item-calories">0.0</span> | Prot: <span class="item-protein">0.0</span> | Carb: <span class="item-carbs">0.0</span> | Fat: <span class="item-fat">0.0</span>
                             </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-danger btn-sm remove-food-item">X</button>
+                            <div class="col-md-1 col-sm-12 text-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-food-item mt-2 mt-md-0">X</button>
                             </div>
                         </div>
                     `;
                     foodItemsContainer.append(newFoodItemHtml);
-                    updateElementNames(); // Update names after adding
+                    updateElementNames();
 
                     var newRow = foodItemsContainer.find(`.meal-food-item-row[data-food-item-index="${newFoodItemIndex}"]`);
-                    calculateItemMacros(newRow); // Calculate initial macros for new item
-                    updateMealTotals($(this).closest('.meal-card')); // Update meal totals
+                    calculateItemMacros(newRow);
+                    updateMealTotals($(this).closest('.meal-card'));
 
-                    foodItemSelector.val(''); // Reset select dropdown
+                    foodItemSelector.val('');
                 } else {
                     alert("Please select a food item to add.");
                 }
@@ -501,8 +491,8 @@
             $('#versionsContainer').on('click', '.remove-food-item', function () {
                 var mealCard = $(this).closest('.meal-card');
                 $(this).closest('.meal-food-item-row').remove();
-                updateElementNames(); // Update names after removal
-                updateMealTotals(mealCard); // Recalculate meal totals
+                updateElementNames();
+                updateMealTotals(mealCard);
             });
 
             // Recalculate macros when quantity changes
@@ -520,10 +510,6 @@
             $('.meal-card').each(function() {
                 updateMealTotals($(this));
             });
-
-            // Initialize select2 if you have it (optional, but good for long lists)
-            // $('.food-item-selector').select2();
-
         });
     </script>
 }

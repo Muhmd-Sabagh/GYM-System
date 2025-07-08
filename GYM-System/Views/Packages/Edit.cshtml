@@ -1,18 +1,19 @@
-﻿@model GYM_System.Models.Exercise
+﻿@model GYM_System.Models.Package
 
 @{
-    ViewData["Title"] = "Add New Exercise";
+    ViewData["Title"] = "Edit Package";
 }
 
-<h1 class="mb-4">Add New Exercise</h1>
+<h1 class="mb-4">Edit Package</h1>
 
 <div class="card">
     <div class="card-header bg-dark text-white">
-        <h5 class="mb-0">Exercise Details</h5>
+        <h5 class="mb-0">Package Details</h5>
     </div>
     <div class="card-body">
-        <form asp-action="Create" enctype="multipart/form-data">
+        <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="Id" />
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group mb-3">
@@ -25,23 +26,22 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group mb-3">
-                        <label for="imageFile" class="form-label">Image (Optional)</label>
-                        <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*" />
-                        <span asp-validation-for="ImagePath" class="text-danger"></span>
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group mb-3">
-                        <label asp-for="YouTubeLink" class="form-label"></label>
-                        <input asp-for="YouTubeLink" class="form-control" placeholder="e.g., https://www.youtube.com/watch?v=..." />
-                        <span asp-validation-for="YouTubeLink" class="text-danger"></span>
+                    <div class="form-group form-check mb-3">
+                        <input class="form-check-input" asp-for="IsActive" />
+                        <label class="form-check-label" asp-for="IsActive"></label>
                     </div>
                 </div>
             </div>
             <div class="form-group mt-3">
-                <input type="submit" value="Create" class="btn btn-primary me-2" />
+                <input type="submit" value="Save" class="btn btn-primary me-2" />
                 <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>

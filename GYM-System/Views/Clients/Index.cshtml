@@ -4,89 +4,85 @@
     ViewData["Title"] = "Clients";
 }
 
-<h1>Clients</h1>
+<h1 class="mb-4">Clients</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Add New Client</a>
+    <a asp-action="Create" class="btn btn-primary mb-3">Add New Client</a>
 </p>
 
-<!-- Sync Google Forms Section (keep as is) -->
-<div class="card my-4">
+<!-- Sync Google Forms Section -->
+<div class="card mb-4">
     <div class="card-header bg-dark text-white">
-        Sync Google Forms
+        <h5 class="mb-0">Sync Google Forms</h5>
     </div>
     <div class="card-body">
         <form asp-action="SyncGoogleForms" method="post">
-            <div class="mb-3">
-                <label for="spreadsheetId" class="form-label">Google Sheet ID:</label>
-                <input type="text" id="spreadsheetId" name="spreadsheetId" class="form-control" value="YOUR_GOOGLE_SHEET_ID_HERE" required />
-                <div class="form-text">Find this in your Google Sheet URL (e.g., https://docs.google.com/spreadsheets/d/<b>YOUR_ID_HERE</b>/edit)</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="spreadsheetId" class="form-label">Google Sheet ID:</label>
+                    <input type="text" id="spreadsheetId" name="spreadsheetId" class="form-control" value="YOUR_GOOGLE_SHEET_ID_HERE" required />
+                    <div class="form-text">Find this in your Google Sheet URL (e.g., https://docs.google.com/spreadsheets/d/<b>YOUR_ID_HERE</b>/edit)</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="initialAssessmentSheetRange" class="form-label">Initial Assessment Sheet Name & Range:</label>
+                    <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Form Responses 1!A:K" required />
+                    <div class="form-text">e.g., 'Form Responses 1!A:K' (Adjust columns as per your form response sheet)</div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="initialAssessmentSheetRange" class="form-label">Initial Assessment Sheet Name & Range:</label>
-                <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Form Responses 1!A:K" required />
-                <div class="form-text">e.g., 'Form Responses 1!A:K' (Adjust columns as per your form response sheet)</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="updateFormSheetRange" class="form-label">Update Form Sheet Name & Range:</label>
+                    <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Update Responses!A:H" required />
+                    <div class="form-text">e.g., 'Update Responses!A:H' (Adjust columns as per your update form response sheet)</div>
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">Sync Google Forms</button>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="updateFormSheetRange" class="form-label">Update Form Sheet Name & Range:</label>
-                <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Update Responses!A:H" required />
-                <div class="form-text">e.g., 'Update Responses!A:H' (Adjust columns as per your update form response sheet)</div>
-            </div>
-            <button type="submit" class="btn btn-success">Sync Google Forms</button>
         </form>
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success mt-3" role="alert">
-                @TempData["SuccessMessage"]
-            </div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger mt-3" role="alert">
-                @TempData["ErrorMessage"]
-            </div>
-        }
     </div>
 </div>
 
-<table class="table table-striped table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th>Client Code</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Join Date</th>
-            <th>Form Code</th>
-            <th>Subscription Status</th>
-            <th>Diet Status</th>
-            <th>Workout Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.ClientCode)</td>
-                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Phone)</td>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.JoinDate)</td>
-                <td>@Html.DisplayFor(modelItem => item.FormCode)</td>
-                <td>
-                    <span class="badge @(item.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (item.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
-                        @Html.DisplayFor(modelItem => item.Status)
-                    </span>
-                </td>
-                <td>@Html.DisplayFor(modelItem => item.DietStatus)</td>
-                <td>@Html.DisplayFor(modelItem => item.WorkoutStatus)</td>
-                <td>
-                    <a asp-action="ClientFile" asp-route-id="@item.Id" class="btn btn-sm btn-primary">View File</a> | <!-- Changed from Details to ClientFile -->
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
-                </td>
+                <th>Client Code</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Join Date</th>
+                <th>Form Code</th>
+                <th>Subscription Status</th>
+                <th>Diet Status</th>
+                <th>Workout Status</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.ClientCode)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td>@Html.DisplayFor(modelItem => item.JoinDate)</td>
+                    <td>@Html.DisplayFor(modelItem => item.FormCode)</td>
+                    <td>
+                        <span class="badge @(item.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (item.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </span>
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.DietStatus)</td>
+                    <td>@Html.DisplayFor(modelItem => item.WorkoutStatus)</td>
+                    <td>
+                        <a asp-action="ClientFile" asp-route-id="@item.Id" class="btn btn-sm btn-primary me-1">View File</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info me-1">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
