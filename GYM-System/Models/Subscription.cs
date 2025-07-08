@@ -11,16 +11,17 @@ namespace GYM_System.Models
 
         [Required]
         public int ClientId { get; set; } // Foreign Key to Client
-
         [ForeignKey("ClientId")]
         public Client? Client { get; set; } // Navigation property
 
-        [Required]
-        [StringLength(100)]
-        public string PackageType { get; set; } = string.Empty; // e.g., Diamond, Gold
+        [Required(ErrorMessage = "Package Type is required.")]
+        [Display(Name = "Package Type")]
+        public int PackageTypeId { get; set; } // Foreign Key to Package
+        [ForeignKey("PackageTypeId")]
+        public Package? PackageType { get; set; } // Navigation property
 
         [Required]
-        [DataType(DataType.Date)] // Ensures only date is picked by default in UI
+        [DataType(DataType.Date)]
         public DateTime StartDate { get; set; } = DateTime.Now;
 
         [Required]
@@ -32,12 +33,16 @@ namespace GYM_System.Models
         [Range(0.01, 1000000.00)] // Example range for price
         public decimal Price { get; set; }
 
-        [Required]
-        [StringLength(10)]
-        public string Currency { get; set; } = "EGP"; // e.g., EGP, USD
+        [Required(ErrorMessage = "Currency is required.")]
+        [Display(Name = "Currency")]
+        public int CurrencyId { get; set; } // Foreign Key to Currency
+        [ForeignKey("CurrencyId")]
+        public Currency? Currency { get; set; } // Navigation property
 
-        [StringLength(100)]
-        public string? PaymentAccount { get; set; } // e.g., Bank Transfer, Cash
+        [Display(Name = "Payment Account")]
+        public int? PaymentAccountId { get; set; } // Foreign Key to PaymentAccount (nullable)
+        [ForeignKey("PaymentAccountId")]
+        public PaymentAccount? PaymentAccount { get; set; } // Navigation property
 
         public int RenewalCount { get; set; } = 0; // Tracks renewals for this subscription
 

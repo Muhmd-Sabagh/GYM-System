@@ -10,7 +10,7 @@
     <a asp-action="Create" class="btn btn-primary">Add New Client</a>
 </p>
 
-<!-- Sync Google Forms Section -->
+<!-- Sync Google Forms Section (keep as is) -->
 <div class="card my-4">
     <div class="card-header bg-dark text-white">
         Sync Google Forms
@@ -24,12 +24,12 @@
             </div>
             <div class="mb-3">
                 <label for="initialAssessmentSheetRange" class="form-label">Initial Assessment Sheet Name & Range:</label>
-                <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Form Responses!A:L" required />
-                <div class="form-text">e.g., 'Form Responses!A:L' (Adjust columns as per your form response sheet)</div>
+                <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Form Responses 1!A:K" required />
+                <div class="form-text">e.g., 'Form Responses 1!A:K' (Adjust columns as per your form response sheet)</div>
             </div>
             <div class="mb-3">
                 <label for="updateFormSheetRange" class="form-label">Update Form Sheet Name & Range:</label>
-                <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Updates Responses!A:H" required />
+                <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Update Responses!A:H" required />
                 <div class="form-text">e.g., 'Update Responses!A:H' (Adjust columns as per your update form response sheet)</div>
             </div>
             <button type="submit" class="btn btn-success">Sync Google Forms</button>
@@ -82,7 +82,7 @@
                 <td>@Html.DisplayFor(modelItem => item.DietStatus)</td>
                 <td>@Html.DisplayFor(modelItem => item.WorkoutStatus)</td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a> |
+                    <a asp-action="ClientFile" asp-route-id="@item.Id" class="btn btn-sm btn-primary">View File</a> | <!-- Changed from Details to ClientFile -->
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info">Edit</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                 </td>

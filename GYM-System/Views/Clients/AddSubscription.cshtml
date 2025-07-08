@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = $"Add Subscription for {ViewBag.ClientName}";
+    var packages = ViewBag.Packages as SelectList;
+    var currencies = ViewBag.Currencies as SelectList;
+    var paymentAccounts = ViewBag.PaymentAccounts as SelectList;
 }
 
 <h1>Add Subscription for @ViewBag.ClientName</h1>
@@ -14,9 +17,11 @@
             <input type="hidden" asp-for="ClientId" value="@ViewBag.ClientId" />
 
             <div class="form-group mb-3">
-                <label asp-for="PackageType" class="control-label"></label>
-                <input asp-for="PackageType" class="form-control" />
-                <span asp-validation-for="PackageType" class="text-danger"></span>
+                <label asp-for="PackageTypeId" class="control-label"></label>
+                <select asp-for="PackageTypeId" class="form-control" asp-items="packages">
+                    <option value="">-- Select Package --</option>
+                </select>
+                <span asp-validation-for="PackageTypeId" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
                 <label asp-for="StartDate" class="control-label"></label>
@@ -34,14 +39,18 @@
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
-                <label asp-for="Currency" class="control-label"></label>
-                <input asp-for="Currency" class="form-control" value="EGP" />
-                <span asp-validation-for="Currency" class="text-danger"></span>
+                <label asp-for="CurrencyId" class="control-label"></label>
+                <select asp-for="CurrencyId" class="form-control" asp-items="currencies">
+                    <option value="">-- Select Currency --</option>
+                </select>
+                <span asp-validation-for="CurrencyId" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
-                <label asp-for="PaymentAccount" class="control-label"></label>
-                <input asp-for="PaymentAccount" class="form-control" />
-                <span asp-validation-for="PaymentAccount" class="text-danger"></span>
+                <label asp-for="PaymentAccountId" class="control-label"></label>
+                <select asp-for="PaymentAccountId" class="form-control" asp-items="paymentAccounts">
+                    <option value="">-- Select Payment Account (Optional) --</option>
+                </select>
+                <span asp-validation-for="PaymentAccountId" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
                 <label asp-for="RenewalCount" class="control-label"></label>
@@ -56,7 +65,7 @@
 </div>
 
 <div>
-    <a asp-action="Details" asp-route-id="@ViewBag.ClientId">Back to Client Details</a>
+    <a asp-action="ClientFile" asp-route-id="@ViewBag.ClientId">Back to Client Details</a>
 </div>
 
 @section Scripts {

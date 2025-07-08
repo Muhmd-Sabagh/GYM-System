@@ -1,11 +1,13 @@
 ﻿using GYM_System.Data;
 using GYM_System.Models;
 using GYM_System.Services;
+using GYM_System.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
-namespace GYM_System.Controllers
+namespace SuperSheets.Controllers
 {
     public class ClientsController : Controller
     {
@@ -27,19 +29,16 @@ namespace GYM_System.Controllers
 
             if (client != null)
             {
-                // Check if any subscription is currently active
                 if (client.Subscriptions != null && client.Subscriptions.Any(s => s.IsActive))
                 {
                     client.Status = SubscriptionStatus.Active;
                 }
                 else if (client.Subscriptions != null && client.Subscriptions.Any())
                 {
-                    // If no active but there are subscriptions, they must all be expired
                     client.Status = SubscriptionStatus.Expired;
                 }
                 else
                 {
-                    // No subscriptions at all
                     client.Status = SubscriptionStatus.Inactive;
                 }
                 _context.Update(client);
@@ -47,18 +46,27 @@ namespace GYM_System.Controllers
             }
         }
 
+        // Helper to populate dropdowns
+        private async Task PopulateSubscriptionDropdowns()
+        {
+            ViewBag.Packages = new SelectList(await _context.Packages.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync(), "Id", "Name");
+            ViewBag.Currencies = new SelectList(await _context.Currencies.Where(c => c.IsActive).OrderBy(c => c.Name).ToListAsync(), "Id", "Code");
+            ViewBag.PaymentAccounts = new SelectList(await _context.PaymentAccounts.Where(pa => pa.IsActive).OrderBy(pa => pa.Name).ToListAsync(), "Id", "Name");
+        }
+
+
         // GET: Clients
         public async Task<IActionResult> Index()
         {
-            // Eager load subscriptions for each client
             var clients = await _context.Clients
                                         .Include(c => c.Subscriptions)
-                                        .OrderByDescending(c => c.JoinDate) // Order by latest joined clients
+                                        .OrderByDescending(c => c.JoinDate)
                                         .ToListAsync();
             return View(clients);
         }
 
-        // GET: Clients/Details/5 - Show client details and their subscriptions, assessments, and updates
+        // GET: Clients/Details/5 - This action is now effectively replaced by ClientFile for a more comprehensive view.
+        // Keeping it for potential direct access or if needed elsewhere.
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -68,8 +76,13 @@ namespace GYM_System.Controllers
 
             var client = await _context.Clients
                 .Include(c => c.Subscriptions)
-                .Include(c => c.ClientAssessments.OrderByDescending(ca => ca.Timestamp)) // Include assessments
-                .Include(c => c.ClientUpdates.OrderByDescending(cu => cu.Timestamp))     // Include updates
+                    .ThenInclude(s => s.PackageType) // Eager load PackageType
+                .Include(c => c.Subscriptions)
+                    .ThenInclude(s => s.Currency) // Eager load Currency
+                .Include(c => c.Subscriptions)
+                    .ThenInclude(s => s.PaymentAccount) // Eager load PaymentAccount
+                .Include(c => c.ClientAssessments.OrderByDescending(ca => ca.Timestamp))
+                .Include(c => c.ClientUpdates.OrderByDescending(cu => cu.Timestamp))
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (client == null)
             {
@@ -78,6 +91,49 @@ namespace GYM_System.Controllers
 
             return View(client);
         }
+
+        // GET: Clients/ClientFile/5 - Comprehensive client view
+        public async Task<IActionResult> ClientFile(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _context.Clients
+                .Include(c => c.Subscriptions)
+                    .ThenInclude(s => s.PackageType) // Eager load PackageType
+                .Include(c => c.Subscriptions)
+                    .ThenInclude(s => s.Currency) // Eager load Currency
+                .Include(c => c.Subscriptions)
+                    .ThenInclude(s => s.PaymentAccount) // Eager load PaymentAccount
+                .Include(c => c.ClientAssessments.OrderBy(ca => ca.Timestamp))
+                .Include(c => c.ClientUpdates.OrderBy(cu => cu.Timestamp))
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (client == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ClientFileViewModel(client)
+            {
+                Subscriptions = client.Subscriptions?.OrderByDescending(s => s.StartDate).ToList() ?? new List<Subscription>(),
+                ClientAssessments = client.ClientAssessments?.ToList() ?? new List<ClientAssessment>(),
+                ClientUpdates = client.ClientUpdates?.ToList() ?? new List<ClientUpdate>(),
+                DietPlans = await _context.DietPlans
+                                          .Where(dp => dp.ClientId == id)
+                                          .OrderByDescending(dp => dp.CreatedDate)
+                                          .ToListAsync(),
+                WorkoutPlans = await _context.WorkoutPlans
+                                            .Where(wp => wp.ClientId == id)
+                                            .OrderByDescending(wp => wp.CreatedDate)
+                                            .ToListAsync()
+            };
+
+            return View(viewModel);
+        }
+
 
         // GET: Clients/Create
         public IActionResult Create()
@@ -94,7 +150,7 @@ namespace GYM_System.Controllers
             {
                 _context.Add(client);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details), new { id = client.Id });
+                return RedirectToAction(nameof(ClientFile), new { id = client.Id });
             }
             return View(client);
         }
@@ -160,7 +216,7 @@ namespace GYM_System.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Details), new { id = client.Id });
+                return RedirectToAction(nameof(ClientFile), new { id = client.Id });
             }
             return View(client);
         }
@@ -214,15 +270,20 @@ namespace GYM_System.Controllers
 
             ViewBag.ClientName = client.Name;
             ViewBag.ClientId = client.Id;
+            await PopulateSubscriptionDropdowns(); // Populate dropdowns
             return View();
         }
 
         // POST: Clients/AddSubscription
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddSubscription([Bind("ClientId,PackageType,StartDate,DurationMonths,Price,Currency,PaymentAccount,RenewalCount")] Subscription subscription)
+        public async Task<IActionResult> AddSubscription([Bind("ClientId,PackageTypeId,StartDate,DurationMonths,Price,CurrencyId,PaymentAccountId,RenewalCount")] Subscription subscription)
         {
+            // Remove ModelState for navigation properties and NotMapped properties
             ModelState.Remove("Client");
+            ModelState.Remove("PackageType");
+            ModelState.Remove("Currency");
+            ModelState.Remove("PaymentAccount");
             ModelState.Remove("IsActive");
 
             if (ModelState.IsValid)
@@ -230,14 +291,16 @@ namespace GYM_System.Controllers
                 _context.Add(subscription);
                 await _context.SaveChangesAsync();
                 await UpdateClientSubscriptionStatus(subscription.ClientId);
-                return RedirectToAction(nameof(Details), new { id = subscription.ClientId });
+                return RedirectToAction(nameof(ClientFile), new { id = subscription.ClientId });
             }
+            // If model state is invalid, re-populate ViewBag for the view
             var client = await _context.Clients.FindAsync(subscription.ClientId);
             if (client != null)
             {
                 ViewBag.ClientName = client.Name;
                 ViewBag.ClientId = client.Id;
             }
+            await PopulateSubscriptionDropdowns(); // Re-populate dropdowns on validation error
             return View(subscription);
         }
 
@@ -259,20 +322,25 @@ namespace GYM_System.Controllers
 
             ViewBag.ClientName = subscription.Client?.Name;
             ViewBag.ClientId = subscription.ClientId;
+            await PopulateSubscriptionDropdowns(); // Populate dropdowns
             return View(subscription);
         }
 
         // POST: Clients/EditSubscription/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditSubscription(int id, [Bind("Id,ClientId,PackageType,StartDate,DurationMonths,Price,Currency,PaymentAccount,RenewalCount")] Subscription subscription)
+        public async Task<IActionResult> EditSubscription(int id, [Bind("Id,ClientId,PackageTypeId,StartDate,DurationMonths,Price,CurrencyId,PaymentAccountId,RenewalCount")] Subscription subscription)
         {
             if (id != subscription.Id)
             {
                 return NotFound();
             }
 
+            // Remove ModelState for navigation properties and NotMapped properties
             ModelState.Remove("Client");
+            ModelState.Remove("PackageType");
+            ModelState.Remove("Currency");
+            ModelState.Remove("PaymentAccount");
             ModelState.Remove("IsActive");
 
             if (ModelState.IsValid)
@@ -294,14 +362,16 @@ namespace GYM_System.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Details), new { id = subscription.ClientId });
+                return RedirectToAction(nameof(ClientFile), new { id = subscription.ClientId });
             }
+            // If model state is invalid, re-populate ViewBag for the view
             var client = await _context.Clients.FindAsync(subscription.ClientId);
             if (client != null)
             {
                 ViewBag.ClientName = client.Name;
                 ViewBag.ClientId = client.Id;
             }
+            await PopulateSubscriptionDropdowns(); // Re-populate dropdowns on validation error
             return View(subscription);
         }
 
@@ -315,6 +385,9 @@ namespace GYM_System.Controllers
 
             var subscription = await _context.Subscriptions
                 .Include(s => s.Client)
+                .Include(s => s.PackageType) // Eager load for display in delete confirmation
+                .Include(s => s.Currency)    // Eager load for display
+                .Include(s => s.PaymentAccount) // Eager load for display
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (subscription == null)
             {
@@ -339,7 +412,7 @@ namespace GYM_System.Controllers
             _context.Subscriptions.Remove(subscription);
             await _context.SaveChangesAsync();
             await UpdateClientSubscriptionStatus(clientId);
-            return RedirectToAction(nameof(Details), new { id = clientId });
+            return RedirectToAction(nameof(ClientFile), new { id = clientId });
         }
 
 
@@ -358,14 +431,10 @@ namespace GYM_System.Controllers
                 var initialAssessmentData = await _googleSheetsService.ReadSheetData(spreadsheetId, initialAssessmentSheetRange);
                 if (initialAssessmentData.Any())
                 {
-                    // Assuming the first row is headers, skip it for data processing
-                    // Expected columns (and their 0-based index) for Initial Assessment:
-                    // Timestamp (0), Form Code (1), Height (2), Weight (3), Age (4), Gender (5), Activity Level (6), Dietary Preferences (7), Fitness Goals (8), Other Notes (9), Uploaded Image URL (10)
                     foreach (var row in initialAssessmentData.Skip(1)) // Skip header row
                     {
                         try
                         {
-                            // Ensure minimum number of columns are present
                             if (row.Count < 10) continue;
 
                             string formCode = row[1]?.ToString()?.Trim() ?? string.Empty;
@@ -381,10 +450,9 @@ namespace GYM_System.Controllers
                             if (client == null)
                             {
                                 skippedInvalidFormCode++;
-                                continue; // Skip if no client with this FormCode exists
+                                continue;
                             }
 
-                            // Check for duplicates based on ClientId and Timestamp
                             bool exists = await _context.ClientAssessments
                                 .AnyAsync(ca => ca.ClientId == client.Id && ca.Timestamp == timestamp);
                             if (exists)
@@ -398,29 +466,26 @@ namespace GYM_System.Controllers
                                 ClientId = client.Id,
                                 Timestamp = timestamp,
                                 FormCode = formCode,
-                                HeightCm = ParseDecimal(row.ElementAtOrDefault(3)),
-                                WeightKg = ParseDecimal(row.ElementAtOrDefault(4)),
-                                Age = ParseInt(row.ElementAtOrDefault(5)),
-                                Gender = row.ElementAtOrDefault(6)?.ToString(),
-                                ActivityLevel = row.ElementAtOrDefault(7)?.ToString(),
-                                DietaryPreferences = row.ElementAtOrDefault(8)?.ToString(),
-                                FitnessGoals = row.ElementAtOrDefault(9)?.ToString(),
-                                OtherNotes = row.ElementAtOrDefault(10)?.ToString(),
-                                UploadedImageUrl = row.ElementAtOrDefault(11)?.ToString() // Assuming image URL is provided in the sheet
+                                HeightCm = ParseDecimal(row.ElementAtOrDefault(2)),
+                                WeightKg = ParseDecimal(row.ElementAtOrDefault(3)),
+                                Age = ParseInt(row.ElementAtOrDefault(4)),
+                                Gender = row.ElementAtOrDefault(5)?.ToString(),
+                                ActivityLevel = row.ElementAtOrDefault(6)?.ToString(),
+                                DietaryPreferences = row.ElementAtOrDefault(7)?.ToString(),
+                                FitnessGoals = row.ElementAtOrDefault(8)?.ToString(),
+                                OtherNotes = row.ElementAtOrDefault(9)?.ToString(),
+                                UploadedImageUrl = row.ElementAtOrDefault(10)?.ToString()
                             };
                             _context.ClientAssessments.Add(assessment);
                             assessmentsImported++;
 
-                            // Update client status if it's "Not Started"
                             if (client.DietStatus == PlanStatus.NotStarted) client.DietStatus = PlanStatus.WaitingForPlan;
                             if (client.WorkoutStatus == PlanStatus.NotStarted) client.WorkoutStatus = PlanStatus.WaitingForPlan;
-                            _context.Update(client); // Mark client as modified
+                            _context.Update(client);
                         }
                         catch (Exception ex)
                         {
-                            // Log the error but continue processing other rows
                             Console.WriteLine($"Error processing initial assessment row: {ex.Message}");
-                            // Consider adding this row to a list of failed imports
                         }
                     }
                 }
@@ -429,9 +494,6 @@ namespace GYM_System.Controllers
                 var updateFormData = await _googleSheetsService.ReadSheetData(spreadsheetId, updateFormSheetRange);
                 if (updateFormData.Any())
                 {
-                    // Assuming the first row is headers, skip it for data processing
-                    // Expected columns (and their 0-based index) for Update Form:
-                    // Timestamp (0), Form Code (1), Current Weight (2), Physique Changes (3), Diet Adjustments (4), Exercise Adjustments (5), Additional Notes (6), Uploaded Image URL (7)
                     foreach (var row in updateFormData.Skip(1)) // Skip header row
                     {
                         try
@@ -451,10 +513,9 @@ namespace GYM_System.Controllers
                             if (client == null)
                             {
                                 skippedInvalidFormCode++;
-                                continue; // Skip if no client with this FormCode exists
+                                continue;
                             }
 
-                            // Check for duplicates based on ClientId and Timestamp
                             bool exists = await _context.ClientUpdates
                                 .AnyAsync(cu => cu.ClientId == client.Id && cu.Timestamp == timestamp);
                             if (exists)
@@ -473,15 +534,14 @@ namespace GYM_System.Controllers
                                 DietAdjustmentsNotes = row.ElementAtOrDefault(4)?.ToString(),
                                 ExerciseAdjustmentsNotes = row.ElementAtOrDefault(5)?.ToString(),
                                 AdditionalNotes = row.ElementAtOrDefault(6)?.ToString(),
-                                UploadedImageUrl = row.ElementAtOrDefault(7)?.ToString() // Assuming image URL is provided
+                                UploadedImageUrl = row.ElementAtOrDefault(7)?.ToString()
                             };
                             _context.ClientUpdates.Add(update);
                             updatesImported++;
 
-                            // Update client status based on updates if they were on plan or waiting
                             if (client.DietStatus == PlanStatus.OnPlan || client.DietStatus == PlanStatus.WaitingForPlan) client.DietStatus = PlanStatus.NeedsUpdateForm;
                             if (client.WorkoutStatus == PlanStatus.OnPlan || client.WorkoutStatus == PlanStatus.WaitingForPlan) client.WorkoutStatus = PlanStatus.NeedsUpdateForm;
-                            _context.Update(client); // Mark client as modified
+                            _context.Update(client);
                         }
                         catch (Exception ex)
                         {
@@ -490,19 +550,18 @@ namespace GYM_System.Controllers
                     }
                 }
 
-                await _context.SaveChangesAsync(); // Save all changes at once
+                await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = $"Sync complete! Imported {assessmentsImported} new initial assessments and {updatesImported} new updates. Skipped {skippedInvalidFormCode} rows due to invalid Form Code or missing client, and {skippedDuplicates} duplicate entries.";
             }
             catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException authEx)
             {
-                // This typically means the user needs to re-authenticate or permissions are wrong
                 TempData["ErrorMessage"] = "Google Sheets Authentication required or failed. Please ensure 'client_secret.json' is correct and try again. You might need to authenticate in your browser.";
                 Console.WriteLine($"Auth Error: {authEx.Message}");
             }
             catch (FileNotFoundException)
             {
-                TempData["ErrorMessage"] = "client_secret.json not found. Please place it in the GYM_System project root directory.";
+                TempData["ErrorMessage"] = "client_secret.json not found. Please place it in the SuperSheets project root directory.";
             }
             catch (Exception ex)
             {
@@ -512,7 +571,6 @@ namespace GYM_System.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Helper method to safely parse decimal values
         private decimal? ParseDecimal(object? value)
         {
             if (value != null && decimal.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result))
@@ -522,7 +580,6 @@ namespace GYM_System.Controllers
             return null;
         }
 
-        // Helper method to safely parse int values
         private int? ParseInt(object? value)
         {
             if (value != null && int.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out int result))

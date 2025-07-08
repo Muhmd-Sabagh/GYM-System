@@ -44,6 +44,16 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SavedPlans" asp-action="Index">Saved Plans</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdownSettings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Settings
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownSettings">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Packages" asp-action="Index">Subscription Packages</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Currencies" asp-action="Index">Currencies</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="PaymentAccounts" asp-action="Index">Payment Accounts</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>

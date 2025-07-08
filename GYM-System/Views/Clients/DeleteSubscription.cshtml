@@ -1,18 +1,18 @@
 ﻿@model GYM_System.Models.Subscription
 
 @{
-    ViewData["Title"] = $"Delete Subscription for {ViewBag.ClientName}";
+    ViewData["Title"] = $"Delete Subscription for {Model.Client?.Name}";
 }
 
 <h1>Delete Subscription</h1>
 
-<h3>Are you sure you want to delete this subscription for @ViewBag.ClientName?</h3>
+<h3>Are you sure you want to delete this subscription for @Model.Client?.Name?</h3>
 <div>
     <h4>Subscription Details</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-3">Package Type:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.PackageType)</dd>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.PackageType.Name)</dd> @* Display Name property *@
 
         <dt class="col-sm-3">Start Date:</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.StartDate)</dd>
@@ -27,10 +27,10 @@
         <dd class="col-sm-9">@Html.DisplayFor(model => model.Price)</dd>
 
         <dt class="col-sm-3">Currency:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Currency)</dd>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Currency.Code)</dd> @* Display Code property *@
 
         <dt class="col-sm-3">Payment Account:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.PaymentAccount)</dd>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.PaymentAccount.Name)</dd> @* Display Name property *@
 
         <dt class="col-sm-3">Renewal Count:</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.RenewalCount)</dd>
@@ -47,6 +47,6 @@
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="ClientId" />
         <input type="submit" value="Delete Subscription" class="btn btn-danger" /> |
-        <a asp-action="Details" asp-route-id="@Model.ClientId">Back to Client Details</a>
+        <a asp-action="ClientFile" asp-route-id="@Model.ClientId">Back to Client Details</a>
     </form>
 </div>

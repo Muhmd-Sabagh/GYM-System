@@ -23,6 +23,9 @@ namespace GYM_System.Data
         public DbSet<WorkoutPlan> WorkoutPlans { get; set; } = default!;
         public DbSet<WorkoutDay> WorkoutDays { get; set; } = default!;
         public DbSet<WorkoutExercise> WorkoutExercises { get; set; } = default!;
+        public DbSet<Package> Packages { get; set; } = default!;
+        public DbSet<Currency> Currencies { get; set; } = default!;
+        public DbSet<PaymentAccount> PaymentAccounts { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,7 +45,26 @@ namespace GYM_System.Data
                 .HasForeignKey(s => s.ClientId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Client and Assessment/Update relationships
+            modelBuilder.Entity<Subscription>()
+                .HasOne(s => s.PackageType)
+                .WithMany()
+                .HasForeignKey(s => s.PackageTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Subscription>()
+                .HasOne(s => s.Currency)
+                .WithMany()
+                .HasForeignKey(s => s.CurrencyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Subscription>()
+                .HasOne(s => s.PaymentAccount)
+                .WithMany()
+                .HasForeignKey(s => s.PaymentAccountId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             modelBuilder.Entity<Client>()
                 .HasMany(c => c.ClientAssessments)
                 .WithOne(ca => ca.Client)
@@ -80,7 +102,7 @@ namespace GYM_System.Data
                 .HasForeignKey(mfi => mfi.FoodItemId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Workout Plan relationships (New)
+            // Workout Plan relationships
             modelBuilder.Entity<WorkoutPlan>()
                 .HasMany(wp => wp.WorkoutDays)
                 .WithOne(wd => wd.WorkoutPlan)
