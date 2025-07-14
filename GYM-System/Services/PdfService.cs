@@ -1,6 +1,7 @@
-﻿using QuestPDF.Fluent;
+﻿using GYM_System.ViewModels;
+using QuestPDF.Fluent;
 using QuestPDF.Helpers;
-using GYM_System.ViewModels;
+using QuestPDF.Infrastructure;
 
 namespace GYM_System.Services
 {
@@ -10,11 +11,18 @@ namespace GYM_System.Services
         private readonly IConfiguration _configuration;
         private readonly string _savedPlansPath;
         private readonly string _logoPath;
+        private readonly string _placeholderLogoPath;
 
         public PdfService(IWebHostEnvironment hostEnvironment, IConfiguration configuration)
         {
             _hostEnvironment = hostEnvironment;
             _configuration = configuration;
+
+            // --- ADD THIS LINE TO SET THE QUESTPDF LICENSE TYPE ---
+            QuestPDF.Settings.License = LicenseType.Community;
+            // If your organization's annual gross revenue exceeds $1M USD,
+            // you would need a commercial license and would set:
+            // QuestPDF.Settings.License = LicenseType.Professional; // Or other commercial types
 
             // Get the path where PDFs will be saved from appsettings.json
             _savedPlansPath = Path.Combine(_hostEnvironment.ContentRootPath, _configuration["AppSettings:SavedPlansFolder"] ?? "SavedPlans");
@@ -23,8 +31,10 @@ namespace GYM_System.Services
                 Directory.CreateDirectory(_savedPlansPath);
             }
 
-            // Path to your gym logo (relative to wwwroot)
-            _logoPath = Path.Combine(_hostEnvironment.WebRootPath, "images", "logo.jpg");
+            // Path to your actual gym logo (relative to wwwroot)
+            _logoPath = Path.Combine(_hostEnvironment.WebRootPath, "images/logo", "logo.jpg");
+            // Path to the new local placeholder logo (relative to wwwroot)
+            _placeholderLogoPath = Path.Combine(_hostEnvironment.WebRootPath, "images/logo", "placeholder_logo.png");
 
             // Register Inter font if not already registered (QuestPDF default might be too generic)
             // This assumes Inter.ttf is available in your project or system fonts
@@ -32,7 +42,6 @@ namespace GYM_System.Services
             // If you have a specific .ttf file: FontManager.RegisterFont(File.OpenRead("path/to/Inter.ttf"));
             // Or if it's a system font: FontManager.RegisterSystemFont("Inter");
             // For now, we'll rely on QuestPDF's defaults or system fonts.
-            // License.LicenseKey = LicenseKey.Community; // Or your commercial key
         }
 
         public byte[] GenerateDietPlanPdf(DietPlanViewModel dietPlan)
@@ -54,7 +63,7 @@ namespace GYM_System.Services
                             {
                                 row.ConstantItem(100).Element(container =>
                                 {
-                                    container.Image(File.Exists(_logoPath) ? _logoPath : "https://placehold.co/100x50/cccccc/333333?text=Logo")
+                                    container.Image(File.Exists(_logoPath) ? _logoPath : _placeholderLogoPath)
                                         .FitWidth();
                                 });
 
@@ -99,10 +108,19 @@ namespace GYM_System.Services
 
                             column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
 
+                            var activeVersions = dietPlan.Versions.Where(v => v.IsActiveForPdf).ToList();
+                            DietPlanVersionViewModel version;
+
                             // Render each active version
-                            foreach (var version in dietPlan.Versions.Where(v => v.IsActiveForPdf))
+                            for (int i = 0; i < activeVersions.Count; i++)
                             {
-                                column.Item().PaddingTop(15).PageBreak(); // Start new version on a new page or add space
+                                version = activeVersions[i];
+
+                                if (i > 0)
+                                {
+                                    column.Item().PaddingTop(15).PageBreak(); // Start new version on a new page
+                                }
+
                                 column.Item().Text(text =>
                                 {
                                     text.Span("Version: ").SemiBold().FontSize(12);
@@ -145,7 +163,8 @@ namespace GYM_System.Services
                                         {
                                             table.ColumnsDefinition(columns =>
                                             {
-                                                columns.RelativeColumn(3); // Food Item Name
+                                                columns.RelativeColumn(2); // Food Item Name
+                                                columns.RelativeColumn(1); // Unit
                                                 columns.RelativeColumn(1); // Quantity
                                                 columns.RelativeColumn(1); // Calories
                                                 columns.RelativeColumn(1); // Protein
@@ -156,6 +175,7 @@ namespace GYM_System.Services
                                             table.Header(header =>
                                             {
                                                 header.Cell().BorderBottom(1).PaddingBottom(5).Text("Food Item").SemiBold();
+                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Unit").SemiBold();
                                                 header.Cell().BorderBottom(1).PaddingBottom(5).Text("Qty").SemiBold();
                                                 header.Cell().BorderBottom(1).PaddingBottom(5).Text("Cal").SemiBold();
                                                 header.Cell().BorderBottom(1).PaddingBottom(5).Text("Prot").SemiBold();
@@ -165,7 +185,8 @@ namespace GYM_System.Services
 
                                             foreach (var mfi in meal.MealFoodItems)
                                             {
-                                                table.Cell().PaddingVertical(2).Text($"{mfi.FoodItem?.Name} ({mfi.FoodItem?.Unit})");
+                                                table.Cell().PaddingVertical(2).Text($"{mfi.FoodItem?.Name}");
+                                                table.Cell().PaddingVertical(2).Text(mfi.FoodItem?.Unit.ToString());
                                                 table.Cell().PaddingVertical(2).Text(mfi.Quantity.ToString("F1"));
                                                 table.Cell().PaddingVertical(2).Text(mfi.Calories.ToString("F1"));
                                                 table.Cell().PaddingVertical(2).Text(mfi.Protein.ToString("F1"));
@@ -174,7 +195,7 @@ namespace GYM_System.Services
                                             }
 
                                             // Meal Totals Row
-                                            table.Cell().ColumnSpan(2).AlignRight().PaddingVertical(3).Text("Meal Totals:").SemiBold();
+                                            table.Cell().ColumnSpan(3).AlignCenter().PaddingVertical(3).Text("Meal Totals:").SemiBold();
                                             table.Cell().PaddingVertical(3).Text(meal.TotalCalories.ToString("F1")).SemiBold();
                                             table.Cell().PaddingVertical(3).Text(meal.TotalProtein.ToString("F1")).SemiBold();
                                             table.Cell().PaddingVertical(3).Text(meal.TotalCarbs.ToString("F1")).SemiBold();
@@ -217,7 +238,7 @@ namespace GYM_System.Services
                             {
                                 row.ConstantItem(100).Element(container =>
                                 {
-                                    container.Image(File.Exists(_logoPath) ? _logoPath : "https://placehold.co/100x50/cccccc/333333?text=Logo")
+                                    container.Image(File.Exists(_logoPath) ? _logoPath : _placeholderLogoPath)
                                         .FitWidth();
                                 });
 
@@ -265,7 +286,11 @@ namespace GYM_System.Services
                             // Render each workout day
                             foreach (var day in workoutPlan.WorkoutDays)
                             {
-                                column.Item().PaddingTop(15).PageBreak(); // Start new day on a new page or add space
+                                if (day != workoutPlan.WorkoutDays.First())
+                                {
+                                    column.Item().PaddingTop(15).PageBreak(); // Start new day on a new page
+                                }
+
                                 column.Item().Text(text =>
                                 {
                                     text.Span("Day: ").SemiBold().FontSize(12);

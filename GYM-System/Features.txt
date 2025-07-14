@@ -10,18 +10,21 @@
 
 5- Google Sheets Integration: Set up the service to connect to Google Sheets API and import client form responses.
 
-Image and File Storage: Configure local storage for client images and generated PDFs.
+5- Image and File Storage: Configure local storage for client images and generated PDFs.
 
-Diet Plan Maker: Build the UI, logic, and PDF generation for diet plans.
+6- Diet Plan Maker: Build the UI, logic, and PDF generation for diet plans.
 
-Workout Plan Maker: Build the UI, logic, and PDF generation for workout plans.
+7- Workout Plan Maker: Build the UI, logic, and PDF generation for workout plans.
 
-Database Customization: Allow managing food items, exercises, and customizing package names, currencies, etc.
+8- Database Customization: Allow managing food items, exercises, and customizing package names, currencies, etc.
 
-Search Functionality: Implement robust search and filtering for saved plans.
+9- Search Functionality: Implement robust search and filtering for saved plans.
 
 
 Note:
+-- تعديل ال style تاني
+-- اضافة بيانات الاكل والتمارين
+-- اضافة اسئلة للفورم
 
-// Function to calculate macros for a single meal food item row   DietPlanMaker/Index.cshtml
-الارقام في الجزء دا مبتسمعش كويس
+-- امكانية التعديل على بيانات الطعام (اختيار دائل) من جهة العميل في ال pdf
+-- امكانية تعديل اللوجو اللي هيكون موجود في ال pdf
