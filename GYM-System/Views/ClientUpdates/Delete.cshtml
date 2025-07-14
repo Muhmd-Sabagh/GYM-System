@@ -1,0 +1,51 @@
+﻿@model GYM_System.Models.ClientUpdate
+
+@{
+    ViewData["Title"] = "Delete Client Update";
+}
+
+<h1 class="mb-4">Delete Client Update</h1>
+
+<h3>Are you sure you want to delete this update for @Model.Client?.Name (Update Date: @Model.Timestamp.ToShortDateString())?</h3>
+<div class="alert alert-danger mt-3" role="alert">
+    <strong>Warning:</strong> Deleting this update is irreversible.
+</div>
+
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Update Details</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Client:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.Name)</dd>
+
+            <dt class="col-sm-4">Update Date:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Timestamp)</dd>
+
+            <dt class="col-sm-4">Form Code:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.FormCode)</dd>
+
+            <hr class="my-3" />
+
+            <dt class="col-sm-4">Neck (cm):</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.NeckCircumferenceCm)</dd>
+
+            <dt class="col-sm-4">Waist (cm):</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WaistCircumferenceCm)</dd>
+
+            <dt class="col-sm-4">Workout Commitment:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutCommitmentLevel)</dd>
+
+            <dt class="col-sm-4">Notes:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Notes)</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" class="mt-4">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ClientId" />
+    <input type="submit" value="Delete Update" class="btn btn-danger me-2" />
+    <a asp-action="ClientFile" asp-controller="Clients" asp-route-id="@Model.ClientId" class="btn btn-secondary">Cancel</a>
+</form>

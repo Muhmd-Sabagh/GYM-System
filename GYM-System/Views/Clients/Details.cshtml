@@ -1,203 +1,233 @@
 ﻿@model GYM_System.Models.Client
 
 @{
-    ViewData["Title"] = $"Client Details: {Model.Name}";
+    ViewData["Title"] = $"Details for {Model.Name}";
 }
 
-<h1>Client Details: @Model.Name</h1>
+<h1 class="mb-4">Details for Client: @Model.Name</h1>
 
-<div>
-    <h4>Client Information</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">Client Code:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.ClientCode)</dd>
-
-        <dt class="col-sm-3">Name:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
-
-        <dt class="col-sm-3">Phone:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Phone)</dd>
-
-        <dt class="col-sm-3">Email:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Email)</dd>
-
-        <dt class="col-sm-3">Join Date:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.JoinDate)</dd>
-
-        <dt class="col-sm-3">Form Code:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.FormCode)</dd>
-
-        <dt class="col-sm-3">Subscription Status:</dt>
-        <dd class="col-sm-9">
-            <span class="badge @(Model.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (Model.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
-                @Html.DisplayFor(model => model.Status)
-            </span>
-        </dd>
-
-        <dt class="col-sm-3">Diet Status:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.DietStatus)</dd>
-
-        <dt class="col-sm-3">Workout Status:</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.WorkoutStatus)</dd>
-    </dl>
-</div>
-
-<div class="mb-3">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">Edit Client</a> |
+<div class="mb-4 d-flex flex-wrap gap-2">
     <a asp-action="Index" class="btn btn-secondary">Back to Clients List</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">Edit Client Details</a>
+    <a asp-action="ClientFile" asp-route-id="@Model.Id" class="btn btn-primary">View Full Client File</a>
 </div>
 
-<hr />
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Client Information</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Client Code:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.ClientCode)</dd>
 
-<h3>Subscriptions</h3>
+            <dt class="col-sm-4">Name:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
 
-<p>
-    <a asp-action="AddSubscription" asp-route-clientId="@Model.Id" class="btn btn-primary">Add New Subscription</a>
-</p>
+            <dt class="col-sm-4">Phone:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Phone)</dd>
 
-@if (Model.Subscriptions == null || !Model.Subscriptions.Any())
-{
-    <div class="alert alert-info">No subscriptions found for this client.</div>
-}
-else
-{
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Package Type</th>
-                <th>Start Date</th>
-                <th>Duration (Months)</th>
-                <th>End Date</th>
-                <th>Price</th>
-                <th>Currency</th>
-                <th>Payment Account</th>
-                <th>Renewal Count</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var subscription in Model.Subscriptions.OrderByDescending(s => s.StartDate))
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => subscription.PackageType)</td>
-                    <td>@Html.DisplayFor(modelItem => subscription.StartDate)</td>
-                    <td>@Html.DisplayFor(modelItem => subscription.DurationMonths)</td>
-                    <td>@subscription.StartDate.AddMonths(subscription.DurationMonths).ToShortDateString()</td>
-                    <td>@Html.DisplayFor(modelItem => subscription.Price)</td>
-                    <td>@Html.DisplayFor(modelItem => subscription.Currency)</td>
-                    <td>@Html.DisplayFor(modelItem => subscription.PaymentAccount)</td>
-                    <td>@Html.DisplayFor(modelItem => subscription.RenewalCount)</td>
-                    <td>
-                        <span class="badge @(subscription.IsActive ? "bg-success" : "bg-warning text-dark")">
-                            @(subscription.IsActive ? "Active" : "Expired")
-                        </span>
-                    </td>
-                    <td>
-                        <a asp-action="EditSubscription" asp-route-id="@subscription.Id" class="btn btn-sm btn-info">Edit</a> |
-                        <a asp-action="DeleteSubscription" asp-route-id="@subscription.Id" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+            <dt class="col-sm-4">Email:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Email)</dd>
 
-<hr />
+            <dt class="col-sm-4">Join Date:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.JoinDate)</dd>
 
-<h3>Client Assessments (First Plans)</h3>
-@if (Model.ClientAssessments == null || !Model.ClientAssessments.Any())
-{
-    <div class="alert alert-info">No initial assessments found for this client.</div>
-}
-else
-{
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Timestamp</th>
-                <th>Height (cm)</th>
-                <th>Weight (kg)</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Activity Level</th>
-                <th>Fitness Goals</th>
-                <th>Notes</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var assessment in Model.ClientAssessments)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => assessment.Timestamp)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.HeightCm)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.WeightKg)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.Age)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.Gender)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.ActivityLevel)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.FitnessGoals)</td>
-                    <td>@Html.DisplayFor(modelItem => assessment.OtherNotes)</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(assessment.UploadedImageUrl))
-                        {
-                            <a href="@assessment.UploadedImageUrl" target="_blank">View Image</a>
-                        }
-                        else
-                        {
-                            <span>No Image</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+            <dt class="col-sm-4">Form Code:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.FormCode)</dd>
 
-<hr />
+            <dt class="col-sm-4">Subscription Status:</dt>
+            <dd class="col-sm-8">
+                <span class="badge @(Model.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (Model.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
+                    @Html.DisplayFor(model => model.Status)
+                </span>
+            </dd>
 
-<h3>Client Updates</h3>
-@if (Model.ClientUpdates == null || !Model.ClientUpdates.Any())
-{
-    <div class="alert alert-info">No updates found for this client.</div>
-}
-else
-{
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Timestamp</th>
-                <th>Current Weight (kg)</th>
-                <th>Physique Changes</th>
-                <th>Diet Notes</th>
-                <th>Exercise Notes</th>
-                <th>Additional Notes</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var update in Model.ClientUpdates)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => update.Timestamp)</td>
-                    <td>@Html.DisplayFor(modelItem => update.CurrentWeightKg)</td>
-                    <td>@Html.DisplayFor(modelItem => update.PhysiqueChanges)</td>
-                    <td>@Html.DisplayFor(modelItem => update.DietAdjustmentsNotes)</td>
-                    <td>@Html.DisplayFor(modelItem => update.ExerciseAdjustmentsNotes)</td>
-                    <td>@Html.DisplayFor(modelItem => update.AdditionalNotes)</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(update.UploadedImageUrl))
-                        {
-                            <a href="@update.UploadedImageUrl" target="_blank">View Image</a>
-                        }
-                        else
-                        {
-                            <span>No Image</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+            <dt class="col-sm-4">Diet Status:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DietStatus)</dd>
+
+            <dt class="col-sm-4">Workout Status:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutStatus)</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Latest Subscription</h4>
+    </div>
+    <div class="card-body">
+        @{
+            var latestSubscription = Model.Subscriptions?.OrderByDescending(s => s.StartDate).FirstOrDefault();
+        }
+        @if (latestSubscription == null)
+        {
+            <div class="alert alert-info mb-0">No subscriptions found for this client.</div>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Package:</dt>
+                <dd class="col-sm-8">@latestSubscription.PackageType?.Name</dd>
+
+                <dt class="col-sm-4">Start Date:</dt>
+                <dd class="col-sm-8">@latestSubscription.StartDate.ToShortDateString()</dd>
+
+                <dt class="col-sm-4">End Date:</dt>
+                <dd class="col-sm-8">@latestSubscription.StartDate.AddMonths(latestSubscription.DurationMonths).ToShortDateString()</dd>
+
+                <dt class="col-sm-4">Price:</dt>
+                <dd class="col-sm-8">@latestSubscription.Price.ToString("F2") @latestSubscription.Currency?.Code</dd>
+
+                <dt class="col-sm-4">Status:</dt>
+                <dd class="col-sm-8">
+                    <span class="badge @(latestSubscription.IsActive ? "bg-success" : "bg-warning text-dark")">
+                        @(latestSubscription.IsActive ? "Active" : "Expired")
+                    </span>
+                </dd>
+            </dl>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Latest Initial Assessment</h4>
+    </div>
+    <div class="card-body">
+        @{
+            var latestAssessment = Model.ClientAssessments?.OrderByDescending(ca => ca.Timestamp).FirstOrDefault();
+        }
+        @if (latestAssessment == null)
+        {
+            <div class="alert alert-info mb-0">No initial assessments found for this client.</div>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Assessment Date:</dt>
+                <dd class="col-sm-8">@latestAssessment.Timestamp.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                <dt class="col-sm-4">Weight (kg):</dt>
+                <dd class="col-sm-8">@latestAssessment.WeightKg.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Height (cm):</dt>
+                <dd class="col-sm-8">@latestAssessment.HeightCm.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Gender:</dt>
+                <dd class="col-sm-8">@latestAssessment.Gender</dd>
+
+                <dt class="col-sm-4">Goal from Service:</dt>
+                <dd class="col-sm-8">@latestAssessment.ServiceGoal</dd>
+
+                <dt class="col-sm-4">Neck (cm):</dt>
+                <dd class="col-sm-8">@latestAssessment.NeckCircumferenceCm?.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Waist (cm):</dt>
+                <dd class="col-sm-8">@latestAssessment.WaistCircumferenceCm?.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Health Problems:</dt>
+                <dd class="col-sm-8">@(latestAssessment.HasHealthProblems ? "Yes" : "No")</dd>
+
+                <dt class="col-sm-4">Desired Meals:</dt>
+                <dd class="col-sm-8">@latestAssessment.DesiredMealsCount</dd>
+
+                <dt class="col-sm-4">Workout Commitment:</dt>
+                <dd class="col-sm-8">@latestAssessment.WorkoutCommitmentLevel</dd>
+
+                <dt class="col-sm-4">Preferred Workout Days:</dt>
+                <dd class="col-sm-8">@latestAssessment.PreferredWorkoutDays</dd>
+            </dl>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Latest Client Update</h4>
+    </div>
+    <div class="card-body">
+        @{
+            var latestUpdate = Model.ClientUpdates?.OrderByDescending(cu => cu.Timestamp).FirstOrDefault();
+        }
+        @if (latestUpdate == null)
+        {
+            <div class="alert alert-info mb-0">No client updates found for this client.</div>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Update Date:</dt>
+                <dd class="col-sm-8">@latestUpdate.Timestamp.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                <dt class="col-sm-4">Neck (cm):</dt>
+                <dd class="col-sm-8">@latestUpdate.NeckCircumferenceCm?.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Waist (cm):</dt>
+                <dd class="col-sm-8">@latestUpdate.WaistCircumferenceCm?.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Workout Commitment:</dt>
+                <dd class="col-sm-8">@latestUpdate.WorkoutCommitmentLevel</dd>
+
+                <dt class="col-sm-4">Notes:</dt>
+                <dd class="col-sm-8">@latestUpdate.Notes</dd>
+            </dl>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Latest Diet Plan</h4>
+    </div>
+    <div class="card-body">
+        @{
+            var latestDietPlan = Model.DietPlans?.OrderByDescending(dp => dp.CreatedDate).FirstOrDefault();
+        }
+        @if (latestDietPlan == null)
+        {
+            <div class="alert alert-info mb-0">No diet plans found for this client.</div>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Plan Name:</dt>
+                <dd class="col-sm-8">@latestDietPlan.PlanName</dd>
+
+                <dt class="col-sm-4">Created Date:</dt>
+                <dd class="col-sm-8">@latestDietPlan.CreatedDate.ToShortDateString()</dd>
+
+                <dt class="col-sm-4">General Notes:</dt>
+                <dd class="col-sm-8">@latestDietPlan.GeneralNotes</dd>
+            </dl>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Latest Workout Plan</h4>
+    </div>
+    <div class="card-body">
+        @{
+            var latestWorkoutPlan = Model.WorkoutPlans?.OrderByDescending(wp => wp.CreatedDate).FirstOrDefault();
+        }
+        @if (latestWorkoutPlan == null)
+        {
+            <div class="alert alert-info mb-0">No workout plans found for this client.</div>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Plan Name:</dt>
+                <dd class="col-sm-8">@latestWorkoutPlan.PlanName</dd>
+
+                <dt class="col-sm-4">Created Date:</dt>
+                <dd class="col-sm-8">@latestWorkoutPlan.CreatedDate.ToShortDateString()</dd>
+
+                <dt class="col-sm-4">General Notes:</dt>
+                <dd class="col-sm-8">@latestWorkoutPlan.GeneralNotes</dd>
+            </dl>
+        }
+    </div>
+</div>

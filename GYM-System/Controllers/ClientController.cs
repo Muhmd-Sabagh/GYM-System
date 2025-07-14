@@ -1,13 +1,13 @@
-﻿using GYM_System.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using GYM_System.Data;
 using GYM_System.Models;
 using GYM_System.Services;
 using GYM_System.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace SuperSheets.Controllers
+namespace GYM_System.Controllers
 {
     public class ClientsController : Controller
     {
@@ -65,8 +65,7 @@ namespace SuperSheets.Controllers
             return View(clients);
         }
 
-        // GET: Clients/Details/5 - This action is now effectively replaced by ClientFile for a more comprehensive view.
-        // Keeping it for potential direct access or if needed elsewhere.
+        // GET: Clients/Details/5 - Updated to include all related data
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -76,23 +75,27 @@ namespace SuperSheets.Controllers
 
             var client = await _context.Clients
                 .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.PackageType) // Eager load PackageType
+                    .ThenInclude(s => s.PackageType)
                 .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.Currency) // Eager load Currency
+                    .ThenInclude(s => s.Currency)
                 .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.PaymentAccount) // Eager load PaymentAccount
-                .Include(c => c.ClientAssessments.OrderByDescending(ca => ca.Timestamp))
-                .Include(c => c.ClientUpdates.OrderByDescending(cu => cu.Timestamp))
+                    .ThenInclude(s => s.PaymentAccount)
+                .Include(c => c.ClientAssessments.OrderByDescending(ca => ca.Timestamp)) // Include assessments
+                .Include(c => c.ClientUpdates.OrderByDescending(cu => cu.Timestamp))     // Include updates
+                .Include(c => c.DietPlans.OrderByDescending(dp => dp.CreatedDate))       // Include diet plans
+                .Include(c => c.WorkoutPlans.OrderByDescending(wp => wp.CreatedDate))     // Include workout plans
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (client == null)
             {
                 return NotFound();
             }
 
+            // The Details view now expects the Client model directly, not ClientFileViewModel.
+            // So, we pass the client object directly. The view will access its collections.
             return View(client);
         }
 
-        // GET: Clients/ClientFile/5 - Comprehensive client view
+        // GET: Clients/ClientFile/5 - Comprehensive client view (already updated)
         public async Task<IActionResult> ClientFile(int? id)
         {
             if (id == null)
@@ -102,13 +105,15 @@ namespace SuperSheets.Controllers
 
             var client = await _context.Clients
                 .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.PackageType) // Eager load PackageType
+                    .ThenInclude(s => s.PackageType)
                 .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.Currency) // Eager load Currency
+                    .ThenInclude(s => s.Currency)
                 .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.PaymentAccount) // Eager load PaymentAccount
+                    .ThenInclude(s => s.PaymentAccount)
                 .Include(c => c.ClientAssessments.OrderBy(ca => ca.Timestamp))
                 .Include(c => c.ClientUpdates.OrderBy(cu => cu.Timestamp))
+                .Include(c => c.DietPlans) // Ensure DietPlans are included for ClientFileViewModel
+                .Include(c => c.WorkoutPlans) // Ensure WorkoutPlans are included for ClientFileViewModel
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (client == null)
@@ -121,19 +126,12 @@ namespace SuperSheets.Controllers
                 Subscriptions = client.Subscriptions?.OrderByDescending(s => s.StartDate).ToList() ?? new List<Subscription>(),
                 ClientAssessments = client.ClientAssessments?.ToList() ?? new List<ClientAssessment>(),
                 ClientUpdates = client.ClientUpdates?.ToList() ?? new List<ClientUpdate>(),
-                DietPlans = await _context.DietPlans
-                                          .Where(dp => dp.ClientId == id)
-                                          .OrderByDescending(dp => dp.CreatedDate)
-                                          .ToListAsync(),
-                WorkoutPlans = await _context.WorkoutPlans
-                                            .Where(wp => wp.ClientId == id)
-                                            .OrderByDescending(wp => wp.CreatedDate)
-                                            .ToListAsync()
+                DietPlans = client.DietPlans?.ToList() ?? new List<DietPlan>(), // Use already included data
+                WorkoutPlans = client.WorkoutPlans?.ToList() ?? new List<WorkoutPlan>() // Use already included data
             };
 
             return View(viewModel);
         }
-
 
         // GET: Clients/Create
         public IActionResult Create()
@@ -270,7 +268,7 @@ namespace SuperSheets.Controllers
 
             ViewBag.ClientName = client.Name;
             ViewBag.ClientId = client.Id;
-            await PopulateSubscriptionDropdowns(); // Populate dropdowns
+            await PopulateSubscriptionDropdowns();
             return View();
         }
 
@@ -279,7 +277,6 @@ namespace SuperSheets.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddSubscription([Bind("ClientId,PackageTypeId,StartDate,DurationMonths,Price,CurrencyId,PaymentAccountId,RenewalCount")] Subscription subscription)
         {
-            // Remove ModelState for navigation properties and NotMapped properties
             ModelState.Remove("Client");
             ModelState.Remove("PackageType");
             ModelState.Remove("Currency");
@@ -293,14 +290,13 @@ namespace SuperSheets.Controllers
                 await UpdateClientSubscriptionStatus(subscription.ClientId);
                 return RedirectToAction(nameof(ClientFile), new { id = subscription.ClientId });
             }
-            // If model state is invalid, re-populate ViewBag for the view
             var client = await _context.Clients.FindAsync(subscription.ClientId);
             if (client != null)
             {
                 ViewBag.ClientName = client.Name;
                 ViewBag.ClientId = client.Id;
             }
-            await PopulateSubscriptionDropdowns(); // Re-populate dropdowns on validation error
+            await PopulateSubscriptionDropdowns();
             return View(subscription);
         }
 
@@ -322,7 +318,7 @@ namespace SuperSheets.Controllers
 
             ViewBag.ClientName = subscription.Client?.Name;
             ViewBag.ClientId = subscription.ClientId;
-            await PopulateSubscriptionDropdowns(); // Populate dropdowns
+            await PopulateSubscriptionDropdowns();
             return View(subscription);
         }
 
@@ -336,7 +332,6 @@ namespace SuperSheets.Controllers
                 return NotFound();
             }
 
-            // Remove ModelState for navigation properties and NotMapped properties
             ModelState.Remove("Client");
             ModelState.Remove("PackageType");
             ModelState.Remove("Currency");
@@ -364,14 +359,13 @@ namespace SuperSheets.Controllers
                 }
                 return RedirectToAction(nameof(ClientFile), new { id = subscription.ClientId });
             }
-            // If model state is invalid, re-populate ViewBag for the view
             var client = await _context.Clients.FindAsync(subscription.ClientId);
             if (client != null)
             {
                 ViewBag.ClientName = client.Name;
                 ViewBag.ClientId = client.Id;
             }
-            await PopulateSubscriptionDropdowns(); // Re-populate dropdowns on validation error
+            await PopulateSubscriptionDropdowns();
             return View(subscription);
         }
 
@@ -385,9 +379,9 @@ namespace SuperSheets.Controllers
 
             var subscription = await _context.Subscriptions
                 .Include(s => s.Client)
-                .Include(s => s.PackageType) // Eager load for display in delete confirmation
-                .Include(s => s.Currency)    // Eager load for display
-                .Include(s => s.PaymentAccount) // Eager load for display
+                .Include(s => s.PackageType)
+                .Include(s => s.Currency)
+                .Include(s => s.PaymentAccount)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (subscription == null)
             {
@@ -435,7 +429,13 @@ namespace SuperSheets.Controllers
                     {
                         try
                         {
-                            if (row.Count < 10) continue;
+                            // Minimum expected columns for initial assessment. Adjust if your sheet has fewer required fields at the start.
+                            // Based on the provided questions, there are 54 fields (0-53).
+                            if (row.Count < 54)
+                            {
+                                skippedInvalidFormCode++; // Or a more specific error for incomplete data
+                                continue;
+                            }
 
                             string formCode = row[1]?.ToString()?.Trim() ?? string.Empty;
                             DateTime timestamp = DateTime.TryParseExact(row[0]?.ToString(), "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ts) ? ts : DateTime.MinValue;
@@ -466,15 +466,68 @@ namespace SuperSheets.Controllers
                                 ClientId = client.Id,
                                 Timestamp = timestamp,
                                 FormCode = formCode,
-                                HeightCm = ParseDecimal(row.ElementAtOrDefault(2)),
-                                WeightKg = ParseDecimal(row.ElementAtOrDefault(3)),
-                                Age = ParseInt(row.ElementAtOrDefault(4)),
-                                Gender = row.ElementAtOrDefault(5)?.ToString(),
-                                ActivityLevel = row.ElementAtOrDefault(6)?.ToString(),
-                                DietaryPreferences = row.ElementAtOrDefault(7)?.ToString(),
-                                FitnessGoals = row.ElementAtOrDefault(8)?.ToString(),
-                                OtherNotes = row.ElementAtOrDefault(9)?.ToString(),
-                                UploadedImageUrl = row.ElementAtOrDefault(10)?.ToString()
+
+                                // Client Information (Questions 2-9)
+                                Country = row.ElementAtOrDefault(2)?.ToString(),
+                                Religion = row.ElementAtOrDefault(3)?.ToString(),
+                                ServiceGoal = row.ElementAtOrDefault(4)?.ToString(),
+                                WeightKg = ParseDecimal(row.ElementAtOrDefault(5)) ?? 0, // Assuming required
+                                HeightCm = ParseDecimal(row.ElementAtOrDefault(6)) ?? 0, // Assuming required
+                                Gender = row.ElementAtOrDefault(7)?.ToString() ?? string.Empty, // Assuming required
+                                DateOfBirth = DateTime.TryParseExact(row.ElementAtOrDefault(8)?.ToString(), "M/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dob) ? dob : DateTime.MinValue, // Assuming required
+                                JobProfession = row.ElementAtOrDefault(9)?.ToString(),
+
+                                // Body Assessment (Questions 10-17)
+                                NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(10)),
+                                WaistCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(11)),
+                                HipCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(12)),
+                                ArmCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(13)),
+                                ThighCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(14)),
+                                FrontBodyPhotoPath = row.ElementAtOrDefault(15)?.ToString(),
+                                SideBodyPhotoPath = row.ElementAtOrDefault(16)?.ToString(),
+                                BackBodyPhotoPath = row.ElementAtOrDefault(17)?.ToString(),
+
+                                // Medical Assessment (Questions 18-26)
+                                HasHealthProblems = ParseBool(row.ElementAtOrDefault(18)),
+                                HealthProblemsDetails = row.ElementAtOrDefault(19)?.ToString(),
+                                HasRecentTests = ParseBool(row.ElementAtOrDefault(20)),
+                                RecentTestsDetails = row.ElementAtOrDefault(21)?.ToString(),
+                                IsTakingMedicationsSupplements = ParseBool(row.ElementAtOrDefault(22)),
+                                MedicationsSupplementsDetails = row.ElementAtOrDefault(23)?.ToString(),
+                                HasMedicationAllergies = ParseBool(row.ElementAtOrDefault(24)),
+                                MedicationAllergiesDetails = row.ElementAtOrDefault(25)?.ToString(),
+                                HasChronicHereditaryDiseases = ParseBool(row.ElementAtOrDefault(26)),
+                                ChronicHereditaryDiseasesDetails = row.ElementAtOrDefault(27)?.ToString(),
+                                HasPastSurgeries = ParseBool(row.ElementAtOrDefault(28)),
+                                PastSurgeriesDetails = row.ElementAtOrDefault(29)?.ToString(),
+                                IsPregnantOrPlanning = ParseBoolNullable(row.ElementAtOrDefault(30)), // Nullable bool
+                                IsTakingVitaminsMinerals = ParseBool(row.ElementAtOrDefault(31)),
+                                VitaminsMineralsDetails = row.ElementAtOrDefault(32)?.ToString(),
+                                OtherMedicalNotes = row.ElementAtOrDefault(33)?.ToString(),
+
+                                // Dietary Assessment (Questions 27-31)
+                                HasFoodToRemove = ParseBool(row.ElementAtOrDefault(34)),
+                                FoodToRemoveDetails = row.ElementAtOrDefault(35)?.ToString(),
+                                HasFoodToAdd = ParseBool(row.ElementAtOrDefault(36)),
+                                FoodToAddDetails = row.ElementAtOrDefault(37)?.ToString(),
+                                HasFoodToKeepFromPrevious = ParseBool(row.ElementAtOrDefault(38)),
+                                FoodToKeepFromPreviousDetails = row.ElementAtOrDefault(39)?.ToString(),
+                                DesiredMealsCount = ParseInt(row.ElementAtOrDefault(40)) ?? 0, // Assuming required
+                                DietaryNotes = row.ElementAtOrDefault(41)?.ToString(),
+
+                                // Workout Assessment (Questions 32-42)
+                                WorkoutCommitmentLevel = row.ElementAtOrDefault(42)?.ToString() ?? string.Empty, // Assuming required
+                                WorkoutDaysPerWeek = ParseInt(row.ElementAtOrDefault(43)) ?? 0, // Assuming required
+                                DailySleepHours = row.ElementAtOrDefault(44)?.ToString() ?? string.Empty, // Assuming required
+                                DailyWaterIntake = row.ElementAtOrDefault(45)?.ToString() ?? string.Empty, // Assuming required
+                                DailyWalkingHours = row.ElementAtOrDefault(46)?.ToString() ?? string.Empty, // Assuming required
+                                HasInjuries = ParseBool(row.ElementAtOrDefault(47)),
+                                InjuriesDetails = row.ElementAtOrDefault(48)?.ToString(),
+                                PreferredWorkoutDays = row.ElementAtOrDefault(49)?.ToString(), // Comma-separated string
+                                WorkoutGoals = row.ElementAtOrDefault(50)?.ToString(), // Comma-separated string
+                                AvailableEquipment = row.ElementAtOrDefault(51)?.ToString(), // Comma-separated string
+                                WorkoutLocation = row.ElementAtOrDefault(52)?.ToString(), // Comma-separated string
+                                WorkoutNotes = row.ElementAtOrDefault(53)?.ToString()
                             };
                             _context.ClientAssessments.Add(assessment);
                             assessmentsImported++;
@@ -486,6 +539,7 @@ namespace SuperSheets.Controllers
                         catch (Exception ex)
                         {
                             Console.WriteLine($"Error processing initial assessment row: {ex.Message}");
+                            // Consider logging more details like the row content for debugging
                         }
                     }
                 }
@@ -498,7 +552,12 @@ namespace SuperSheets.Controllers
                     {
                         try
                         {
-                            if (row.Count < 7) continue;
+                            // Minimum expected columns for client update. Based on your update questions, there are 12 fields (0-11).
+                            if (row.Count < 12)
+                            {
+                                skippedInvalidFormCode++; // Or a more specific error for incomplete data
+                                continue;
+                            }
 
                             string formCode = row[1]?.ToString()?.Trim() ?? string.Empty;
                             DateTime timestamp = DateTime.TryParseExact(row[0]?.ToString(), "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ts) ? ts : DateTime.MinValue;
@@ -529,12 +588,20 @@ namespace SuperSheets.Controllers
                                 ClientId = client.Id,
                                 Timestamp = timestamp,
                                 FormCode = formCode,
-                                CurrentWeightKg = ParseDecimal(row.ElementAtOrDefault(2)),
-                                PhysiqueChanges = row.ElementAtOrDefault(3)?.ToString(),
-                                DietAdjustmentsNotes = row.ElementAtOrDefault(4)?.ToString(),
-                                ExerciseAdjustmentsNotes = row.ElementAtOrDefault(5)?.ToString(),
-                                AdditionalNotes = row.ElementAtOrDefault(6)?.ToString(),
-                                UploadedImageUrl = row.ElementAtOrDefault(7)?.ToString()
+
+                                // Body Assessment Update (from original update section questions 8-15)
+                                NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(2)),
+                                WaistCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(3)),
+                                HipCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(4)),
+                                ArmCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(5)),
+                                ThighCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(6)),
+                                FrontBodyPhotoPath = row.ElementAtOrDefault(7)?.ToString(),
+                                SideBodyPhotoPath = row.ElementAtOrDefault(8)?.ToString(),
+                                BackBodyPhotoPath = row.ElementAtOrDefault(9)?.ToString(),
+
+                                // Workout Assessment Update (from original update section question 16-17)
+                                WorkoutCommitmentLevel = row.ElementAtOrDefault(10)?.ToString(),
+                                Notes = row.ElementAtOrDefault(11)?.ToString()
                             };
                             _context.ClientUpdates.Add(update);
                             updatesImported++;
@@ -546,13 +613,14 @@ namespace SuperSheets.Controllers
                         catch (Exception ex)
                         {
                             Console.WriteLine($"Error processing update form row: {ex.Message}");
+                            // Consider logging more details like the row content for debugging
                         }
                     }
                 }
 
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = $"Sync complete! Imported {assessmentsImported} new initial assessments and {updatesImported} new updates. Skipped {skippedInvalidFormCode} rows due to invalid Form Code or missing client, and {skippedDuplicates} duplicate entries.";
+                TempData["SuccessMessage"] = $"Sync complete! Imported {assessmentsImported} new initial assessments and {updatesImported} new updates. Skipped {skippedInvalidFormCode} rows due to invalid Form Code/missing client/incomplete data, and {skippedDuplicates} duplicate entries.";
             }
             catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException authEx)
             {
@@ -587,6 +655,37 @@ namespace SuperSheets.Controllers
                 return result;
             }
             return null;
+        }
+
+        // New helper to parse boolean values from "Yes"/"No" strings
+        private bool ParseBool(object? value)
+        {
+            if (value != null && (value.ToString()?.Equals("نعم", StringComparison.OrdinalIgnoreCase) == true ||
+                                  value.ToString()?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // New helper to parse nullable boolean values (for "Pregnant or Planning?")
+        private bool? ParseBoolNullable(object? value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+            {
+                return null;
+            }
+            if (value.ToString()?.Equals("نعم", StringComparison.OrdinalIgnoreCase) == true ||
+                value.ToString()?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return true;
+            }
+            if (value.ToString()?.Equals("لا", StringComparison.OrdinalIgnoreCase) == true ||
+                value.ToString()?.Equals("No", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return false;
+            }
+            return null; // For any other unexpected value
         }
 
 

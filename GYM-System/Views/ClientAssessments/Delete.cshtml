@@ -1,0 +1,65 @@
+﻿@model GYM_System.Models.ClientAssessment
+
+@{
+    ViewData["Title"] = "Delete Client Assessment";
+}
+
+<h1 class="mb-4">Delete Client Assessment</h1>
+
+<h3>Are you sure you want to delete this assessment for @Model.Client?.Name (Assessment Date: @Model.Timestamp.ToShortDateString())?</h3>
+<div class="alert alert-danger mt-3" role="alert">
+    <strong>Warning:</strong> Deleting this assessment is irreversible.
+</div>
+
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Assessment Details</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Client:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.Name)</dd>
+
+            <dt class="col-sm-4">Assessment Date:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Timestamp)</dd>
+
+            <dt class="col-sm-4">Form Code:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.FormCode)</dd>
+
+            <hr class="my-3" />
+
+            <dt class="col-sm-4">Weight (kg):</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WeightKg)</dd>
+
+            <dt class="col-sm-4">Height (cm):</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.HeightCm)</dd>
+
+            <dt class="col-sm-4">Gender:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Gender)</dd>
+
+            <dt class="col-sm-4">Has Health Problems:</dt>
+            <dd class="col-sm-8">@(Model.HasHealthProblems ? "Yes" : "No")</dd>
+            @if (Model.HasHealthProblems)
+            {
+                <dt class="col-sm-4">Health Problems Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.HealthProblemsDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Desired Meals Count:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DesiredMealsCount)</dd>
+
+            <dt class="col-sm-4">Workout Commitment:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutCommitmentLevel)</dd>
+
+            <dt class="col-sm-4">Preferred Workout Days:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreferredWorkoutDays)</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" class="mt-4">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ClientId" />
+    <input type="submit" value="Delete Assessment" class="btn btn-danger me-2" />
+    <a asp-action="ClientFile" asp-controller="Clients" asp-route-id="@Model.ClientId" class="btn btn-secondary">Cancel</a>
+</form>

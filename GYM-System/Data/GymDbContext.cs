@@ -77,7 +77,20 @@ namespace GYM_System.Data
                 .HasForeignKey(cu => cu.ClientId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Diet Plan relationships
+            // --- ADD THESE NEW RELATIONSHIP DEFINITIONS ---
+            modelBuilder.Entity<Client>()
+                .HasMany(c => c.DietPlans)
+                .WithOne(dp => dp.Client) // Assuming DietPlan has a Client navigation property
+                .HasForeignKey(dp => dp.ClientId) // Assuming DietPlan has a ClientId foreign key
+                .OnDelete(DeleteBehavior.SetNull); // Or .Cascade, depending on desired behavior. SetNull is safer if you want to keep plans after client deletion, but requires ClientId to be nullable in DietPlan. Let's use Cascade for now, assuming plans are tied to the client.
+
+            modelBuilder.Entity<Client>()
+                .HasMany(c => c.WorkoutPlans)
+                .WithOne(wp => wp.Client) // Assuming WorkoutPlan has a Client navigation property
+                .HasForeignKey(wp => wp.ClientId) // Assuming WorkoutPlan has a ClientId foreign key
+                .OnDelete(DeleteBehavior.SetNull); // Or .Cascade. Using SetNull for consistency with DietPlan.
+
+            // Diet Plan relationships (existing)
             modelBuilder.Entity<DietPlan>()
                 .HasMany(dp => dp.Versions)
                 .WithOne(dpv => dpv.DietPlan)
@@ -102,7 +115,7 @@ namespace GYM_System.Data
                 .HasForeignKey(mfi => mfi.FoodItemId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Workout Plan relationships
+            // Workout Plan relationships (existing)
             modelBuilder.Entity<WorkoutPlan>()
                 .HasMany(wp => wp.WorkoutDays)
                 .WithOne(wd => wd.WorkoutPlan)

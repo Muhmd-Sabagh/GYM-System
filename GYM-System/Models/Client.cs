@@ -36,6 +36,10 @@ namespace GYM_System.Models
         public ICollection<ClientAssessment>? ClientAssessments { get; set; } = new List<ClientAssessment>();
         public ICollection<ClientUpdate>? ClientUpdates { get; set; } = new List<ClientUpdate>();
 
+        // --- ADDED THESE NEW NAVIGATION PROPERTIES ---
+        public ICollection<DietPlan>? DietPlans { get; set; } = new List<DietPlan>(); // Initialize to prevent null reference
+        public ICollection<WorkoutPlan>? WorkoutPlans { get; set; } = new List<WorkoutPlan>(); // Initialize to prevent null reference
+
         // Properties for client status tracking (enums will be defined later)
         public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Inactive;
         public PlanStatus DietStatus { get; set; } = PlanStatus.NotStarted;

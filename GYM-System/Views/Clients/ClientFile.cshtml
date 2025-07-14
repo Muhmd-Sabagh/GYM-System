@@ -4,24 +4,25 @@
     ViewData["Title"] = $"Client File: {Model.Client?.Name}";
 }
 
-<h1>Client File: @Model.Client?.Name</h1>
+<h1 class="mb-4">Client File: @Model.Client?.Name</h1>
 
-<div class="mb-3">
+<div class="mb-4 d-flex flex-wrap gap-2">
     <a asp-action="Index" class="btn btn-secondary">Back to Clients List</a>
     <a asp-action="Edit" asp-route-id="@Model.Client?.Id" class="btn btn-info">Edit Client Details</a>
     <a asp-action="AddSubscription" asp-route-clientId="@Model.Client?.Id" class="btn btn-primary">Add New Subscription</a>
+    <a asp-controller="ClientAssessments" asp-action="Create" asp-route-clientId="@Model.Client?.Id" class="btn btn-success">Add New Assessment</a>
 </div>
 
-<hr />
+<hr class="my-4" />
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card mb-4">
+        <div class="card mb-4 h-100">
             <div class="card-header bg-dark text-white">
-                <h4>Client Information</h4>
+                <h4 class="mb-0">Client Information</h4>
             </div>
             <div class="card-body">
-                <dl class="row">
+                <dl class="row mb-0">
                     <dt class="col-sm-4">Client Code:</dt>
                     <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.ClientCode)</dd>
 
@@ -58,48 +59,50 @@
     </div>
 
     <div class="col-md-6">
-        <div class="card mb-4">
+        <div class="card mb-4 h-100">
             <div class="card-header bg-dark text-white">
-                <h4>Subscriptions</h4>
+                <h4 class="mb-0">Subscriptions</h4>
             </div>
             <div class="card-body">
                 @if (!Model.Subscriptions.Any())
                 {
-                    <div class="alert alert-info">No subscriptions found.</div>
+                    <div class="alert alert-info mb-0">No subscriptions found.</div>
                 }
                 else
                 {
-                    <table class="table table-sm table-striped">
-                        <thead>
-                            <tr>
-                                <th>Package</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var sub in Model.Subscriptions)
-                            {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped mb-0">
+                            <thead>
                                 <tr>
-                                    <td>@sub.PackageType?.Name</td> @* Display Name from navigation property *@
-                                    <td>@sub.StartDate.ToShortDateString()</td>
-                                    <td>@sub.StartDate.AddMonths(sub.DurationMonths).ToShortDateString()</td>
-                                    <td>@sub.Price.ToString("F2") @sub.Currency?.Code</td> @* Display Code from navigation property *@
-                                    <td>
-                                        <span class="badge @(sub.IsActive ? "bg-success" : "bg-warning text-dark")">
-                                            @(sub.IsActive ? "Active" : "Expired")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a asp-action="EditSubscription" asp-route-id="@sub.Id" class="btn btn-sm btn-outline-info">Edit</a>
-                                    </td>
+                                    <th>Package</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var sub in Model.Subscriptions)
+                                {
+                                    <tr>
+                                        <td>@sub.PackageType?.Name</td>
+                                        <td>@sub.StartDate.ToShortDateString()</td>
+                                        <td>@sub.StartDate.AddMonths(sub.DurationMonths).ToShortDateString()</td>
+                                        <td>@sub.Price.ToString("F2") @sub.Currency?.Code</td>
+                                        <td>
+                                            <span class="badge @(sub.IsActive ? "bg-success" : "bg-warning text-dark")">
+                                                @(sub.IsActive ? "Active" : "Expired")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a asp-action="EditSubscription" asp-route-id="@sub.Id" class="btn btn-sm btn-outline-info">Edit</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
             </div>
         </div>
@@ -108,12 +111,12 @@
 
 <div class="card mb-4">
     <div class="card-header bg-dark text-white">
-        <h4>Initial Assessments (First Plans)</h4>
+        <h4 class="mb-0">Initial Assessments</h4>
     </div>
     <div class="card-body">
         @if (!Model.ClientAssessments.Any())
         {
-            <div class="alert alert-info">No initial assessments found. Sync from Google Forms.</div>
+            <div class="alert alert-info mb-0">No initial assessments found. Sync from Google Forms or <a asp-controller="ClientAssessments" asp-action="Create" asp-route-clientId="@Model.Client?.Id">add one manually</a>.</div>
         }
         else
         {
@@ -121,16 +124,58 @@
                 <table class="table table-sm table-bordered">
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
-                            <th>Height (cm)</th>
+                            <th>Date</th>
+                            <th>Country</th>
+                            <th>Religion</th>
+                            <th>Goal</th>
                             <th>Weight (kg)</th>
-                            <th>Age</th>
+                            <th>Height (cm)</th>
                             <th>Gender</th>
-                            <th>Activity Level</th>
-                            <th>Dietary Preferences</th>
-                            <th>Fitness Goals</th>
-                            <th>Other Notes</th>
-                            <th>Image</th>
+                            <th>DOB</th>
+                            <th>Job</th>
+                            <th>Neck (cm)</th>
+                            <th>Waist (cm)</th>
+                            <th>Hip (cm)</th>
+                            <th>Arm (cm)</th>
+                            <th>Thigh (cm)</th>
+                            <th>Photos</th>
+                            <th>Health Problems</th>
+                            <th>Health Details</th>
+                            <th>Recent Tests</th>
+                            <th>Tests Details</th>
+                            <th>Medications</th>
+                            <th>Med. Details</th>
+                            <th>Med. Allergies</th>
+                            <th>Allergies Details</th>
+                            <th>Chronic Diseases</th>
+                            <th>Chronic Details</th>
+                            <th>Surgeries</th>
+                            <th>Surg. Details</th>
+                            <th>Pregnant?</th>
+                            <th>Vitamins</th>
+                            <th>Vit. Details</th>
+                            <th>Other Medical Notes</th>
+                            <th>Food to Remove?</th>
+                            <th>Remove Details</th>
+                            <th>Food to Add?</th>
+                            <th>Add Details</th>
+                            <th>Food to Keep?</th>
+                            <th>Keep Details</th>
+                            <th>Desired Meals</th>
+                            <th>Dietary Notes</th>
+                            <th>Workout Commitment</th>
+                            <th>Workout Days/Week</th>
+                            <th>Sleep Hours</th>
+                            <th>Water Intake</th>
+                            <th>Walking Hours</th>
+                            <th>Injuries?</th>
+                            <th>Injuries Details</th>
+                            <th>Preferred Workout Days</th>
+                            <th>Workout Goals</th>
+                            <th>Available Equipment</th>
+                            <th>Workout Location</th>
+                            <th>Workout Notes</th>
+                            <th>Actions</th> <!-- NEW COLUMN -->
                         </tr>
                     </thead>
                     <tbody>
@@ -138,23 +183,72 @@
                         {
                             <tr>
                                 <td>@assessment.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
-                                <td>@assessment.HeightCm?.ToString("F1")</td>
-                                <td>@assessment.WeightKg?.ToString("F1")</td>
-                                <td>@assessment.Age</td>
+                                <td>@assessment.Country</td>
+                                <td>@assessment.Religion</td>
+                                <td>@assessment.ServiceGoal</td>
+                                <td>@assessment.WeightKg.ToString("F1")</td>
+                                <td>@assessment.HeightCm.ToString("F1")</td>
                                 <td>@assessment.Gender</td>
-                                <td>@assessment.ActivityLevel</td>
-                                <td>@assessment.DietaryPreferences</td>
-                                <td>@assessment.FitnessGoals</td>
-                                <td>@assessment.OtherNotes</td>
+                                <td>@assessment.DateOfBirth.ToShortDateString()</td>
+                                <td>@assessment.JobProfession</td>
+                                <td>@assessment.NeckCircumferenceCm?.ToString("F1")</td>
+                                <td>@assessment.WaistCircumferenceCm?.ToString("F1")</td>
+                                <td>@assessment.HipCircumferenceCm?.ToString("F1")</td>
+                                <td>@assessment.ArmCircumferenceCm?.ToString("F1")</td>
+                                <td>@assessment.ThighCircumferenceCm?.ToString("F1")</td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(assessment.UploadedImageUrl))
+                                    @if (!string.IsNullOrEmpty(assessment.FrontBodyPhotoPath))
                                     {
-                                        <a href="@assessment.UploadedImageUrl" target="_blank">View Image</a>
+                                        <a href="@assessment.FrontBodyPhotoPath" target="_blank">F</a>
                                     }
-                                    else
+                                    @if (!string.IsNullOrEmpty(assessment.SideBodyPhotoPath))
                                     {
-                                        <span>N/A</span>
+                                        <a href="@assessment.SideBodyPhotoPath" target="_blank">S</a>
                                     }
+                                    @if (!string.IsNullOrEmpty(assessment.BackBodyPhotoPath))
+                                    {
+                                        <a href="@assessment.BackBodyPhotoPath" target="_blank">B</a>
+                                    }
+                                </td>
+                                <td>@(assessment.HasHealthProblems ? "Yes" : "No")</td>
+                                <td>@assessment.HealthProblemsDetails</td>
+                                <td>@(assessment.HasRecentTests ? "Yes" : "No")</td>
+                                <td>@assessment.RecentTestsDetails</td>
+                                <td>@(assessment.IsTakingMedicationsSupplements ? "Yes" : "No")</td>
+                                <td>@assessment.MedicationsSupplementsDetails</td>
+                                <td>@(assessment.HasMedicationAllergies ? "Yes" : "No")</td>
+                                <td>@assessment.MedicationAllergiesDetails</td>
+                                <td>@(assessment.HasChronicHereditaryDiseases ? "Yes" : "No")</td>
+                                <td>@assessment.ChronicHereditaryDiseasesDetails</td>
+                                <td>@(assessment.HasPastSurgeries ? "Yes" : "No")</td>
+                                <td>@assessment.PastSurgeriesDetails</td>
+                                <td>@(assessment.IsPregnantOrPlanning.HasValue ? (assessment.IsPregnantOrPlanning.Value ? "Yes" : "No") : "N/A")</td>
+                                <td>@(assessment.IsTakingVitaminsMinerals ? "Yes" : "No")</td>
+                                <td>@assessment.VitaminsMineralsDetails</td>
+                                <td>@assessment.OtherMedicalNotes</td>
+                                <td>@(assessment.HasFoodToRemove ? "Yes" : "No")</td>
+                                <td>@assessment.FoodToRemoveDetails</td>
+                                <td>@(assessment.HasFoodToAdd ? "Yes" : "No")</td>
+                                <td>@assessment.FoodToAddDetails</td>
+                                <td>@(assessment.HasFoodToKeepFromPrevious ? "Yes" : "No")</td>
+                                <td>@assessment.FoodToKeepFromPreviousDetails</td>
+                                <td>@assessment.DesiredMealsCount</td>
+                                <td>@assessment.DietaryNotes</td>
+                                <td>@assessment.WorkoutCommitmentLevel</td>
+                                <td>@assessment.WorkoutDaysPerWeek</td>
+                                <td>@assessment.DailySleepHours</td>
+                                <td>@assessment.DailyWaterIntake</td>
+                                <td>@assessment.DailyWalkingHours</td>
+                                <td>@(assessment.HasInjuries ? "Yes" : "No")</td>
+                                <td>@assessment.InjuriesDetails</td>
+                                <td>@assessment.PreferredWorkoutDays</td>
+                                <td>@assessment.WorkoutGoals</td>
+                                <td>@assessment.AvailableEquipment</td>
+                                <td>@assessment.WorkoutLocation</td>
+                                <td>@assessment.WorkoutNotes</td>
+                                <td>
+                                    <a asp-controller="ClientAssessments" asp-action="Edit" asp-route-id="@assessment.Id" class="btn btn-sm btn-outline-info me-1">Edit</a>
+                                    <a asp-controller="ClientAssessments" asp-action="Delete" asp-route-id="@assessment.Id" class="btn btn-sm btn-outline-danger">Delete</a>
                                 </td>
                             </tr>
                         }
@@ -167,12 +261,12 @@
 
 <div class="card mb-4">
     <div class="card-header bg-dark text-white">
-        <h4>Client Updates (Progress Tracking)</h4>
+        <h4 class="mb-0">Client Updates (Progress Tracking)</h4>
     </div>
     <div class="card-body">
         @if (!Model.ClientUpdates.Any())
         {
-            <div class="alert alert-info">No client updates found. Sync from Google Forms.</div>
+            <div class="alert alert-info mb-0">No client updates found. Sync from Google Forms or <a asp-controller="ClientUpdates" asp-action="Create" asp-route-clientId="@Model.Client?.Id">add one manually</a>.</div>
         }
         else
         {
@@ -182,7 +276,12 @@
                         <tr>
                             @foreach (var update in Model.ClientUpdates)
                             {
-                                <th class="text-center">@update.Timestamp.ToString("yyyy-MM-dd")</th>
+                                <th class="text-center">
+                                    @update.Timestamp.ToString("yyyy-MM-dd")
+                                    <br />
+                                    <a asp-controller="ClientUpdates" asp-action="Edit" asp-route-id="@update.Id" class="btn btn-sm btn-outline-info mt-1">Edit</a>
+                                    <a asp-controller="ClientUpdates" asp-action="Delete" asp-route-id="@update.Id" class="btn btn-sm btn-outline-danger mt-1">Del</a>
+                                </th>
                             }
                         </tr>
                     </thead>
@@ -191,19 +290,27 @@
                             @foreach (var update in Model.ClientUpdates)
                             {
                                 <td class="text-center">
-                                    <strong>Weight (kg):</strong> @update.CurrentWeightKg?.ToString("F1")<br />
-                                    <strong>Physique:</strong> @update.PhysiqueChanges<br />
-                                    <strong>Diet Notes:</strong> @update.DietAdjustmentsNotes<br />
-                                    <strong>Exercise Notes:</strong> @update.ExerciseAdjustmentsNotes<br />
-                                    <strong>Additional:</strong> @update.AdditionalNotes<br />
-                                    @if (!string.IsNullOrEmpty(update.UploadedImageUrl))
+                                    <strong>Neck (cm):</strong> @update.NeckCircumferenceCm?.ToString("F1")<br />
+                                    <strong>Waist (cm):</strong> @update.WaistCircumferenceCm?.ToString("F1")<br />
+                                    <strong>Hip (cm):</strong> @update.HipCircumferenceCm?.ToString("F1")<br />
+                                    <strong>Arm (cm):</strong> @update.ArmCircumferenceCm?.ToString("F1")<br />
+                                    <strong>Thigh (cm):</strong> @update.ThighCircumferenceCm?.ToString("F1")<br />
+                                    <strong>Photos:</strong>
+                                    @if (!string.IsNullOrEmpty(update.FrontBodyPhotoPath))
                                     {
-                                        <a href="@update.UploadedImageUrl" target="_blank">View Image</a>
+                                        <a href="@update.FrontBodyPhotoPath" target="_blank">F</a>
                                     }
-                                    else
+                                    @if (!string.IsNullOrEmpty(update.SideBodyPhotoPath))
                                     {
-                                        <span>N/A</span>
+                                        <a href="@update.SideBodyPhotoPath" target="_blank">S</a>
                                     }
+                                    @if (!string.IsNullOrEmpty(update.BackBodyPhotoPath))
+                                    {
+                                        <a href="@update.BackBodyPhotoPath" target="_blank">B</a>
+                                    }
+                                    <br />
+                                    <strong>Workout Commitment:</strong> @update.WorkoutCommitmentLevel<br />
+                                    <strong>Notes:</strong> @update.Notes
                                 </td>
                             }
                         </tr>
@@ -216,76 +323,80 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card mb-4">
+        <div class="card mb-4 h-100">
             <div class="card-header bg-dark text-white">
-                <h4>Diet Plans for @Model.Client?.Name</h4>
+                <h4 class="mb-0">Diet Plans for @Model.Client?.Name</h4>
             </div>
             <div class="card-body">
                 @if (!Model.DietPlans.Any())
                 {
-                    <div class="alert alert-info">No diet plans created for this client.</div>
+                    <div class="alert alert-info mb-0">No diet plans created for this client.</div>
                 }
                 else
                 {
-                    <table class="table table-sm table-striped">
-                        <thead>
-                            <tr>
-                                <th>Plan Name</th>
-                                <th>Created Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var plan in Model.DietPlans)
-                            {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped mb-0">
+                            <thead>
                                 <tr>
-                                    <td>@plan.PlanName</td>
-                                    <td>@plan.CreatedDate.ToShortDateString()</td>
-                                    <td>
-                                        <a asp-controller="DietPlanMaker" asp-action="Index" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-info">Edit Plan</a>
-                                    </td>
+                                    <th>Plan Name</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var plan in Model.DietPlans)
+                                {
+                                    <tr>
+                                        <td>@plan.PlanName</td>
+                                        <td>@plan.CreatedDate.ToShortDateString()</td>
+                                        <td>
+                                            <a asp-controller="DietPlanMaker" asp-action="Index" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-info">Edit Plan</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
             </div>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="card mb-4">
+        <div class="card mb-4 h-100">
             <div class="card-header bg-dark text-white">
-                <h4>Workout Plans for @Model.Client?.Name</h4>
+                <h4 class="mb-0">Workout Plans for @Model.Client?.Name</h4>
             </div>
             <div class="card-body">
                 @if (!Model.WorkoutPlans.Any())
                 {
-                    <div class="alert alert-info">No workout plans created for this client.</div>
+                    <div class="alert alert-info mb-0">No workout plans created for this client.</div>
                 }
                 else
                 {
-                    <table class="table table-sm table-striped">
-                        <thead>
-                            <tr>
-                                <th>Plan Name</th>
-                                <th>Created Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var plan in Model.WorkoutPlans)
-                            {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped mb-0">
+                            <thead>
                                 <tr>
-                                    <td>@plan.PlanName</td>
-                                    <td>@plan.CreatedDate.ToShortDateString()</td>
-                                    <td>
-                                        <a asp-controller="WorkoutPlanMaker" asp-action="Index" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-info">Edit Plan</a>
-                                    </td>
+                                    <th>Plan Name</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var plan in Model.WorkoutPlans)
+                                {
+                                    <tr>
+                                        <td>@plan.PlanName</td>
+                                        <td>@plan.CreatedDate.ToShortDateString()</td>
+                                        <td>
+                                            <a asp-controller="WorkoutPlanMaker" asp-action="Index" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-info">Edit Plan</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
             </div>
         </div>

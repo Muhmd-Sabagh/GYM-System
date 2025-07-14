@@ -84,49 +84,207 @@ namespace GYM_System.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ActivityLevel")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<decimal?>("ArmCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
 
-                    b.Property<int?>("Age")
-                        .HasColumnType("int");
+                    b.Property<string>("AvailableEquipment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("BackBodyPhotoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ChronicHereditaryDiseasesDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<string>("DietaryPreferences")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("FitnessGoals")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<string>("DailySleepHours")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DailyWalkingHours")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DailyWaterIntake")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DesiredMealsCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DietaryNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("FoodToAddDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("FoodToKeepFromPreviousDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("FoodToRemoveDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("FormCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("FrontBodyPhotoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal?>("HeightCm")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<bool>("HasChronicHereditaryDiseases")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("OtherNotes")
+                    b.Property<bool>("HasFoodToAdd")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasFoodToKeepFromPrevious")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasFoodToRemove")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasHealthProblems")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasInjuries")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasMedicationAllergies")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasPastSurgeries")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasRecentTests")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("HealthProblemsDetails")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("HeightCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal?>("HipCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("InjuriesDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool?>("IsPregnantOrPlanning")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTakingMedicationsSupplements")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTakingVitaminsMinerals")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobProfession")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("MedicationAllergiesDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("MedicationsSupplementsDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("NeckCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("OtherMedicalNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PastSurgeriesDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PreferredWorkoutDays")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("RecentTestsDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Religion")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ServiceGoal")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("SideBodyPhotoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("ThighCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UploadedImageUrl")
+                    b.Property<string>("VitaminsMineralsDetails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("WaistCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("WorkoutCommitmentLevel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("WorkoutDaysPerWeek")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkoutGoals")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal?>("WeightKg")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<string>("WorkoutLocation")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("WorkoutNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("Id");
 
@@ -143,39 +301,51 @@ namespace GYM_System.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AdditionalNotes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<decimal?>("ArmCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("BackBodyPhotoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("CurrentWeightKg")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("DietAdjustmentsNotes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("ExerciseAdjustmentsNotes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("FormCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("PhysiqueChanges")
+                    b.Property<string>("FrontBodyPhotoPath")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("HipCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal?>("NeckCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("SideBodyPhotoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("ThighCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UploadedImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<decimal?>("WaistCircumferenceCm")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("WorkoutCommitmentLevel")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -620,8 +790,9 @@ namespace GYM_System.Migrations
             modelBuilder.Entity("GYM_System.Models.DietPlan", b =>
                 {
                     b.HasOne("GYM_System.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId");
+                        .WithMany("DietPlans")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Client");
                 });
@@ -734,8 +905,9 @@ namespace GYM_System.Migrations
             modelBuilder.Entity("GYM_System.Models.WorkoutPlan", b =>
                 {
                     b.HasOne("GYM_System.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId");
+                        .WithMany("WorkoutPlans")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Client");
                 });
@@ -746,7 +918,11 @@ namespace GYM_System.Migrations
 
                     b.Navigation("ClientUpdates");
 
+                    b.Navigation("DietPlans");
+
                     b.Navigation("Subscriptions");
+
+                    b.Navigation("WorkoutPlans");
                 });
 
             modelBuilder.Entity("GYM_System.Models.DietPlan", b =>
