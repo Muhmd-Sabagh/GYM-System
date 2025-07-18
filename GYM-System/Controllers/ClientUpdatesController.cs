@@ -16,14 +16,13 @@ namespace GYM_System.Controllers
         }
 
         // GET: ClientUpdates
-        // This Index will show all updates, but typically you'd navigate from ClientFile
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.ClientUpdates.Include(c => c.Client).OrderByDescending(c => c.Timestamp);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: ClientUpdates/Details/5 (Optional, if you want a dedicated details page)
+        // GET: ClientUpdates/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,12 +42,10 @@ namespace GYM_System.Controllers
         }
 
         // GET: ClientUpdates/Create
-        // Can be accessed directly or with a clientId pre-filled
         public async Task<IActionResult> Create(int? clientId)
         {
             ViewBag.Clients = new SelectList(await _context.Clients.OrderBy(c => c.Name).ToListAsync(), "Id", "Name", clientId);
 
-            // Pre-fill FormCode if client is selected
             if (clientId.HasValue)
             {
                 var client = await _context.Clients.FindAsync(clientId.Value);
@@ -58,21 +55,40 @@ namespace GYM_System.Controllers
                 }
             }
 
-            return View();
+            // Provide sensible default values for required fields
+            var newUpdate = new ClientUpdate
+            {
+                Timestamp = DateTime.Now,
+                CurrentWeightKg = 0,
+                DietCommitmentLevel = "غير ملتزم",
+                WorkoutCommitmentLevel = "غير ملتزم",
+                PreviousWorkoutSystemExperience = "",
+                HasWeightRepsDevelopment = false,
+                IsTrainingVolumeSuitable = false,
+                IsTrainingIntensitySuitable = false,
+                HasExerciseDiscomfort = false,
+                AvailableWorkoutDaysCount = 3, // Example default
+                WorkoutLocation = "جيم"
+            };
+
+            return View(newUpdate);
         }
 
         // POST: ClientUpdates/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind(
-            "ClientId,Timestamp,FormCode," +
+            "ClientId,Timestamp,FormCode,CurrentWeightKg," +
+            "DietCommitmentLevel,HasFoodToRemove,FoodToRemoveDetails,HasFoodToAdd,FoodToAddDetails,HasFoodToKeepFromPrevious,FoodToKeepFromPreviousDetails," +
+            "DesiredMealsCount,DietaryNotes," +
             "NeckCircumferenceCm,WaistCircumferenceCm,HipCircumferenceCm,ArmCircumferenceCm,ThighCircumferenceCm," +
             "FrontBodyPhotoPath,SideBodyPhotoPath,BackBodyPhotoPath," +
-            "WorkoutCommitmentLevel,Notes"
+            "WorkoutCommitmentLevel,PreviousWorkoutSystemExperience,HasWeightRepsDevelopment,IsTrainingVolumeSuitable,DesiredTrainingVolumeAdjustment," +
+            "IsTrainingIntensitySuitable,DesiredTrainingIntensityAdjustment,HasExerciseDiscomfort,DiscomfortExerciseName,AvailableWorkoutDaysCount," +
+            "WorkoutLocation,AvailableHomeEquipment,Notes"
         )] ClientUpdate clientUpdate)
         {
-            // Manually remove validation for navigation properties
-            ModelState.Remove("Client");
+            ModelState.Remove("Client"); // Remove validation for navigation property
 
             if (ModelState.IsValid)
             {
@@ -108,10 +124,14 @@ namespace GYM_System.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind(
-            "Id,ClientId,Timestamp,FormCode," +
+            "Id,ClientId,Timestamp,FormCode,CurrentWeightKg," +
+            "DietCommitmentLevel,HasFoodToRemove,FoodToRemoveDetails,HasFoodToAdd,FoodToAddDetails,HasFoodToKeepFromPrevious,FoodToKeepFromPreviousDetails," +
+            "DesiredMealsCount,DietaryNotes," +
             "NeckCircumferenceCm,WaistCircumferenceCm,HipCircumferenceCm,ArmCircumferenceCm,ThighCircumferenceCm," +
             "FrontBodyPhotoPath,SideBodyPhotoPath,BackBodyPhotoPath," +
-            "WorkoutCommitmentLevel,Notes"
+            "WorkoutCommitmentLevel,PreviousWorkoutSystemExperience,HasWeightRepsDevelopment,IsTrainingVolumeSuitable,DesiredTrainingVolumeAdjustment," +
+            "IsTrainingIntensitySuitable,DesiredTrainingIntensityAdjustment,HasExerciseDiscomfort,DiscomfortExerciseName,AvailableWorkoutDaysCount," +
+            "WorkoutLocation,AvailableHomeEquipment,Notes"
         )] ClientUpdate clientUpdate)
         {
             if (id != clientUpdate.Id)
@@ -119,7 +139,7 @@ namespace GYM_System.Controllers
                 return NotFound();
             }
 
-            ModelState.Remove("Client");
+            ModelState.Remove("Client"); // Remove validation for navigation property
 
             if (ModelState.IsValid)
             {

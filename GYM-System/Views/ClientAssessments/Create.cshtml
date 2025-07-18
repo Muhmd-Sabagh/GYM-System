@@ -111,7 +111,7 @@
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="DateOfBirth" class="form-label"></label>
-                        <input asp-for="DateOfBirth" class="form-control" type="date" required />
+                        <input asp-for="DateOfBirth" class="form-control" type="date" value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" required />
                         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                     </div>
                 </div>
@@ -193,13 +193,13 @@
             <h4 class="mb-3">Medical Assessment</h4>
 
             <div class="form-group mb-3">
-                <label class="form-label d-block">Suffer from any health problems?</label>
+                <label class="form-label d-block" asp-for="HasHealthProblems"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasHealthProblems" id="healthProblemsYes" value="true" />
+                    <input class="form-check-input" type="radio" name="HasHealthProblems" id="healthProblemsYes" value="true" @(Model.HasHealthProblems ? "checked" : "") />
                     <label class="form-check-label" for="healthProblemsYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasHealthProblems" id="healthProblemsNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="HasHealthProblems" id="healthProblemsNo" value="false" @(!Model.HasHealthProblems ? "checked" : "") />
                     <label class="form-check-label" for="healthProblemsNo">No</label>
                 </div>
                 <div id="healthProblemsDetailsDiv" style="display:none;" class="mt-2">
@@ -210,13 +210,13 @@
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label d-block">Done tests in last 6 months?</label>
+                <label class="form-label d-block" asp-for="HasRecentTests"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasRecentTests" id="recentTestsYes" value="true" />
+                    <input class="form-check-input" type="radio" name="HasRecentTests" id="recentTestsYes" value="true" @(Model.HasRecentTests ? "checked" : "") />
                     <label class="form-check-label" for="recentTestsYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasRecentTests" id="recentTestsNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="HasRecentTests" id="recentTestsNo" value="false" @(!Model.HasRecentTests ? "checked" : "") />
                     <label class="form-check-label" for="recentTestsNo">No</label>
                 </div>
                 <div id="recentTestsDetailsDiv" style="display:none;" class="mt-2">
@@ -227,13 +227,13 @@
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label d-block">Taking medications/supplements?</label>
+                <label class="form-label d-block" asp-for="IsTakingMedicationsSupplements"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsTakingMedicationsSupplements" id="medsSuppsYes" value="true" />
+                    <input class="form-check-input" type="radio" name="IsTakingMedicationsSupplements" id="medsSuppsYes" value="true" @(Model.IsTakingMedicationsSupplements ? "checked" : "") />
                     <label class="form-check-label" for="medsSuppsYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsTakingMedicationsSupplements" id="medsSuppsNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="IsTakingMedicationsSupplements" id="medsSuppsNo" value="false" @(!Model.IsTakingMedicationsSupplements ? "checked" : "") />
                     <label class="form-check-label" for="medsSuppsNo">No</label>
                 </div>
                 <div id="medsSuppsDetailsDiv" style="display:none;" class="mt-2">
@@ -244,13 +244,13 @@
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label d-block">Allergy to certain medications?</label>
+                <label class="form-label d-block" asp-for="HasMedicationAllergies"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasMedicationAllergies" id="medAllergiesYes" value="true" />
+                    <input class="form-check-input" type="radio" name="HasMedicationAllergies" id="medAllergiesYes" value="true" @(Model.HasMedicationAllergies ? "checked" : "") />
                     <label class="form-check-label" for="medAllergiesYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasMedicationAllergies" id="medAllergiesNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="HasMedicationAllergies" id="medAllergiesNo" value="false" @(!Model.HasMedicationAllergies ? "checked" : "") />
                     <label class="form-check-label" for="medAllergiesNo">No</label>
                 </div>
                 <div id="medAllergiesDetailsDiv" style="display:none;" class="mt-2">
@@ -261,13 +261,13 @@
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label d-block">Suffer from chronic/hereditary diseases?</label>
+                <label class="form-label d-block" asp-for="HasChronicHereditaryDiseases"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasChronicHereditaryDiseases" id="chronicDiseasesYes" value="true" />
+                    <input class="form-check-input" type="radio" name="HasChronicHereditaryDiseases" id="chronicDiseasesYes" value="true" @(Model.HasChronicHereditaryDiseases ? "checked" : "") />
                     <label class="form-check-label" for="chronicDiseasesYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasChronicHereditaryDiseases" id="chronicDiseasesNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="HasChronicHereditaryDiseases" id="chronicDiseasesNo" value="false" @(!Model.HasChronicHereditaryDiseases ? "checked" : "") />
                     <label class="form-check-label" for="chronicDiseasesNo">No</label>
                 </div>
                 <div id="chronicDiseasesDetailsDiv" style="display:none;" class="mt-2">
@@ -278,13 +278,13 @@
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label d-block">Undergone previous surgeries?</label>
+                <label class="form-label d-block" asp-for="HasPastSurgeries"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasPastSurgeries" id="surgeriesYes" value="true" />
+                    <input class="form-check-input" type="radio" name="HasPastSurgeries" id="surgeriesYes" value="true" @(Model.HasPastSurgeries ? "checked" : "") />
                     <label class="form-check-label" for="surgeriesYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasPastSurgeries" id="surgeriesNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="HasPastSurgeries" id="surgeriesNo" value="false" @(!Model.HasPastSurgeries ? "checked" : "") />
                     <label class="form-check-label" for="surgeriesNo">No</label>
                 </div>
                 <div id="surgeriesDetailsDiv" style="display:none;" class="mt-2">
@@ -294,181 +294,14 @@
                 </div>
             </div>
 
-            <div class="form-group mb-3" id="pregnantQuestionDiv">
-                <label class="form-label d-block">Pregnant or planning? (Female Only)</label>
+            <div class="form-group mb-3">
+                <label class="form-label d-block" asp-for="HasInjuries"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsPregnantOrPlanning" id="pregnantYes" value="true" />
-                    <label class="form-check-label" for="pregnantYes">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsPregnantOrPlanning" id="pregnantNo" value="false" />
-                    <label class="form-check-label" for="pregnantNo">No</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsPregnantOrPlanning" id="pregnantNA" value="" checked />
-                    <label class="form-check-label" for="pregnantNA">N/A (Optional)</label>
-                </div>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label d-block">Taking vitamins/minerals?</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsTakingVitaminsMinerals" id="vitaminsYes" value="true" />
-                    <label class="form-check-label" for="vitaminsYes">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="IsTakingVitaminsMinerals" id="vitaminsNo" value="false" checked />
-                    <label class="form-check-label" for="vitaminsNo">No</label>
-                </div>
-                <div id="vitaminsDetailsDiv" style="display:none;" class="mt-2">
-                    <label asp-for="VitaminsMineralsDetails" class="form-label"></label>
-                    <textarea asp-for="VitaminsMineralsDetails" class="form-control" rows="2"></textarea>
-                    <span asp-validation-for="VitaminsMineralsDetails" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="OtherMedicalNotes" class="form-label"></label>
-                <textarea asp-for="OtherMedicalNotes" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="OtherMedicalNotes" class="text-danger"></span>
-            </div>
-
-            <hr class="my-4" />
-            <h4 class="mb-3">Dietary Assessment</h4>
-
-            <div class="form-group mb-3">
-                <label class="form-label d-block">Any food/meal to remove?</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasFoodToRemove" id="foodRemoveYes" value="true" />
-                    <label class="form-check-label" for="foodRemoveYes">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasFoodToRemove" id="foodRemoveNo" value="false" checked />
-                    <label class="form-check-label" for="foodRemoveNo">No</label>
-                </div>
-                <div id="foodRemoveDetailsDiv" style="display:none;" class="mt-2">
-                    <label asp-for="FoodToRemoveDetails" class="form-label"></label>
-                    <textarea asp-for="FoodToRemoveDetails" class="form-control" rows="2"></textarea>
-                    <span asp-validation-for="FoodToRemoveDetails" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label d-block">Any food/meal to add?</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasFoodToAdd" id="foodAddYes" value="true" />
-                    <label class="form-check-label" for="foodAddYes">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasFoodToAdd" id="foodAddNo" value="false" checked />
-                    <label class="form-check-label" for="foodAddNo">No</label>
-                </div>
-                <div id="foodAddDetailsDiv" style="display:none;" class="mt-2">
-                    <label asp-for="FoodToAddDetails" class="form-label"></label>
-                    <textarea asp-for="FoodToAddDetails" class="form-control" rows="2"></textarea>
-                    <span asp-validation-for="FoodToAddDetails" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label d-block">Any food/meal to keep from previous diet?</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasFoodToKeepFromPrevious" id="foodKeepYes" value="true" />
-                    <label class="form-check-label" for="foodKeepYes">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasFoodToKeepFromPrevious" id="foodKeepNo" value="false" checked />
-                    <label class="form-check-label" for="foodKeepNo">No</label>
-                </div>
-                <div id="foodKeepDetailsDiv" style="display:none;" class="mt-2">
-                    <label asp-for="FoodToKeepFromPreviousDetails" class="form-label"></label>
-                    <textarea asp-for="FoodToKeepFromPreviousDetails" class="form-control" rows="2"></textarea>
-                    <span asp-validation-for="FoodToKeepFromPreviousDetails" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DesiredMealsCount" class="form-label"></label>
-                <select asp-for="DesiredMealsCount" class="form-control" required>
-                    <option value="">-- Select --</option>
-                    <option value="3">3 وجبات</option>
-                    <option value="4">4 وجبات</option>
-                    <option value="5">5 وجبات</option>
-                    <option value="6">6 وجبات</option>
-                </select>
-                <span asp-validation-for="DesiredMealsCount" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DietaryNotes" class="form-label"></label>
-                <textarea asp-for="DietaryNotes" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="DietaryNotes" class="text-danger"></span>
-            </div>
-
-            <hr class="my-4" />
-            <h4 class="mb-3">Workout Assessment</h4>
-
-            <div class="form-group mb-3">
-                <label asp-for="WorkoutCommitmentLevel" class="form-label"></label>
-                <select asp-for="WorkoutCommitmentLevel" class="form-control" required>
-                    <option value="">-- Select --</option>
-                    <option value="غير ملتزم">غير ملتزم</option>
-                    <option value="ملتزم الى حد ما">ملتزم الى حد ما</option>
-                    <option value="ملتزم بالكامل">ملتزم بالكامل</option>
-                </select>
-                <span asp-validation-for="WorkoutCommitmentLevel" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="WorkoutDaysPerWeek" class="form-label"></label>
-                <input asp-for="WorkoutDaysPerWeek" class="form-control" type="number" min="1" max="7" required />
-                <span asp-validation-for="WorkoutDaysPerWeek" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DailySleepHours" class="form-label"></label>
-                <select asp-for="DailySleepHours" class="form-control" required>
-                    <option value="">-- Select --</option>
-                    <option value="أقل من 4 ساعات">أقل من 4 ساعات</option>
-                    <option value="4-6 ساعات">4-6 ساعات</option>
-                    <option value="6-8 ساعات">6-8 ساعات</option>
-                    <option value="أكثر من 8 ساعات">أكثر من 8 ساعات</option>
-                </select>
-                <span asp-validation-for="DailySleepHours" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DailyWaterIntake" class="form-label"></label>
-                <select asp-for="DailyWaterIntake" class="form-control" required>
-                    <option value="">-- Select --</option>
-                    <option value="أقل من 2 لتر">أقل من 2 لتر</option>
-                    <option value="2-3 لتر">2-3 لتر</option>
-                    <option value="3-4 لتر">3-4 لتر</option>
-                    <option value="أكثر من 4 لتر">أكثر من 4 لتر</option>
-                </select>
-                <span asp-validation-for="DailyWaterIntake" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DailyWalkingHours" class="form-label"></label>
-                <select asp-for="DailyWalkingHours" class="form-control" required>
-                    <option value="">-- Select --</option>
-                    <option value="لا أمشي">لا أمشي</option>
-                    <option value="أقل من 30 دقيقة">أقل من 30 دقيقة</option>
-                    <option value="30-60 دقيقة">30-60 دقيقة</option>
-                    <option value="أكثر من 60 دقيقة">أكثر من 60 دقيقة</option>
-                </select>
-                <span asp-validation-for="DailyWalkingHours" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label d-block">Suffer from previous/current injuries?</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasInjuries" id="injuriesYes" value="true" />
+                    <input class="form-check-input" type="radio" name="HasInjuries" id="injuriesYes" value="true" @(Model.HasInjuries ? "checked" : "") />
                     <label class="form-check-label" for="injuriesYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="HasInjuries" id="injuriesNo" value="false" checked />
+                    <input class="form-check-input" type="radio" name="HasInjuries" id="injuriesNo" value="false" @(!Model.HasInjuries ? "checked" : "") />
                     <label class="form-check-label" for="injuriesNo">No</label>
                 </div>
                 <div id="injuriesDetailsDiv" style="display:none;" class="mt-2">
@@ -479,109 +312,445 @@
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="PreferredWorkoutDays" class="form-label d-block">Preferred Workout Days (Optional, multiple choices)</label>
+                <label class="form-label d-block" asp-for="IsSmoker"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Sunday" id="daySunday" />
-                    <label class="form-check-label" for="daySunday">Sunday</label>
+                    <input class="form-check-input" type="radio" name="IsSmoker" id="smokerYes" value="true" @(Model.IsSmoker ? "checked" : "") />
+                    <label class="form-check-label" for="smokerYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Monday" id="dayMonday" />
-                    <label class="form-check-label" for="dayMonday">Monday</label>
+                    <input class="form-check-input" type="radio" name="IsSmoker" id="smokerNo" value="false" @(!Model.IsSmoker ? "checked" : "") />
+                    <label class="form-check-label" for="smokerNo">No</label>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h4 class="mb-3">Dietary Assessment</h4>
+
+            <div class="form-group mb-3">
+                <label class="form-label d-block" asp-for="HasPreviousDietCommitment"></label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="HasPreviousDietCommitment" id="prevDietYes" value="true" @(Model.HasPreviousDietCommitment ? "checked" : "") />
+                    <label class="form-check-label" for="prevDietYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Tuesday" id="dayTuesday" />
-                    <label class="form-check-label" for="dayTuesday">Tuesday</label>
+                    <input class="form-check-input" type="radio" name="HasPreviousDietCommitment" id="prevDietNo" value="false" @(!Model.HasPreviousDietCommitment ? "checked" : "") />
+                    <label class="form-check-label" for="prevDietNo">No</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Wednesday" id="dayWednesday" />
-                    <label class="form-check-label" for="dayWednesday">Wednesday</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Thursday" id="dayThursday" />
-                    <label class="form-check-label" for="dayThursday">Thursday</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Friday" id="dayFriday" />
-                    <label class="form-check-label" for="dayFriday">Friday</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="PreferredWorkoutDays" value="Saturday" id="daySaturday" />
-                    <label class="form-check-label" for="daySaturday">Saturday</label>
+                <div id="prevDietExperienceDiv" style="display:none;" class="mt-2">
+                    <label asp-for="PreviousDietExperience" class="form-label"></label>
+                    <textarea asp-for="PreviousDietExperience" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="PreviousDietExperience" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="WorkoutGoals" class="form-label d-block">Workout Goals (Optional, multiple choices)</label>
+                <label asp-for="DailyEffortDescription" class="form-label"></label>
+                <select asp-for="DailyEffortDescription" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="لا يوجد مجهود تقريبا (وظيفة مكتبية مثلا)">لا يوجد مجهود تقريبا (وظيفة مكتبية مثلا)</option>
+                    <option value="مجهود بسيط (مشاوير خفيفة)">مجهود بسيط (مشاوير خفيفة)</option>
+                    <option value="مجهود متوسط (عمل يتطلب حركة)">مجهود متوسط (عمل يتطلب حركة)</option>
+                    <option value="مجهود عالي (عمل بدني شاق)">مجهود عالي (عمل بدني شاق)</option>
+                </select>
+                <span asp-validation-for="DailyEffortDescription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DietCommitmentObstacles" class="form-label"></label>
+                <textarea asp-for="DietCommitmentObstacles" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="DietCommitmentObstacles" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label d-block" asp-for="DrinksSpecificBeverages"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutGoals" value="Strength" id="goalStrength" />
-                    <label class="form-check-label" for="goalStrength">Strength</label>
+                    <input class="form-check-input" type="radio" name="DrinksSpecificBeverages" id="beveragesYes" value="true" @(Model.DrinksSpecificBeverages ? "checked" : "") />
+                    <label class="form-check-label" for="beveragesYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutGoals" value="Muscle Building" id="goalMuscle" />
-                    <label class="form-check-label" for="goalMuscle">Muscle Building</label>
+                    <input class="form-check-input" type="radio" name="DrinksSpecificBeverages" id="beveragesNo" value="false" @(!Model.DrinksSpecificBeverages ? "checked" : "") />
+                    <label class="form-check-label" for="beveragesNo">No</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutGoals" value="Endurance" id="goalEndurance" />
-                    <label class="form-check-label" for="goalEndurance">Endurance</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutGoals" value="Weight Loss" id="goalWeightLoss" />
-                    <label class="form-check-label" for="goalWeightLoss">Weight Loss</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutGoals" value="Flexibility" id="goalFlexibility" />
-                    <label class="form-check-label" for="goalFlexibility">Flexibility</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutGoals" value="General Fitness" id="goalGeneral" />
-                    <label class="form-check-label" for="goalGeneral">General Fitness</label>
+                <div id="beverageDetailsDiv" style="display:none;" class="mt-2">
+                    <label asp-for="BeverageConsumptionDetails" class="form-label"></label>
+                    <textarea asp-for="BeverageConsumptionDetails" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="BeverageConsumptionDetails" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="AvailableEquipment" class="form-label d-block">Available Equipment (Optional, multiple choices)</label>
+                <label asp-for="LastDietSystemAvailable" class="form-label"></label>
+                <input asp-for="LastDietSystemAvailable" class="form-control" />
+                <span asp-validation-for="LastDietSystemAvailable" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label d-block" asp-for="HasFoodAllergies"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="AvailableEquipment" value="Free Weights" id="equipFreeWeights" />
-                    <label class="form-check-label" for="equipFreeWeights">Free Weights</label>
+                    <input class="form-check-input" type="radio" name="HasFoodAllergies" id="foodAllergiesYes" value="true" @(Model.HasFoodAllergies ? "checked" : "") />
+                    <label class="form-check-label" for="foodAllergiesYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="AvailableEquipment" value="Machines" id="equipMachines" />
-                    <label class="form-check-label" for="equipMachines">Machines</label>
+                    <input class="form-check-input" type="radio" name="HasFoodAllergies" id="foodAllergiesNo" value="false" @(!Model.HasFoodAllergies ? "checked" : "") />
+                    <label class="form-check-label" for="foodAllergiesNo">No</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="AvailableEquipment" value="Resistance Bands" id="equipBands" />
-                    <label class="form-check-label" for="equipBands">Resistance Bands</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="AvailableEquipment" value="Bodyweight" id="equipBodyweight" />
-                    <label class="form-check-label" for="equipBodyweight">Bodyweight</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="AvailableEquipment" value="Cardio Machines" id="equipCardio" />
-                    <label class="form-check-label" for="equipCardio">Cardio Machines</label>
+                <div id="foodAllergyDetailsDiv" style="display:none;" class="mt-2">
+                    <label asp-for="FoodAllergyDetails" class="form-label"></label>
+                    <textarea asp-for="FoodAllergyDetails" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="FoodAllergyDetails" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="WorkoutLocation" class="form-label d-block">Workout Location (Optional, multiple choices)</label>
+                <label class="form-label d-block" asp-for="DislikesSpecificFood"></label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutLocation" value="Home" id="locHome" />
-                    <label class="form-check-label" for="locHome">Home</label>
+                    <input class="form-check-input" type="radio" name="DislikesSpecificFood" id="dislikeFoodYes" value="true" @(Model.DislikesSpecificFood ? "checked" : "") />
+                    <label class="form-check-label" for="dislikeFoodYes">Yes</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutLocation" value="Gym" id="locGym" />
-                    <label class="form-check-label" for="locGym">Gym</label>
+                    <input class="form-check-input" type="radio" name="DislikesSpecificFood" id="dislikeFoodNo" value="false" @(!Model.DislikesSpecificFood ? "checked" : "") />
+                    <label class="form-check-label" for="dislikeFoodNo">No</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="WorkoutLocation" value="Outdoor" id="locOutdoor" />
-                    <label class="form-check-label" for="locOutdoor">Outdoor</label>
+                <div id="dislikeFoodDetailsDiv" style="display:none;" class="mt-2">
+                    <label asp-for="DislikedFoodDetails" class="form-label"></label>
+                    <textarea asp-for="DislikedFoodDetails" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="DislikedFoodDetails" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="WorkoutNotes" class="form-label"></label>
-                <textarea asp-for="WorkoutNotes" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="WorkoutNotes" class="text-danger"></span>
+                <label class="form-label d-block" asp-for="WantsVitaminsMinerals"></label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="WantsVitaminsMinerals" id="vitaminsMineralsYes" value="true" @(Model.WantsVitaminsMinerals ? "checked" : "") />
+                    <label class="form-check-label" for="vitaminsMineralsYes">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="WantsVitaminsMinerals" id="vitaminsMineralsNo" value="false" @(!Model.WantsVitaminsMinerals ? "checked" : "") />
+                    <label class="form-check-label" for="vitaminsMineralsNo">No</label>
+                </div>
+                <div id="vitaminsMineralsDetailsDiv" style="display:none;" class="mt-2">
+                    <label asp-for="AvailableDesiredVitaminsMinerals" class="form-label"></label>
+                    <textarea asp-for="AvailableDesiredVitaminsMinerals" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="AvailableDesiredVitaminsMinerals" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DesiredMainMealsCount" class="form-label"></label>
+                <select asp-for="DesiredMainMealsCount" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="3">3 وجبات</option>
+                    <option value="4">4 وجبات</option>
+                    <option value="5">5 وجبات</option>
+                    <option value="6">6 وجبات</option>
+                </select>
+                <span asp-validation-for="DesiredMainMealsCount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DietFlexibilityPreference" class="form-label"></label>
+                <select asp-for="DietFlexibilityPreference" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="أريد مرونة في النظام الغذائي">أريد مرونة في النظام الغذائي</option>
+                    <option value="مستعد لأقسو على نفسي">مستعد لأقسو على نفسي</option>
+                </select>
+                <span asp-validation-for="DietFlexibilityPreference" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DietBudget" class="form-label"></label>
+                <select asp-for="DietBudget" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="ميزانية منخفضة">ميزانية منخفضة</option>
+                    <option value="ميزانية متوسطة">ميزانية متوسطة</option>
+                    <option value="ميزانية عالية">ميزانية عالية</option>
+                </select>
+                <span asp-validation-for="DietBudget" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PreferredProteinTypes" class="form-label d-block">Preferred Protein Types (multiple choices)</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="دجاج" id="proteinChicken" />
+                    <label class="form-check-label" for="proteinChicken">دجاج</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="لحم" id="proteinMeat" />
+                    <label class="form-check-label" for="proteinMeat">لحم</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="سمك" id="proteinFish" />
+                    <label class="form-check-label" for="proteinFish">سمك</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="بيض" id="proteinEggs" />
+                    <label class="form-check-label" for="proteinEggs">بيض</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="جبنة قريش" id="proteinCheese" />
+                    <label class="form-check-label" for="proteinCheese">جبنة قريش</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="بروتين بار" id="proteinBar" />
+                    <label class="form-check-label" for="proteinBar">بروتين بار</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="بروتين شيك" id="proteinShake" />
+                    <label class="form-check-label" for="proteinShake">بروتين شيك</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="عدس" id="proteinLentils" />
+                    <label class="form-check-label" for="proteinLentils">عدس</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="فول" id="proteinBeans" />
+                    <label class="form-check-label" for="proteinBeans">فول</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="فاصوليا" id="proteinKidneyBeans" />
+                    <label class="form-check-label" for="proteinKidneyBeans">فاصوليا</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredProteinTypes" value="حمص" id="proteinChickpeas" />
+                    <label class="form-check-label" for="proteinChickpeas">حمص</label>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PreferredCarbohydrateTypes" class="form-label d-block">Preferred Carbohydrate Types (multiple choices)</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="أرز" id="carbRice" />
+                    <label class="form-check-label" for="carbRice">أرز</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="بطاطس" id="carbPotato" />
+                    <label class="form-check-label" for="carbPotato">بطاطس</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="بطاطا" id="carbSweetPotato" />
+                    <label class="form-check-label" for="carbSweetPotato">بطاطا</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="مكرونة" id="carbPasta" />
+                    <label class="form-check-label" for="carbPasta">مكرونة</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="خبز بلدي" id="carbLocalBread" />
+                    <label class="form-check-label" for="carbLocalBread">خبز بلدي</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="عيش سن" id="carbBrownBread" />
+                    <label class="form-check-label" for="carbBrownBread">عيش سن</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="خبز توست" id="carbToast" />
+                    <label class="form-check-label" for="carbToast">خبز توست</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="شوفان" id="carbOats" />
+                    <label class="form-check-label" for="carbOats">شوفان</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredCarbohydrateTypes" value="توست بني" id="carbBrownToast" />
+                    <label class="form-check-label" for="carbBrownToast">توست بني</label>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PreferredHealthyFatTypes" class="form-label d-block">Preferred Healthy Fat Types (multiple choices)</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="زيت الزيتون" id="fatOliveOil" />
+                    <label class="form-check-label" for="fatOliveOil">زيت الزيتون</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="فول سوداني" id="fatPeanuts" />
+                    <label class="form-check-label" for="fatPeanuts">فول سوداني</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="فستق" id="fatPistachios" />
+                    <label class="form-check-label" for="fatPistachios">فستق</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="كاجو" id="fatCashews" />
+                    <label class="form-check-label" for="fatCashews">كاجو</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="بندق" id="fatHazelnuts" />
+                    <label class="form-check-label" for="fatHazelnuts">بندق</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="لوز" id="fatAlmonds" />
+                    <label class="form-check-label" for="fatAlmonds">لوز</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="PreferredHealthyFatTypes" value="زبدة فول سوداني" id="fatPeanutButter" />
+                    <label class="form-check-label" for="fatPeanutButter">زبدة فول سوداني</label>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h4 class="mb-3">Workout Assessment</h4>
+
+            <div class="form-group mb-3">
+                <label asp-for="WorkoutExperience" class="form-label"></label>
+                <textarea asp-for="WorkoutExperience" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="WorkoutExperience" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ResistanceTrainingDuration" class="form-label"></label>
+                <select asp-for="ResistanceTrainingDuration" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="أول مرة أمارس تمارين المقاومة">أول مرة أمارس تمارين المقاومة</option>
+                    <option value="أمارس تمارين المقاومة على فترات متقطعة">أمارس تمارين المقاومة على فترات متقطعة</option>
+                    <option value="أقل من 3 شهور">أقل من 3 شهور</option>
+                    <option value="أكثر من 3 شهور">أكثر من 3 شهور</option>
+                    <option value="أكثر من 6 شهور">أكثر من 6 شهور</option>
+                    <option value="أكثر من سنة">أكثر من سنة</option>
+                </select>
+                <span asp-validation-for="ResistanceTrainingDuration" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label d-block" asp-for="PracticesOtherSports"></label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="PracticesOtherSports" id="otherSportsYes" value="true" @(Model.PracticesOtherSports ? "checked" : "") />
+                    <label class="form-check-label" for="otherSportsYes">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="PracticesOtherSports" id="otherSportsNo" value="false" @(!Model.PracticesOtherSports ? "checked" : "") />
+                    <label class="form-check-label" for="otherSportsNo">No</label>
+                </div>
+                <div id="otherSportsDetailsDiv" style="display:none;" class="mt-2">
+                    <label asp-for="OtherSportsDetails" class="form-label"></label>
+                    <textarea asp-for="OtherSportsDetails" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="OtherSportsDetails" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="WorkoutLocation" class="form-label"></label>
+                <select asp-for="WorkoutLocation" class="form-control" id="workoutLocationSelect" required>
+                    <option value="">-- Select --</option>
+                    <option value="جيم">جيم</option>
+                    <option value="منزل">منزل</option>
+                </select>
+                <span asp-validation-for="WorkoutLocation" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3" id="availableHomeEquipmentDiv" style="display:none;">
+                <label asp-for="AvailableHomeEquipment" class="form-label"></label>
+                <textarea asp-for="AvailableHomeEquipment" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="AvailableHomeEquipment" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="AvailableWorkoutDaysCount" class="form-label"></label>
+                <select asp-for="AvailableWorkoutDaysCount" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="1">يوم واحد</option>
+                    <option value="2">يومان</option>
+                    <option value="3">3 ايام</option>
+                    <option value="4">4 ايام</option>
+                    <option value="5">5 ايام</option>
+                    <option value="6">6 ايام</option>
+                </select>
+                <span asp-validation-for="AvailableWorkoutDaysCount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="AvailableWorkoutDays" class="form-label d-block">Available Workout Days (multiple choices)</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="السبت" id="daySaturday" />
+                    <label class="form-check-label" for="daySaturday">السبت</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="الأحد" id="daySunday" />
+                    <label class="form-check-label" for="daySunday">الأحد</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="الاثنين" id="dayMonday" />
+                    <label class="form-check-label" for="dayMonday">الاثنين</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="الثلاثاء" id="dayTuesday" />
+                    <label class="form-check-label" for="dayTuesday">الثلاثاء</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="الأربعاء" id="dayWednesday" />
+                    <label class="form-check-label" for="dayWednesday">الأربعاء</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="الخميس" id="dayThursday" />
+                    <label class="form-check-label" for="dayThursday">الخميس</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="AvailableWorkoutDays" value="الجمعة" id="dayFriday" />
+                    <label class="form-check-label" for="dayFriday">الجمعة</label>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label d-block" asp-for="HasExerciseDiscomfort"></label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="HasExerciseDiscomfort" id="discomfortYes" value="true" @(Model.HasExerciseDiscomfort ? "checked" : "") />
+                    <label class="form-check-label" for="discomfortYes">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="HasExerciseDiscomfort" id="discomfortNo" value="false" @(!Model.HasExerciseDiscomfort ? "checked" : "") />
+                    <label class="form-check-label" for="discomfortNo">No</label>
+                </div>
+                <div id="discomfortDetailsDiv" style="display:none;" class="mt-2">
+                    <label asp-for="DiscomfortExercisesDetails" class="form-label"></label>
+                    <textarea asp-for="DiscomfortExercisesDetails" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="DiscomfortExercisesDetails" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PreferredCardioType" class="form-label"></label>
+                <select asp-for="PreferredCardioType" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="تريدميل (مشاية)">تريدميل (مشاية)</option>
+                    <option value="عجلة (دراجة ثابتة)">عجلة (دراجة ثابتة)</option>
+                    <option value="سلم (ستير ماستر)">سلم (ستير ماستر)</option>
+                    <option value="تجديف">تجديف</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+                <span asp-validation-for="PreferredCardioType" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DailyStepsCount" class="form-label"></label>
+                <select asp-for="DailyStepsCount" class="form-control" required>
+                    <option value="">-- Select --</option>
+                    <option value="أقل من 2000 خطوة">أقل من 2000 خطوة</option>
+                    <option value="2000-5000 خطوة">2000-5000 خطوة</option>
+                    <option value="5000-10000 خطوة">5000-10000 خطوة</option>
+                    <option value="أكثر من 10000 خطوة">أكثر من 10000 خطوة</option>
+                </select>
+                <span asp-validation-for="DailyStepsCount" class="text-danger"></span>
+            </div>
+
+            <hr class="my-4" />
+            <h4 class="mb-3">General Assessment</h4>
+
+            <div class="form-group mb-3">
+                <label asp-for="PreviousOnlineTrainingExperience" class="form-label"></label>
+                <textarea asp-for="PreviousOnlineTrainingExperience" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="PreviousOnlineTrainingExperience" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ReasonForSubscription" class="form-label"></label>
+                <textarea asp-for="ReasonForSubscription" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="ReasonForSubscription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="OtherNotes" class="form-label"></label>
+                <textarea asp-for="OtherNotes" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="OtherNotes" class="text-danger"></span>
             </div>
 
             <div class="form-group mt-3">
@@ -609,152 +778,66 @@
                     }
                 });
                 // Initial state on page load
-                if ($(`input[name="${radioGroupName}"]:checked`).val() === 'true') {
+                // Check if the model value is true to show details initially (for Edit view)
+                // For Create, it will be false by default, so it will hide.
+                const initialValue = $(`input[name="${radioGroupName}"][value="true"]`).prop('checked');
+                if (initialValue) {
                     $(`#${detailsDivId}`).show();
                 } else {
                     $(`#${detailsDivId}`).hide();
                 }
             }
 
+            // Medical Assessment
             toggleDetails('HasHealthProblems', 'healthProblemsDetailsDiv');
             toggleDetails('HasRecentTests', 'recentTestsDetailsDiv');
             toggleDetails('IsTakingMedicationsSupplements', 'medsSuppsDetailsDiv');
             toggleDetails('HasMedicationAllergies', 'medAllergiesDetailsDiv');
             toggleDetails('HasChronicHereditaryDiseases', 'chronicDiseasesDetailsDiv');
             toggleDetails('HasPastSurgeries', 'surgeriesDetailsDiv');
-            toggleDetails('IsTakingVitaminsMinerals', 'vitaminsDetailsDiv');
-            toggleDetails('HasFoodToRemove', 'foodRemoveDetailsDiv');
-            toggleDetails('HasFoodToAdd', 'foodAddDetailsDiv');
-            toggleDetails('HasFoodToKeepFromPrevious', 'foodKeepDetailsDiv');
             toggleDetails('HasInjuries', 'injuriesDetailsDiv');
 
-            // Handle gender-based conditional visibility for "Pregnant or Planning"
-            function togglePregnantQuestion() {
-                var gender = $('#genderSelect').val();
-                if (gender === 'انثى' || gender === 'Female') { // Assuming Arabic or English values
-                    $('#pregnantQuestionDiv').show();
+            // Dietary Assessment
+            toggleDetails('HasPreviousDietCommitment', 'prevDietExperienceDiv');
+            toggleDetails('DrinksSpecificBeverages', 'beverageDetailsDiv');
+            toggleDetails('HasFoodAllergies', 'foodAllergyDetailsDiv');
+            toggleDetails('DislikesSpecificFood', 'dislikeFoodDetailsDiv');
+            toggleDetails('WantsVitaminsMinerals', 'vitaminsMineralsDetailsDiv');
+
+            // Workout Assessment
+            toggleDetails('PracticesOtherSports', 'otherSportsDetailsDiv');
+            toggleDetails('HasExerciseDiscomfort', 'discomfortDetailsDiv');
+
+            // Handle conditional visibility for "Available Home Equipment" based on Workout Location
+            function toggleHomeEquipment() {
+                var workoutLocation = $('#workoutLocationSelect').val();
+                if (workoutLocation === 'منزل' || workoutLocation === 'Home') {
+                    $('#availableHomeEquipmentDiv').show();
                 } else {
-                    $('#pregnantQuestionDiv').hide();
-                    // Reset radio buttons if hidden
-                    $('input[name="IsPregnantOrPlanning"]').prop('checked', false);
-                    $('#pregnantNA').prop('checked', true); // Set N/A as default when hidden
+                    $('#availableHomeEquipmentDiv').hide();
+                    $('#AvailableHomeEquipment').val(''); // Clear content when hidden
                 }
             }
+            $('#workoutLocationSelect').on('change', toggleHomeEquipment);
+            toggleHomeEquipment(); // Initial call on page load
 
-            $('#genderSelect').on('change', togglePregnantQuestion);
-            togglePregnantQuestion(); // Initial call on page load
-
-            // Handle multiple choice checkboxes to store as comma-separated string
-            // This requires custom handling on form submission or a hidden field
-            // For simplicity, we'll let MVC bind individual checkboxes with the same name,
-            // and then join them in the controller if needed.
-            // However, the current model binding for string will only capture the last checked value.
-            // A more robust solution for multiple checkboxes binding to a single string:
-            // You would need to collect checked values client-side and set a hidden input.
-            // For now, I've updated the controller's [Bind] attribute to expect multiple values
-            // and will assume the default MVC behavior for multiple checkboxes with the same name.
-            // If this doesn't work as expected, we'll need a custom model binder or JS to join.
-
-            // To ensure multiple checkboxes bind to a single string:
-            // You need to manually combine them before submission or use a custom model binder.
-            // For now, the model properties are strings, so only the last value will bind.
-            // The best way for multiple choice is to have hidden fields that get updated by JS.
-            // Let's add that logic now.
-
-            $('form').on('submit', function() {
-                // For PreferredWorkoutDays
-                var preferredDays = [];
-                $('input[name="PreferredWorkoutDays"]:checked').each(function() {
-                    preferredDays.push($(this).val());
-                });
-                // Create a hidden input if it doesn't exist, or update its value
-                var hiddenPreferredDays = $('input[name="PreferredWorkoutDaysCombined"]');
-                if (hiddenPreferredDays.length === 0) {
-                    hiddenPreferredDays = $('<input type="hidden" name="PreferredWorkoutDaysCombined">');
-                    $(this).append(hiddenPreferredDays);
-                }
-                hiddenPreferredDays.val(preferredDays.join(','));
-
-                // For WorkoutGoals
-                var workoutGoals = [];
-                $('input[name="WorkoutGoals"]:checked').each(function() {
-                    workoutGoals.push($(this).val());
-                });
-                var hiddenWorkoutGoals = $('input[name="WorkoutGoalsCombined"]');
-                if (hiddenWorkoutGoals.length === 0) {
-                    hiddenWorkoutGoals = $('<input type="hidden" name="WorkoutGoalsCombined">');
-                    $(this).append(hiddenWorkoutGoals);
-                }
-                hiddenWorkoutGoals.val(workoutGoals.join(','));
-
-                // For AvailableEquipment
-                var availableEquipment = [];
-                $('input[name="AvailableEquipment"]:checked').each(function() {
-                    availableEquipment.push($(this).val());
-                });
-                var hiddenAvailableEquipment = $('input[name="AvailableEquipmentCombined"]');
-                if (hiddenAvailableEquipment.length === 0) {
-                    hiddenAvailableEquipment = $('<input type="hidden" name="AvailableEquipmentCombined">');
-                    $(this).append(hiddenAvailableEquipment);
-                }
-                hiddenAvailableEquipment.val(availableEquipment.join(','));
-
-                // For WorkoutLocation
-                var workoutLocation = [];
-                $('input[name="WorkoutLocation"]:checked').each(function() {
-                    workoutLocation.push($(this).val());
-                });
-                var hiddenWorkoutLocation = $('input[name="WorkoutLocationCombined"]');
-                if (hiddenWorkoutLocation.length === 0) {
-                    hiddenWorkoutLocation = $('<input type="hidden" name="WorkoutLocationCombined">');
-                    $(this).append(hiddenWorkoutLocation);
-                }
-                hiddenWorkoutLocation.val(workoutLocation.join(','));
-            });
-
-            // Re-check checkboxes on load for existing data (for Edit view)
+            // Function to set checkboxes based on a comma-separated string (for Edit view)
             function setCheckboxes(fieldName, valueString) {
                 if (valueString) {
-                    var values = valueString.split(',');
+                    var values = valueString.split(',').map(item => item.trim());
                     values.forEach(function(val) {
-                        $(`input[name="${fieldName}"][value="${val.trim()}"]`).prop('checked', true);
+                        $(`input[name="${fieldName}"][value="${val}"]`).prop('checked', true);
                     });
                 }
             }
 
-            // This part is for the Edit view, but won't harm Create.
-            // It needs the model data to be available in JS.
-            // For Create, these will just be empty and do nothing.
-            var modelData = @Html.Raw(Json.Serialize(Model));
-            if (modelData) {
-                setCheckboxes('PreferredWorkoutDays', modelData.preferredWorkoutDays);
-                setCheckboxes('WorkoutGoals', modelData.workoutGoals);
-                setCheckboxes('AvailableEquipment', modelData.availableEquipment);
-                setCheckboxes('WorkoutLocation', modelData.workoutLocation);
-
-                // Set initial state for radio buttons based on model data
-                if (modelData.hasHealthProblems !== undefined) $('input[name="HasHealthProblems"][value="' + modelData.hasHealthProblems + '"]').prop('checked', true).change();
-                if (modelData.hasRecentTests !== undefined) $('input[name="HasRecentTests"][value="' + modelData.hasRecentTests + '"]').prop('checked', true).change();
-                if (modelData.isTakingMedicationsSupplements !== undefined) $('input[name="IsTakingMedicationsSupplements"][value="' + modelData.isTakingMedicationsSupplements + '"]').prop('checked', true).change();
-                if (modelData.hasMedicationAllergies !== undefined) $('input[name="HasMedicationAllergies"][value="' + modelData.hasMedicationAllergies + '"]').prop('checked', true).change();
-                if (modelData.hasChronicHereditaryDiseases !== undefined) $('input[name="HasChronicHereditaryDiseases"][value="' + modelData.hasChronicHereditaryDiseases + '"]').prop('checked', true).change();
-                if (modelData.hasPastSurgeries !== undefined) $('input[name="HasPastSurgeries"][value="' + modelData.hasPastSurgeries + '"]').prop('checked', true).change();
-                if (modelData.isTakingVitaminsMinerals !== undefined) $('input[name="IsTakingVitaminsMinerals"][value="' + modelData.isTakingVitaminsMinerals + '"]').prop('checked', true).change();
-                if (modelData.hasFoodToRemove !== undefined) $('input[name="HasFoodToRemove"][value="' + modelData.hasFoodToRemove + '"]').prop('checked', true).change();
-                if (modelData.hasFoodToAdd !== undefined) $('input[name="HasFoodToAdd"][value="' + modelData.hasFoodToAdd + '"]').prop('checked', true).change();
-                if (modelData.hasFoodToKeepFromPrevious !== undefined) $('input[name="HasFoodToKeepFromPrevious"][value="' + modelData.hasFoodToKeepFromPrevious + '"]').prop('checked', true).change();
-                if (modelData.hasInjuries !== undefined) $('input[name="HasInjuries"][value="' + modelData.hasInjuries + '"]').prop('checked', true).change();
-
-                // Special handling for IsPregnantOrPlanning (nullable bool)
-                if (modelData.isPregnantOrPlanning === true) {
-                    $('#pregnantYes').prop('checked', true);
-                } else if (modelData.isPregnantOrPlanning === false) {
-                    $('#pregnantNo').prop('checked', true);
-                } else {
-                    $('#pregnantNA').prop('checked', true);
-                }
-                togglePregnantQuestion(); // Call after setting gender and pregnant radio
-            }
+            // Pre-populate checkboxes on page load for Edit view
+            // In Create view, Model will be empty, so these will do nothing.
+            // In Edit view, Model will have data, so it will pre-select.
+            setCheckboxes('PreferredProteinTypes', '@Model.PreferredProteinTypes');
+            setCheckboxes('PreferredCarbohydrateTypes', '@Model.PreferredCarbohydrateTypes');
+            setCheckboxes('PreferredHealthyFatTypes', '@Model.PreferredHealthyFatTypes');
+            setCheckboxes('AvailableWorkoutDays', '@Model.AvailableWorkoutDays');
 
         });
     </script>

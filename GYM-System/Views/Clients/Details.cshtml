@@ -4,7 +4,7 @@
     ViewData["Title"] = $"Details for {Model.Name}";
 }
 
-<h1 class="mb-4">Details for Client: @Model.Name</h1>
+<h1 class="mb-4">Details for Client: @Model.Name (@Model.ClientCode)</h1>
 
 <div class="mb-4 d-flex flex-wrap gap-2">
     <a asp-action="Index" class="btn btn-secondary">Back to Clients List</a>
@@ -74,7 +74,7 @@
                 <dd class="col-sm-8">@latestSubscription.StartDate.ToShortDateString()</dd>
 
                 <dt class="col-sm-4">End Date:</dt>
-                <dd class="col-sm-8">@latestSubscription.StartDate.AddMonths(latestSubscription.DurationMonths).ToShortDateString()</dd>
+                <dd class="col-sm-8">@(latestSubscription.StartDate.AddMonths(latestSubscription.DurationMonths).ToShortDateString())</dd>
 
                 <dt class="col-sm-4">Price:</dt>
                 <dd class="col-sm-8">@latestSubscription.Price.ToString("F2") @latestSubscription.Currency?.Code</dd>
@@ -115,10 +115,10 @@
                 <dd class="col-sm-8">@latestAssessment.HeightCm.ToString("F1")</dd>
 
                 <dt class="col-sm-4">Gender:</dt>
-                <dd class="col-sm-8">@latestAssessment.Gender</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.Gender)</dd>
 
                 <dt class="col-sm-4">Goal from Service:</dt>
-                <dd class="col-sm-8">@latestAssessment.ServiceGoal</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.ServiceGoal)</dd>
 
                 <dt class="col-sm-4">Neck (cm):</dt>
                 <dd class="col-sm-8">@latestAssessment.NeckCircumferenceCm?.ToString("F1")</dd>
@@ -129,14 +129,20 @@
                 <dt class="col-sm-4">Health Problems:</dt>
                 <dd class="col-sm-8">@(latestAssessment.HasHealthProblems ? "Yes" : "No")</dd>
 
+                <dt class="col-sm-4">Daily Effort:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.DailyEffortDescription)</dd>
+
                 <dt class="col-sm-4">Desired Meals:</dt>
-                <dd class="col-sm-8">@latestAssessment.DesiredMealsCount</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.DesiredMainMealsCount)</dd>
+
+                <dt class="col-sm-4">Workout Location:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.WorkoutLocation)</dd>
 
                 <dt class="col-sm-4">Workout Commitment:</dt>
-                <dd class="col-sm-8">@latestAssessment.WorkoutCommitmentLevel</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.ResistanceTrainingDuration)</dd>
 
-                <dt class="col-sm-4">Preferred Workout Days:</dt>
-                <dd class="col-sm-8">@latestAssessment.PreferredWorkoutDays</dd>
+                <dt class="col-sm-4">Reason for Sub.:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestAssessment.ReasonForSubscription)</dd>
             </dl>
         }
     </div>
@@ -160,6 +166,21 @@
                 <dt class="col-sm-4">Update Date:</dt>
                 <dd class="col-sm-8">@latestUpdate.Timestamp.ToString("yyyy-MM-dd HH:mm")</dd>
 
+                <dt class="col-sm-4">Current Weight (kg):</dt>
+                <dd class="col-sm-8">@latestUpdate.CurrentWeightKg.ToString("F1")</dd>
+
+                <dt class="col-sm-4">Diet Commitment:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestUpdate.DietCommitmentLevel)</dd>
+
+                <dt class="col-sm-4">Food to Remove?</dt>
+                <dd class="col-sm-8">@(latestUpdate.HasFoodToRemove ? "Yes" : "No")</dd>
+
+                <dt class="col-sm-4">Food to Add?</dt>
+                <dd class="col-sm-8">@(latestUpdate.HasFoodToAdd ? "Yes" : "No")</dd>
+
+                <dt class="col-sm-4">Desired Meals:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestUpdate.DesiredMealsCount)</dd>
+
                 <dt class="col-sm-4">Neck (cm):</dt>
                 <dd class="col-sm-8">@latestUpdate.NeckCircumferenceCm?.ToString("F1")</dd>
 
@@ -167,10 +188,16 @@
                 <dd class="col-sm-8">@latestUpdate.WaistCircumferenceCm?.ToString("F1")</dd>
 
                 <dt class="col-sm-4">Workout Commitment:</dt>
-                <dd class="col-sm-8">@latestUpdate.WorkoutCommitmentLevel</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestUpdate.WorkoutCommitmentLevel)</dd>
+
+                <dt class="col-sm-4">Weight/Reps Dev.?</dt>
+                <dd class="col-sm-8">@(latestUpdate.HasWeightRepsDevelopment ? "Yes" : "No")</dd>
+
+                <dt class="col-sm-4">Workout Location:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestUpdate.WorkoutLocation)</dd>
 
                 <dt class="col-sm-4">Notes:</dt>
-                <dd class="col-sm-8">@latestUpdate.Notes</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestUpdate.Notes)</dd>
             </dl>
         }
     </div>
@@ -192,13 +219,13 @@
         {
             <dl class="row mb-0">
                 <dt class="col-sm-4">Plan Name:</dt>
-                <dd class="col-sm-8">@latestDietPlan.PlanName</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestDietPlan.PlanName)</dd>
 
                 <dt class="col-sm-4">Created Date:</dt>
                 <dd class="col-sm-8">@latestDietPlan.CreatedDate.ToShortDateString()</dd>
 
                 <dt class="col-sm-4">General Notes:</dt>
-                <dd class="col-sm-8">@latestDietPlan.GeneralNotes</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestDietPlan.GeneralNotes)</dd>
             </dl>
         }
     </div>
@@ -220,13 +247,13 @@
         {
             <dl class="row mb-0">
                 <dt class="col-sm-4">Plan Name:</dt>
-                <dd class="col-sm-8">@latestWorkoutPlan.PlanName</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestWorkoutPlan.PlanName)</dd>
 
                 <dt class="col-sm-4">Created Date:</dt>
                 <dd class="col-sm-8">@latestWorkoutPlan.CreatedDate.ToShortDateString()</dd>
 
                 <dt class="col-sm-4">General Notes:</dt>
-                <dd class="col-sm-8">@latestWorkoutPlan.GeneralNotes</dd>
+                <dd class="col-sm-8">@Html.DisplayFor(modelItem => latestWorkoutPlan.GeneralNotes)</dd>
             </dl>
         }
     </div>

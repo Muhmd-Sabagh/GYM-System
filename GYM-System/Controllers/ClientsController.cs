@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using GYM_System.Data;
+﻿using GYM_System.Data;
 using GYM_System.Models;
 using GYM_System.Services;
 using GYM_System.ViewModels;
-using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace GYM_System.Controllers
 {
     public class ClientsController : Controller
     {
-        private readonly GymDbContext _context;
-        private readonly GoogleSheetsService _googleSheetsService;
+        readonly GymDbContext _context;
+        readonly GoogleSheetsService _googleSheetsService;
 
         public ClientsController(GymDbContext context, GoogleSheetsService googleSheetsService)
         {
@@ -90,8 +90,6 @@ namespace GYM_System.Controllers
                 return NotFound();
             }
 
-            // The Details view now expects the Client model directly, not ClientFileViewModel.
-            // So, we pass the client object directly. The view will access its collections.
             return View(client);
         }
 
@@ -429,20 +427,21 @@ namespace GYM_System.Controllers
                     {
                         try
                         {
-                            // Minimum expected columns for initial assessment. Adjust if your sheet has fewer required fields at the start.
-                            // Based on the provided questions, there are 54 fields (0-53).
-                            if (row.Count < 54)
+                            // Expected columns for initial assessment: 67 (0 to 66)
+                            if (row.Count < 67) // Adjusted count
                             {
                                 skippedInvalidFormCode++; // Or a more specific error for incomplete data
+                                Console.WriteLine($"Skipped initial assessment row due to insufficient columns: Expected 67, got {row.Count}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
-                            string formCode = row[1]?.ToString()?.Trim() ?? string.Empty;
-                            DateTime timestamp = DateTime.TryParseExact(row[0]?.ToString(), "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ts) ? ts : DateTime.MinValue;
+                            string formCode = row.ElementAtOrDefault(1)?.ToString()?.Trim() ?? string.Empty;
+                            DateTime timestamp = DateTime.TryParseExact(row.ElementAtOrDefault(0)?.ToString(), "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ts) ? ts : DateTime.MinValue;
 
                             if (string.IsNullOrEmpty(formCode) || timestamp == DateTime.MinValue)
                             {
                                 skippedInvalidFormCode++;
+                                Console.WriteLine($"Skipped initial assessment row due to invalid Form Code or Timestamp. FormCode: '{formCode}', Timestamp: '{row.ElementAtOrDefault(0)}'. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -450,6 +449,7 @@ namespace GYM_System.Controllers
                             if (client == null)
                             {
                                 skippedInvalidFormCode++;
+                                Console.WriteLine($"Skipped initial assessment row: Client with FormCode '{formCode}' not found. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -458,6 +458,7 @@ namespace GYM_System.Controllers
                             if (exists)
                             {
                                 skippedDuplicates++;
+                                Console.WriteLine($"Skipped initial assessment row: Duplicate entry for ClientId {client.Id} at Timestamp {timestamp}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -468,14 +469,14 @@ namespace GYM_System.Controllers
                                 FormCode = formCode,
 
                                 // Client Information (Questions 2-9)
-                                Country = row.ElementAtOrDefault(2)?.ToString(),
-                                Religion = row.ElementAtOrDefault(3)?.ToString(),
-                                ServiceGoal = row.ElementAtOrDefault(4)?.ToString(),
-                                WeightKg = ParseDecimal(row.ElementAtOrDefault(5)) ?? 0, // Assuming required
-                                HeightCm = ParseDecimal(row.ElementAtOrDefault(6)) ?? 0, // Assuming required
-                                Gender = row.ElementAtOrDefault(7)?.ToString() ?? string.Empty, // Assuming required
-                                DateOfBirth = DateTime.TryParseExact(row.ElementAtOrDefault(8)?.ToString(), "M/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dob) ? dob : DateTime.MinValue, // Assuming required
-                                JobProfession = row.ElementAtOrDefault(9)?.ToString(),
+                                Country = row.ElementAtOrDefault(2)?.ToString() ?? string.Empty,
+                                Religion = row.ElementAtOrDefault(3)?.ToString() ?? string.Empty,
+                                ServiceGoal = row.ElementAtOrDefault(4)?.ToString() ?? string.Empty,
+                                WeightKg = ParseDecimal(row.ElementAtOrDefault(5)) ?? 0,
+                                HeightCm = ParseDecimal(row.ElementAtOrDefault(6)) ?? 0,
+                                Gender = row.ElementAtOrDefault(7)?.ToString() ?? string.Empty,
+                                DateOfBirth = DateTime.TryParseExact(row.ElementAtOrDefault(8)?.ToString(), "M/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dob) ? dob : DateTime.MinValue,
+                                JobProfession = row.ElementAtOrDefault(9)?.ToString() ?? string.Empty,
 
                                 // Body Assessment (Questions 10-17)
                                 NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(10)),
@@ -487,7 +488,7 @@ namespace GYM_System.Controllers
                                 SideBodyPhotoPath = row.ElementAtOrDefault(16)?.ToString(),
                                 BackBodyPhotoPath = row.ElementAtOrDefault(17)?.ToString(),
 
-                                // Medical Assessment (Questions 18-26)
+                                // Medical Assessment (Questions 18-32)
                                 HasHealthProblems = ParseBool(row.ElementAtOrDefault(18)),
                                 HealthProblemsDetails = row.ElementAtOrDefault(19)?.ToString(),
                                 HasRecentTests = ParseBool(row.ElementAtOrDefault(20)),
@@ -496,38 +497,53 @@ namespace GYM_System.Controllers
                                 MedicationsSupplementsDetails = row.ElementAtOrDefault(23)?.ToString(),
                                 HasMedicationAllergies = ParseBool(row.ElementAtOrDefault(24)),
                                 MedicationAllergiesDetails = row.ElementAtOrDefault(25)?.ToString(),
-                                HasChronicHereditaryDiseases = ParseBool(row.ElementAtOrDefault(26)),
+                                HasChronicHereditaryDiseases = ParseBool(row.ElementAtOrDefault(26)), // Assuming this maps to Q26 in markdown (duplicate was Q24)
                                 ChronicHereditaryDiseasesDetails = row.ElementAtOrDefault(27)?.ToString(),
                                 HasPastSurgeries = ParseBool(row.ElementAtOrDefault(28)),
                                 PastSurgeriesDetails = row.ElementAtOrDefault(29)?.ToString(),
-                                IsPregnantOrPlanning = ParseBoolNullable(row.ElementAtOrDefault(30)), // Nullable bool
-                                IsTakingVitaminsMinerals = ParseBool(row.ElementAtOrDefault(31)),
-                                VitaminsMineralsDetails = row.ElementAtOrDefault(32)?.ToString(),
-                                OtherMedicalNotes = row.ElementAtOrDefault(33)?.ToString(),
+                                HasInjuries = ParseBool(row.ElementAtOrDefault(30)),
+                                InjuriesDetails = row.ElementAtOrDefault(31)?.ToString(),
+                                IsSmoker = ParseBool(row.ElementAtOrDefault(32)),
 
-                                // Dietary Assessment (Questions 27-31)
-                                HasFoodToRemove = ParseBool(row.ElementAtOrDefault(34)),
-                                FoodToRemoveDetails = row.ElementAtOrDefault(35)?.ToString(),
-                                HasFoodToAdd = ParseBool(row.ElementAtOrDefault(36)),
-                                FoodToAddDetails = row.ElementAtOrDefault(37)?.ToString(),
-                                HasFoodToKeepFromPrevious = ParseBool(row.ElementAtOrDefault(38)),
-                                FoodToKeepFromPreviousDetails = row.ElementAtOrDefault(39)?.ToString(),
-                                DesiredMealsCount = ParseInt(row.ElementAtOrDefault(40)) ?? 0, // Assuming required
-                                DietaryNotes = row.ElementAtOrDefault(41)?.ToString(),
+                                // Dietary Assessment (Questions 33-51)
+                                HasPreviousDietCommitment = ParseBool(row.ElementAtOrDefault(33)),
+                                PreviousDietExperience = row.ElementAtOrDefault(34)?.ToString(),
+                                DailyEffortDescription = row.ElementAtOrDefault(35)?.ToString() ?? string.Empty,
+                                DietCommitmentObstacles = row.ElementAtOrDefault(36)?.ToString() ?? string.Empty,
+                                DrinksSpecificBeverages = ParseBool(row.ElementAtOrDefault(37)),
+                                BeverageConsumptionDetails = row.ElementAtOrDefault(38)?.ToString(),
+                                LastDietSystemAvailable = row.ElementAtOrDefault(39)?.ToString(),
+                                HasFoodAllergies = ParseBool(row.ElementAtOrDefault(40)),
+                                FoodAllergyDetails = row.ElementAtOrDefault(41)?.ToString(),
+                                DislikesSpecificFood = ParseBool(row.ElementAtOrDefault(42)),
+                                DislikedFoodDetails = row.ElementAtOrDefault(43)?.ToString(),
+                                WantsVitaminsMinerals = ParseBool(row.ElementAtOrDefault(44)),
+                                AvailableDesiredVitaminsMinerals = row.ElementAtOrDefault(45)?.ToString(),
+                                DesiredMainMealsCount = ParseInt(row.ElementAtOrDefault(46)) ?? 0,
+                                DietFlexibilityPreference = row.ElementAtOrDefault(47)?.ToString() ?? string.Empty,
+                                DietBudget = row.ElementAtOrDefault(48)?.ToString() ?? string.Empty,
+                                PreferredProteinTypes = row.ElementAtOrDefault(49)?.ToString() ?? string.Empty,
+                                PreferredCarbohydrateTypes = row.ElementAtOrDefault(50)?.ToString() ?? string.Empty,
+                                PreferredHealthyFatTypes = row.ElementAtOrDefault(51)?.ToString() ?? string.Empty,
 
-                                // Workout Assessment (Questions 32-42)
-                                WorkoutCommitmentLevel = row.ElementAtOrDefault(42)?.ToString() ?? string.Empty, // Assuming required
-                                WorkoutDaysPerWeek = ParseInt(row.ElementAtOrDefault(43)) ?? 0, // Assuming required
-                                DailySleepHours = row.ElementAtOrDefault(44)?.ToString() ?? string.Empty, // Assuming required
-                                DailyWaterIntake = row.ElementAtOrDefault(45)?.ToString() ?? string.Empty, // Assuming required
-                                DailyWalkingHours = row.ElementAtOrDefault(46)?.ToString() ?? string.Empty, // Assuming required
-                                HasInjuries = ParseBool(row.ElementAtOrDefault(47)),
-                                InjuriesDetails = row.ElementAtOrDefault(48)?.ToString(),
-                                PreferredWorkoutDays = row.ElementAtOrDefault(49)?.ToString(), // Comma-separated string
-                                WorkoutGoals = row.ElementAtOrDefault(50)?.ToString(), // Comma-separated string
-                                AvailableEquipment = row.ElementAtOrDefault(51)?.ToString(), // Comma-separated string
-                                WorkoutLocation = row.ElementAtOrDefault(52)?.ToString(), // Comma-separated string
-                                WorkoutNotes = row.ElementAtOrDefault(53)?.ToString()
+                                // Workout Assessment (Questions 52-63)
+                                WorkoutExperience = row.ElementAtOrDefault(52)?.ToString() ?? string.Empty,
+                                ResistanceTrainingDuration = row.ElementAtOrDefault(53)?.ToString() ?? string.Empty,
+                                PracticesOtherSports = ParseBool(row.ElementAtOrDefault(54)),
+                                OtherSportsDetails = row.ElementAtOrDefault(55)?.ToString(),
+                                WorkoutLocation = row.ElementAtOrDefault(56)?.ToString() ?? string.Empty,
+                                AvailableHomeEquipment = row.ElementAtOrDefault(57)?.ToString(),
+                                AvailableWorkoutDaysCount = ParseInt(row.ElementAtOrDefault(58)) ?? 0,
+                                AvailableWorkoutDays = row.ElementAtOrDefault(59)?.ToString() ?? string.Empty, // multiple choices
+                                HasExerciseDiscomfort = ParseBool(row.ElementAtOrDefault(60)),
+                                DiscomfortExercisesDetails = row.ElementAtOrDefault(61)?.ToString(),
+                                PreferredCardioType = row.ElementAtOrDefault(62)?.ToString() ?? string.Empty,
+                                DailyStepsCount = row.ElementAtOrDefault(63)?.ToString() ?? string.Empty,
+
+                                // General Assessment (Questions 64-66)
+                                PreviousOnlineTrainingExperience = row.ElementAtOrDefault(64)?.ToString(),
+                                ReasonForSubscription = row.ElementAtOrDefault(65)?.ToString() ?? string.Empty,
+                                OtherNotes = row.ElementAtOrDefault(66)?.ToString()
                             };
                             _context.ClientAssessments.Add(assessment);
                             assessmentsImported++;
@@ -538,7 +554,7 @@ namespace GYM_System.Controllers
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error processing initial assessment row: {ex.Message}");
+                            Console.WriteLine($"Error processing initial assessment row: {ex.Message}. Row: {string.Join(",", row)}");
                             // Consider logging more details like the row content for debugging
                         }
                     }
@@ -552,19 +568,21 @@ namespace GYM_System.Controllers
                     {
                         try
                         {
-                            // Minimum expected columns for client update. Based on your update questions, there are 12 fields (0-11).
-                            if (row.Count < 12)
+                            // Expected columns for client update: 33 (0 to 32)
+                            if (row.Count < 33) // Adjusted count
                             {
                                 skippedInvalidFormCode++; // Or a more specific error for incomplete data
+                                Console.WriteLine($"Skipped client update row due to insufficient columns: Expected 33, got {row.Count}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
-                            string formCode = row[1]?.ToString()?.Trim() ?? string.Empty;
-                            DateTime timestamp = DateTime.TryParseExact(row[0]?.ToString(), "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ts) ? ts : DateTime.MinValue;
+                            string formCode = row.ElementAtOrDefault(1)?.ToString()?.Trim() ?? string.Empty;
+                            DateTime timestamp = DateTime.TryParseExact(row.ElementAtOrDefault(0)?.ToString(), "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var ts) ? ts : DateTime.MinValue;
 
                             if (string.IsNullOrEmpty(formCode) || timestamp == DateTime.MinValue)
                             {
                                 skippedInvalidFormCode++;
+                                Console.WriteLine($"Skipped client update row due to invalid Form Code or Timestamp. FormCode: '{formCode}', Timestamp: '{row.ElementAtOrDefault(0)}'. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -572,6 +590,7 @@ namespace GYM_System.Controllers
                             if (client == null)
                             {
                                 skippedInvalidFormCode++;
+                                Console.WriteLine($"Skipped client update row: Client with FormCode '{formCode}' not found. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -580,6 +599,7 @@ namespace GYM_System.Controllers
                             if (exists)
                             {
                                 skippedDuplicates++;
+                                Console.WriteLine($"Skipped client update row: Duplicate entry for ClientId {client.Id} at Timestamp {timestamp}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -589,30 +609,55 @@ namespace GYM_System.Controllers
                                 Timestamp = timestamp,
                                 FormCode = formCode,
 
-                                // Body Assessment Update (from original update section questions 8-15)
-                                NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(2)),
-                                WaistCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(3)),
-                                HipCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(4)),
-                                ArmCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(5)),
-                                ThighCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(6)),
-                                FrontBodyPhotoPath = row.ElementAtOrDefault(7)?.ToString(),
-                                SideBodyPhotoPath = row.ElementAtOrDefault(8)?.ToString(),
-                                BackBodyPhotoPath = row.ElementAtOrDefault(9)?.ToString(),
+                                CurrentWeightKg = ParseDecimal(row.ElementAtOrDefault(2)) ?? 0,
 
-                                // Workout Assessment Update (from original update section question 16-17)
-                                WorkoutCommitmentLevel = row.ElementAtOrDefault(10)?.ToString(),
-                                Notes = row.ElementAtOrDefault(11)?.ToString()
+                                // Dietary Assessment Update (Questions 3-11)
+                                DietCommitmentLevel = row.ElementAtOrDefault(3)?.ToString() ?? string.Empty,
+                                HasFoodToRemove = ParseBool(row.ElementAtOrDefault(4)),
+                                FoodToRemoveDetails = row.ElementAtOrDefault(5)?.ToString(),
+                                HasFoodToAdd = ParseBool(row.ElementAtOrDefault(6)),
+                                FoodToAddDetails = row.ElementAtOrDefault(7)?.ToString(),
+                                HasFoodToKeepFromPrevious = ParseBool(row.ElementAtOrDefault(8)),
+                                FoodToKeepFromPreviousDetails = row.ElementAtOrDefault(9)?.ToString(),
+                                DesiredMealsCount = ParseInt(row.ElementAtOrDefault(10)) ?? 0,
+                                DietaryNotes = row.ElementAtOrDefault(11)?.ToString(),
+
+                                // Body Assessment Update (Questions 12-19)
+                                NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(12)),
+                                WaistCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(13)),
+                                HipCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(14)),
+                                ArmCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(15)),
+                                ThighCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(16)),
+                                FrontBodyPhotoPath = row.ElementAtOrDefault(17)?.ToString(),
+                                SideBodyPhotoPath = row.ElementAtOrDefault(18)?.ToString(),
+                                BackBodyPhotoPath = row.ElementAtOrDefault(19)?.ToString(),
+
+                                // Workout Assessment Update (Questions 20-31)
+                                WorkoutCommitmentLevel = row.ElementAtOrDefault(20)?.ToString() ?? string.Empty,
+                                PreviousWorkoutSystemExperience = row.ElementAtOrDefault(21)?.ToString() ?? string.Empty,
+                                HasWeightRepsDevelopment = ParseBool(row.ElementAtOrDefault(22)),
+                                IsTrainingVolumeSuitable = ParseBool(row.ElementAtOrDefault(23)),
+                                DesiredTrainingVolumeAdjustment = row.ElementAtOrDefault(24)?.ToString(),
+                                IsTrainingIntensitySuitable = ParseBool(row.ElementAtOrDefault(25)),
+                                DesiredTrainingIntensityAdjustment = row.ElementAtOrDefault(26)?.ToString(),
+                                HasExerciseDiscomfort = ParseBool(row.ElementAtOrDefault(27)),
+                                DiscomfortExerciseName = row.ElementAtOrDefault(28)?.ToString(),
+                                AvailableWorkoutDaysCount = ParseInt(row.ElementAtOrDefault(29)) ?? 0,
+                                WorkoutLocation = row.ElementAtOrDefault(30)?.ToString() ?? string.Empty,
+                                AvailableHomeEquipment = row.ElementAtOrDefault(31)?.ToString(),
+                                Notes = row.ElementAtOrDefault(32)?.ToString()
                             };
                             _context.ClientUpdates.Add(update);
                             updatesImported++;
 
+                            // Update client status based on latest update
                             if (client.DietStatus == PlanStatus.OnPlan || client.DietStatus == PlanStatus.WaitingForPlan) client.DietStatus = PlanStatus.NeedsUpdateForm;
                             if (client.WorkoutStatus == PlanStatus.OnPlan || client.WorkoutStatus == PlanStatus.WaitingForPlan) client.WorkoutStatus = PlanStatus.NeedsUpdateForm;
                             _context.Update(client);
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error processing update form row: {ex.Message}");
+                            Console.WriteLine($"Error processing update form row: {ex.Message}. Row: {string.Join(",", row)}");
                             // Consider logging more details like the row content for debugging
                         }
                     }
@@ -657,7 +702,7 @@ namespace GYM_System.Controllers
             return null;
         }
 
-        // New helper to parse boolean values from "Yes"/"No" strings
+        // Helper to parse boolean values from "نعم"/"Yes" strings (required booleans)
         private bool ParseBool(object? value)
         {
             if (value != null && (value.ToString()?.Equals("نعم", StringComparison.OrdinalIgnoreCase) == true ||
@@ -668,7 +713,7 @@ namespace GYM_System.Controllers
             return false;
         }
 
-        // New helper to parse nullable boolean values (for "Pregnant or Planning?")
+        // Helper to parse nullable boolean values (if any optional bools were added, like IsPregnantOrPlanning)
         private bool? ParseBoolNullable(object? value)
         {
             if (value == null || string.IsNullOrWhiteSpace(value.ToString()))

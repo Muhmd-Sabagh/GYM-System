@@ -16,7 +16,7 @@
 
     <!-- Custom CSS (for general app styling) -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+
 </head>
 <body>
     <header>
@@ -63,6 +63,11 @@
                                 <li><a class="dropdown-item" asp-area="" asp-controller="PaymentAccounts" asp-action="Index">Payment Accounts</a></li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="#" data-bs-toggle="modal" data-bs-target="#caloriesCalculatorModal">
+                                Calories Calculator
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -72,12 +77,14 @@
         <main role="main" class="pb-3">
             <partial name="_StatusMessages" /> <!-- New partial for status messages -->
             @RenderBody()
+            <partial name ="_CaloriesCalculatorModal" />
         </main>
     </div>
 
+
     <footer class="border-top footer text-muted bg-light mt-5 py-3">
         <div class="container">
-            &copy; @DateTime.Now.Year - SuperSheets Gym Management
+            &copy; @DateTime.Now.Year - Super Gym Management
         </div>
     </footer>
 

@@ -1,254 +1,120 @@
 ﻿@model GYM_System.ViewModels.ClientFileViewModel
 
 @{
-    ViewData["Title"] = $"Client File: {Model.Client?.Name}";
+    ViewData["Title"] = $"Client File: {Model.Client.Name}";
 }
 
-<h1 class="mb-4">Client File: @Model.Client?.Name</h1>
+<h1 class="mb-4">Client File: @Model.Client.Name (@Model.Client.ClientCode)</h1>
 
 <div class="mb-4 d-flex flex-wrap gap-2">
     <a asp-action="Index" class="btn btn-secondary">Back to Clients List</a>
-    <a asp-action="Edit" asp-route-id="@Model.Client?.Id" class="btn btn-info">Edit Client Details</a>
-    <a asp-action="AddSubscription" asp-route-clientId="@Model.Client?.Id" class="btn btn-primary">Add New Subscription</a>
-    <a asp-controller="ClientAssessments" asp-action="Create" asp-route-clientId="@Model.Client?.Id" class="btn btn-success">Add New Assessment</a>
+    <a asp-action="Edit" asp-route-id="@Model.Client.Id" class="btn btn-info">Edit Client Details</a>
+    <a asp-action="Details" asp-route-id="@Model.Client.Id" class="btn btn-info">View Client Summary</a>
 </div>
 
-<hr class="my-4" />
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-4 h-100">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Client Information</h4>
-            </div>
-            <div class="card-body">
-                <dl class="row mb-0">
-                    <dt class="col-sm-4">Client Code:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.ClientCode)</dd>
-
-                    <dt class="col-sm-4">Name:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.Name)</dd>
-
-                    <dt class="col-sm-4">Phone:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.Phone)</dd>
-
-                    <dt class="col-sm-4">Email:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.Email)</dd>
-
-                    <dt class="col-sm-4">Join Date:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.JoinDate)</dd>
-
-                    <dt class="col-sm-4">Form Code:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.FormCode)</dd>
-
-                    <dt class="col-sm-4">Subscription Status:</dt>
-                    <dd class="col-sm-8">
-                        <span class="badge @(Model.Client?.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (Model.Client?.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
-                            @Html.DisplayFor(model => model.Client.Status)
-                        </span>
-                    </dd>
-
-                    <dt class="col-sm-4">Diet Status:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.DietStatus)</dd>
-
-                    <dt class="col-sm-4">Workout Status:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Client.WorkoutStatus)</dd>
-                </dl>
-            </div>
-        </div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-    <div class="col-md-6">
-        <div class="card mb-4 h-100">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Subscriptions</h4>
-            </div>
-            <div class="card-body">
-                @if (!Model.Subscriptions.Any())
-                {
-                    <div class="alert alert-info mb-0">No subscriptions found.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Package</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var sub in Model.Subscriptions)
-                                {
-                                    <tr>
-                                        <td>@sub.PackageType?.Name</td>
-                                        <td>@sub.StartDate.ToShortDateString()</td>
-                                        <td>@sub.StartDate.AddMonths(sub.DurationMonths).ToShortDateString()</td>
-                                        <td>@sub.Price.ToString("F2") @sub.Currency?.Code</td>
-                                        <td>
-                                            <span class="badge @(sub.IsActive ? "bg-success" : "bg-warning text-dark")">
-                                                @(sub.IsActive ? "Active" : "Expired")
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a asp-action="EditSubscription" asp-route-id="@sub.Id" class="btn btn-sm btn-outline-info">Edit</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Client Basic Information</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Client Code:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.ClientCode)</dd>
+
+            <dt class="col-sm-3">Name:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.Name)</dd>
+
+            <dt class="col-sm-3">Phone:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.Phone)</dd>
+
+            <dt class="col-sm-3">Email:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.Email)</dd>
+
+            <dt class="col-sm-3">Join Date:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.JoinDate)</dd>
+
+            <dt class="col-sm-3">Form Code:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.FormCode)</dd>
+
+            <dt class="col-sm-3">Subscription Status:</dt>
+            <dd class="col-sm-9">
+                <span class="badge @(Model.Client.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (Model.Client.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
+                    @Html.DisplayFor(model => model.Client.Status)
+                </span>
+            </dd>
+
+            <dt class="col-sm-3">Diet Status:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.DietStatus)</dd>
+
+            <dt class="col-sm-3">Workout Status:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Client.WorkoutStatus)</dd>
+        </dl>
     </div>
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0">Initial Assessments</h4>
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Subscriptions</h4>
+        <a asp-action="AddSubscription" asp-controller="Clients" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Add New Subscription</a>
     </div>
     <div class="card-body">
-        @if (!Model.ClientAssessments.Any())
+        @if (!Model.Subscriptions.Any())
         {
-            <div class="alert alert-info mb-0">No initial assessments found. Sync from Google Forms or <a asp-controller="ClientAssessments" asp-action="Create" asp-route-clientId="@Model.Client?.Id">add one manually</a>.</div>
+            <div class="alert alert-info mb-0">No subscriptions found for this client.</div>
         }
         else
         {
             <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                    <thead>
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
                         <tr>
-                            <th>Date</th>
-                            <th>Country</th>
-                            <th>Religion</th>
-                            <th>Goal</th>
-                            <th>Weight (kg)</th>
-                            <th>Height (cm)</th>
-                            <th>Gender</th>
-                            <th>DOB</th>
-                            <th>Job</th>
-                            <th>Neck (cm)</th>
-                            <th>Waist (cm)</th>
-                            <th>Hip (cm)</th>
-                            <th>Arm (cm)</th>
-                            <th>Thigh (cm)</th>
-                            <th>Photos</th>
-                            <th>Health Problems</th>
-                            <th>Health Details</th>
-                            <th>Recent Tests</th>
-                            <th>Tests Details</th>
-                            <th>Medications</th>
-                            <th>Med. Details</th>
-                            <th>Med. Allergies</th>
-                            <th>Allergies Details</th>
-                            <th>Chronic Diseases</th>
-                            <th>Chronic Details</th>
-                            <th>Surgeries</th>
-                            <th>Surg. Details</th>
-                            <th>Pregnant?</th>
-                            <th>Vitamins</th>
-                            <th>Vit. Details</th>
-                            <th>Other Medical Notes</th>
-                            <th>Food to Remove?</th>
-                            <th>Remove Details</th>
-                            <th>Food to Add?</th>
-                            <th>Add Details</th>
-                            <th>Food to Keep?</th>
-                            <th>Keep Details</th>
-                            <th>Desired Meals</th>
-                            <th>Dietary Notes</th>
-                            <th>Workout Commitment</th>
-                            <th>Workout Days/Week</th>
-                            <th>Sleep Hours</th>
-                            <th>Water Intake</th>
-                            <th>Walking Hours</th>
-                            <th>Injuries?</th>
-                            <th>Injuries Details</th>
-                            <th>Preferred Workout Days</th>
-                            <th>Workout Goals</th>
-                            <th>Available Equipment</th>
-                            <th>Workout Location</th>
-                            <th>Workout Notes</th>
-                            <th>Actions</th> <!-- NEW COLUMN -->
+                            <th>Package</th>
+                            <th>Start Date</th>
+                            <th>Duration (Months)</th>
+                            <th>End Date</th>
+                            <th>Price</th>
+                            <th>Currency</th>
+                            <th>Payment Account</th>
+                            <th>Renewal Count</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var assessment in Model.ClientAssessments)
+                        @foreach (var item in Model.Subscriptions.OrderByDescending(s => s.StartDate))
                         {
                             <tr>
-                                <td>@assessment.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
-                                <td>@assessment.Country</td>
-                                <td>@assessment.Religion</td>
-                                <td>@assessment.ServiceGoal</td>
-                                <td>@assessment.WeightKg.ToString("F1")</td>
-                                <td>@assessment.HeightCm.ToString("F1")</td>
-                                <td>@assessment.Gender</td>
-                                <td>@assessment.DateOfBirth.ToShortDateString()</td>
-                                <td>@assessment.JobProfession</td>
-                                <td>@assessment.NeckCircumferenceCm?.ToString("F1")</td>
-                                <td>@assessment.WaistCircumferenceCm?.ToString("F1")</td>
-                                <td>@assessment.HipCircumferenceCm?.ToString("F1")</td>
-                                <td>@assessment.ArmCircumferenceCm?.ToString("F1")</td>
-                                <td>@assessment.ThighCircumferenceCm?.ToString("F1")</td>
+                                <td>@Html.DisplayFor(modelItem => item.PackageType.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DurationMonths)</td>
+                                <td>@(item.StartDate.AddMonths(item.DurationMonths).ToShortDateString())</td>
+                                <td>@item.Price.ToString("F2")</td>
+                                <td>@Html.DisplayFor(modelItem => item.Currency.Code)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PaymentAccount.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => item.RenewalCount)</td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(assessment.FrontBodyPhotoPath))
-                                    {
-                                        <a href="@assessment.FrontBodyPhotoPath" target="_blank">F</a>
-                                    }
-                                    @if (!string.IsNullOrEmpty(assessment.SideBodyPhotoPath))
-                                    {
-                                        <a href="@assessment.SideBodyPhotoPath" target="_blank">S</a>
-                                    }
-                                    @if (!string.IsNullOrEmpty(assessment.BackBodyPhotoPath))
-                                    {
-                                        <a href="@assessment.BackBodyPhotoPath" target="_blank">B</a>
-                                    }
+                                    <span class="badge @(item.IsActive ? "bg-success" : "bg-warning text-dark")">
+                                        @(item.IsActive ? "Active" : "Expired")
+                                    </span>
                                 </td>
-                                <td>@(assessment.HasHealthProblems ? "Yes" : "No")</td>
-                                <td>@assessment.HealthProblemsDetails</td>
-                                <td>@(assessment.HasRecentTests ? "Yes" : "No")</td>
-                                <td>@assessment.RecentTestsDetails</td>
-                                <td>@(assessment.IsTakingMedicationsSupplements ? "Yes" : "No")</td>
-                                <td>@assessment.MedicationsSupplementsDetails</td>
-                                <td>@(assessment.HasMedicationAllergies ? "Yes" : "No")</td>
-                                <td>@assessment.MedicationAllergiesDetails</td>
-                                <td>@(assessment.HasChronicHereditaryDiseases ? "Yes" : "No")</td>
-                                <td>@assessment.ChronicHereditaryDiseasesDetails</td>
-                                <td>@(assessment.HasPastSurgeries ? "Yes" : "No")</td>
-                                <td>@assessment.PastSurgeriesDetails</td>
-                                <td>@(assessment.IsPregnantOrPlanning.HasValue ? (assessment.IsPregnantOrPlanning.Value ? "Yes" : "No") : "N/A")</td>
-                                <td>@(assessment.IsTakingVitaminsMinerals ? "Yes" : "No")</td>
-                                <td>@assessment.VitaminsMineralsDetails</td>
-                                <td>@assessment.OtherMedicalNotes</td>
-                                <td>@(assessment.HasFoodToRemove ? "Yes" : "No")</td>
-                                <td>@assessment.FoodToRemoveDetails</td>
-                                <td>@(assessment.HasFoodToAdd ? "Yes" : "No")</td>
-                                <td>@assessment.FoodToAddDetails</td>
-                                <td>@(assessment.HasFoodToKeepFromPrevious ? "Yes" : "No")</td>
-                                <td>@assessment.FoodToKeepFromPreviousDetails</td>
-                                <td>@assessment.DesiredMealsCount</td>
-                                <td>@assessment.DietaryNotes</td>
-                                <td>@assessment.WorkoutCommitmentLevel</td>
-                                <td>@assessment.WorkoutDaysPerWeek</td>
-                                <td>@assessment.DailySleepHours</td>
-                                <td>@assessment.DailyWaterIntake</td>
-                                <td>@assessment.DailyWalkingHours</td>
-                                <td>@(assessment.HasInjuries ? "Yes" : "No")</td>
-                                <td>@assessment.InjuriesDetails</td>
-                                <td>@assessment.PreferredWorkoutDays</td>
-                                <td>@assessment.WorkoutGoals</td>
-                                <td>@assessment.AvailableEquipment</td>
-                                <td>@assessment.WorkoutLocation</td>
-                                <td>@assessment.WorkoutNotes</td>
                                 <td>
-                                    <a asp-controller="ClientAssessments" asp-action="Edit" asp-route-id="@assessment.Id" class="btn btn-sm btn-outline-info me-1">Edit</a>
-                                    <a asp-controller="ClientAssessments" asp-action="Delete" asp-route-id="@assessment.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                                    <a asp-action="EditSubscription" asp-controller="Clients" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
+                                    <a asp-action="DeleteSubscription" asp-controller="Clients" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                                 </td>
                             </tr>
                         }
@@ -260,60 +126,183 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0">Client Updates (Progress Tracking)</h4>
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Initial Assessments</h4>
+        <a asp-action="Create" asp-controller="ClientAssessments" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Add One Manually</a>
     </div>
     <div class="card-body">
-        @if (!Model.ClientUpdates.Any())
+        @if (!Model.ClientAssessments.Any())
         {
-            <div class="alert alert-info mb-0">No client updates found. Sync from Google Forms or <a asp-controller="ClientUpdates" asp-action="Create" asp-route-clientId="@Model.Client?.Id">add one manually</a>.</div>
+            <div class="alert alert-info mb-0">No initial assessments found for this client.</div>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                    <thead>
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto; overflow-x: auto;">
+                <table class="table table-striped table-hover table-bordered table-sm">
+                    <thead class="table-dark sticky-top">
                         <tr>
-                            @foreach (var update in Model.ClientUpdates)
-                            {
-                                <th class="text-center">
-                                    @update.Timestamp.ToString("yyyy-MM-dd")
-                                    <br />
-                                    <a asp-controller="ClientUpdates" asp-action="Edit" asp-route-id="@update.Id" class="btn btn-sm btn-outline-info mt-1">Edit</a>
-                                    <a asp-controller="ClientUpdates" asp-action="Delete" asp-route-id="@update.Id" class="btn btn-sm btn-outline-danger mt-1">Del</a>
-                                </th>
-                            }
+                            <th scope="col">Date</th>
+                            <th scope="col">Form Code</th>
+                            <th scope="col">Country</th>
+                            <th scope="col">Religion</th>
+                            <th scope="col">Service Goal</th>
+                            <th scope="col">Weight (kg)</th>
+                            <th scope="col">Height (cm)</th>
+                            <th scope="col">Gender</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Job</th>
+                            <th scope="col">Neck (cm)</th>
+                            <th scope="col">Waist (cm)</th>
+                            <th scope="col">Hip (cm)</th>
+                            <th scope="col">Arm (cm)</th>
+                            <th scope="col">Thigh (cm)</th>
+                            <th scope="col">Front Photo</th>
+                            <th scope="col">Side Photo</th>
+                            <th scope="col">Back Photo</th>
+                            <th scope="col">Health Issues?</th>
+                            <th scope="col">Health Details</th>
+                            <th scope="col">Recent Tests?</th>
+                            <th scope="col">Tests Details</th>
+                            <th scope="col">Meds/Supps?</th>
+                            <th scope="col">Meds/Supps Details</th>
+                            <th scope="col">Med Allergies?</th>
+                            <th scope="col">Med Allergies Details</th>
+                            <th scope="col">Chronic Diseases?</th>
+                            <th scope="col">Chronic Diseases Details</th>
+                            <th scope="col">Past Surgeries?</th>
+                            <th scope="col">Surgeries Details</th>
+                            <th scope="col">Injuries?</th>
+                            <th scope="col">Injuries Details</th>
+                            <th scope="col">Smoker?</th>
+                            <th scope="col">Prev Diet?</th>
+                            <th scope="col">Prev Diet Exp.</th>
+                            <th scope="col">Daily Effort</th>
+                            <th scope="col">Diet Obstacles</th>
+                            <th scope="col">Drinks Bev?</th>
+                            <th scope="col">Bev. Details</th>
+                            <th scope="col">Last Diet Sys.</th>
+                            <th scope="col">Food Allergies?</th>
+                            <th scope="col">Food Allergies Details</th>
+                            <th scope="col">Dislikes Food?</th>
+                            <th scope="col">Dislikes Food Details</th>
+                            <th scope="col">Wants Vitamins?</th>
+                            <th scope="col">Vitamins Details</th>
+                            <th scope="col">Desired Meals</th>
+                            <th scope="col">Diet Flex.</th>
+                            <th scope="col">Diet Budget</th>
+                            <th scope="col">Pref. Proteins</th>
+                            <th scope="col">Pref. Carbs</th>
+                            <th scope="col">Pref. Healthy Fats</th>
+                            <th scope="col">Workout Exp.</th>
+                            <th scope="col">Res. Training Dur.</th>
+                            <th scope="col">Other Sports?</th>
+                            <th scope="col">Other Sports Details</th>
+                            <th scope="col">Workout Loc.</th>
+                            <th scope="col">Home Equip.</th>
+                            <th scope="col">Avail. Workout Days Count</th>
+                            <th scope="col">Avail. Workout Days</th>
+                            <th scope="col">Ex. Discomfort?</th>
+                            <th scope="col">Discomfort Ex. Details</th>
+                            <th scope="col">Pref. Cardio</th>
+                            <th scope="col">Daily Steps</th>
+                            <th scope="col">Prev. Online Train.</th>
+                            <th scope="col">Reason for Sub.</th>
+                            <th scope="col">Other Notes</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            @foreach (var update in Model.ClientUpdates)
-                            {
-                                <td class="text-center">
-                                    <strong>Neck (cm):</strong> @update.NeckCircumferenceCm?.ToString("F1")<br />
-                                    <strong>Waist (cm):</strong> @update.WaistCircumferenceCm?.ToString("F1")<br />
-                                    <strong>Hip (cm):</strong> @update.HipCircumferenceCm?.ToString("F1")<br />
-                                    <strong>Arm (cm):</strong> @update.ArmCircumferenceCm?.ToString("F1")<br />
-                                    <strong>Thigh (cm):</strong> @update.ThighCircumferenceCm?.ToString("F1")<br />
-                                    <strong>Photos:</strong>
-                                    @if (!string.IsNullOrEmpty(update.FrontBodyPhotoPath))
+                        @foreach (var item in Model.ClientAssessments.OrderByDescending(ca => ca.Timestamp))
+                        {
+                            <tr>
+                                <td>@item.Timestamp.ToShortDateString()</td>
+                                <td>@Html.DisplayFor(modelItem => item.FormCode)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Country)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Religion)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ServiceGoal)</td>
+                                <td>@item.WeightKg.ToString("F1")</td>
+                                <td>@item.HeightCm.ToString("F1")</td>
+                                <td>@Html.DisplayFor(modelItem => item.Gender)</td>
+                                <td>@item.DateOfBirth.ToShortDateString()</td>
+                                <td>@Html.DisplayFor(modelItem => item.JobProfession)</td>
+                                <td>@item.NeckCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.WaistCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.HipCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.ArmCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.ThighCircumferenceCm?.ToString("F1")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.FrontBodyPhotoPath))
                                     {
-                                        <a href="@update.FrontBodyPhotoPath" target="_blank">F</a>
+                                        <a href="@item.FrontBodyPhotoPath" target="_blank">View</a>
                                     }
-                                    @if (!string.IsNullOrEmpty(update.SideBodyPhotoPath))
-                                    {
-                                        <a href="@update.SideBodyPhotoPath" target="_blank">S</a>
-                                    }
-                                    @if (!string.IsNullOrEmpty(update.BackBodyPhotoPath))
-                                    {
-                                        <a href="@update.BackBodyPhotoPath" target="_blank">B</a>
-                                    }
-                                    <br />
-                                    <strong>Workout Commitment:</strong> @update.WorkoutCommitmentLevel<br />
-                                    <strong>Notes:</strong> @update.Notes
                                 </td>
-                            }
-                        </tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.SideBodyPhotoPath))
+                                    {
+                                        <a href="@item.SideBodyPhotoPath" target="_blank">View</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.BackBodyPhotoPath))
+                                    {
+                                        <a href="@item.BackBodyPhotoPath" target="_blank">View</a>
+                                    }
+                                </td>
+                                <td>@(item.HasHealthProblems ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.HealthProblemsDetails)</td>
+                                <td>@(item.HasRecentTests ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.RecentTestsDetails)</td>
+                                <td>@(item.IsTakingMedicationsSupplements ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.MedicationsSupplementsDetails)</td>
+                                <td>@(item.HasMedicationAllergies ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.MedicationAllergiesDetails)</td>
+                                <td>@(item.HasChronicHereditaryDiseases ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.ChronicHereditaryDiseasesDetails)</td>
+                                <td>@(item.HasPastSurgeries ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.PastSurgeriesDetails)</td>
+                                <td>@(item.HasInjuries ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.InjuriesDetails)</td>
+                                <td>@(item.IsSmoker ? "Yes" : "No")</td>
+                                <td>@(item.HasPreviousDietCommitment ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreviousDietExperience)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DailyEffortDescription)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DietCommitmentObstacles)</td>
+                                <td>@(item.DrinksSpecificBeverages ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.BeverageConsumptionDetails)</td>
+                                <td>@Html.DisplayFor(modelItem => item.LastDietSystemAvailable)</td>
+                                <td>@(item.HasFoodAllergies ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.FoodAllergyDetails)</td>
+                                <td>@(item.DislikesSpecificFood ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.DislikedFoodDetails)</td>
+                                <td>@(item.WantsVitaminsMinerals ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.AvailableDesiredVitaminsMinerals)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DesiredMainMealsCount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DietFlexibilityPreference)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DietBudget)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreferredProteinTypes)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreferredCarbohydrateTypes)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreferredHealthyFatTypes)</td>
+                                <td>@Html.DisplayFor(modelItem => item.WorkoutExperience)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ResistanceTrainingDuration)</td>
+                                <td>@(item.PracticesOtherSports ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.OtherSportsDetails)</td>
+                                <td>@Html.DisplayFor(modelItem => item.WorkoutLocation)</td>
+                                <td>@Html.DisplayFor(modelItem => item.AvailableHomeEquipment)</td>
+                                <td>@Html.DisplayFor(modelItem => item.AvailableWorkoutDaysCount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.AvailableWorkoutDays)</td>
+                                <td>@(item.HasExerciseDiscomfort ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscomfortExercisesDetails)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreferredCardioType)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DailyStepsCount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreviousOnlineTrainingExperience)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ReasonForSubscription)</td>
+                                <td>@Html.DisplayFor(modelItem => item.OtherNotes)</td>
+                                <td>
+                                    <a asp-action="Edit" asp-controller="ClientAssessments" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
+                                    <a asp-action="Delete" asp-controller="ClientAssessments" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -321,84 +310,209 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-4 h-100">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Diet Plans for @Model.Client?.Name</h4>
-            </div>
-            <div class="card-body">
-                @if (!Model.DietPlans.Any())
-                {
-                    <div class="alert alert-info mb-0">No diet plans created for this client.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Plan Name</th>
-                                    <th>Created Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var plan in Model.DietPlans)
-                                {
-                                    <tr>
-                                        <td>@plan.PlanName</td>
-                                        <td>@plan.CreatedDate.ToShortDateString()</td>
-                                        <td>
-                                            <a asp-controller="DietPlanMaker" asp-action="Index" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-info">Edit Plan</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Client Updates</h4>
+        <a asp-action="Create" asp-controller="ClientUpdates" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Add One Manually</a>
     </div>
+    <div class="card-body">
+        @if (!Model.ClientUpdates.Any())
+        {
+            <div class="alert alert-info mb-0">No client updates found for this client.</div>
+        }
+        else
+        {
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto; overflow-x: auto;">
+                <table class="table table-striped table-hover table-bordered table-sm">
+                    <thead class="table-dark sticky-top">
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Form Code</th>
+                            <th scope="col">Current Weight (kg)</th>
+                            <th scope="col">Diet Commit.</th>
+                            <th scope="col">Food to Remove?</th>
+                            <th scope="col">Remove Details</th>
+                            <th scope="col">Food to Add?</th>
+                            <th scope="col">Add Details</th>
+                            <th scope="col">Food to Keep?</th>
+                            <th scope="col">Keep Details</th>
+                            <th scope="col">Desired Meals</th>
+                            <th scope="col">Diet Notes</th>
+                            <th scope="col">Neck (cm)</th>
+                            <th scope="col">Waist (cm)</th>
+                            <th scope="col">Hip (cm)</th>
+                            <th scope="col">Arm (cm)</th>
+                            <th scope="col">Thigh (cm)</th>
+                            <th scope="col">Front Photo</th>
+                            <th scope="col">Side Photo</th>
+                            <th scope="col">Back Photo</th>
+                            <th scope="col">Workout Commit.</th>
+                            <th scope="col">Prev. Workout Exp.</th>
+                            <th scope="col">Weight/Reps Dev.?</th>
+                            <th scope="col">Vol. Suitable?</th>
+                            <th scope="col">Desired Vol. Adj.</th>
+                            <th scope="col">Int. Suitable?</th>
+                            <th scope="col">Desired Int. Adj.</th>
+                            <th scope="col">Ex. Discomfort?</th>
+                            <th scope="col">Discomfort Ex. Name</th>
+                            <th scope="col">Avail. Workout Days Count</th>
+                            <th scope="col">Workout Loc.</th>
+                            <th scope="col">Home Equip.</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ClientUpdates.OrderByDescending(cu => cu.Timestamp))
+                        {
+                            <tr>
+                                <td>@item.Timestamp.ToShortDateString()</td>
+                                <td>@Html.DisplayFor(modelItem => item.FormCode)</td>
+                                <td>@item.CurrentWeightKg.ToString("F1")</td>
+                                <td>@Html.DisplayFor(modelItem => item.DietCommitmentLevel)</td>
+                                <td>@(item.HasFoodToRemove ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.FoodToRemoveDetails)</td>
+                                <td>@(item.HasFoodToAdd ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.FoodToAddDetails)</td>
+                                <td>@(item.HasFoodToKeepFromPrevious ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.FoodToKeepFromPreviousDetails)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DesiredMealsCount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DietaryNotes)</td>
+                                <td>@item.NeckCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.WaistCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.HipCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.ArmCircumferenceCm?.ToString("F1")</td>
+                                <td>@item.ThighCircumferenceCm?.ToString("F1")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.FrontBodyPhotoPath))
+                                    {
+                                        <a href="@item.FrontBodyPhotoPath" target="_blank">View</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.SideBodyPhotoPath))
+                                    {
+                                        <a href="@item.SideBodyPhotoPath" target="_blank">View</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.BackBodyPhotoPath))
+                                    {
+                                        <a href="@item.BackBodyPhotoPath" target="_blank">View</a>
+                                    }
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.WorkoutCommitmentLevel)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PreviousWorkoutSystemExperience)</td>
+                                <td>@(item.HasWeightRepsDevelopment ? "Yes" : "No")</td>
+                                <td>@(item.IsTrainingVolumeSuitable ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.DesiredTrainingVolumeAdjustment)</td>
+                                <td>@(item.IsTrainingIntensitySuitable ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.DesiredTrainingIntensityAdjustment)</td>
+                                <td>@(item.HasExerciseDiscomfort ? "Yes" : "No")</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscomfortExerciseName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.AvailableWorkoutDaysCount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.WorkoutLocation)</td>
+                                <td>@Html.DisplayFor(modelItem => item.AvailableHomeEquipment)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Notes)</td>
+                                <td>
+                                    <a asp-action="Edit" asp-controller="ClientUpdates" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
+                                    <a asp-action="Delete" asp-controller="ClientUpdates" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
 
-    <div class="col-md-6">
-        <div class="card mb-4 h-100">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Workout Plans for @Model.Client?.Name</h4>
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Diet Plans</h4>
+        @* Add button to create new diet plan if you have a DietPlansController *@
+        @* <a asp-action="Create" asp-controller="DietPlans" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Create New Diet Plan</a> *@
+    </div>
+    <div class="card-body">
+        @if (!Model.DietPlans.Any())
+        {
+            <div class="alert alert-info mb-0">No diet plans found for this client.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Plan Name</th>
+                            <th>Created Date</th>
+                            <th>General Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.DietPlans.OrderByDescending(dp => dp.CreatedDate))
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.PlanName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.GeneralNotes)</td>
+                                <td>
+                                    @* Add links for Edit/Details/Delete Diet Plan if you have a DietPlansController *@
+                                    @* <a asp-action="Details" asp-controller="DietPlans" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a> |
+                                    <a asp-action="Edit" asp-controller="DietPlans" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
+                                    <a asp-action="Delete" asp-controller="DietPlans" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a> *@
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                @if (!Model.WorkoutPlans.Any())
-                {
-                    <div class="alert alert-info mb-0">No workout plans created for this client.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Plan Name</th>
-                                    <th>Created Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var plan in Model.WorkoutPlans)
-                                {
-                                    <tr>
-                                        <td>@plan.PlanName</td>
-                                        <td>@plan.CreatedDate.ToShortDateString()</td>
-                                        <td>
-                                            <a asp-controller="WorkoutPlanMaker" asp-action="Index" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-info">Edit Plan</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Workout Plans</h4>
+        @* Add button to create new workout plan if you have a WorkoutPlansController *@
+        @* <a asp-action="Create" asp-controller="WorkoutPlans" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Create New Workout Plan</a> *@
+    </div>
+    <div class="card-body">
+        @if (!Model.WorkoutPlans.Any())
+        {
+            <div class="alert alert-info mb-0">No workout plans found for this client.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Plan Name</th>
+                            <th>Created Date</th>
+                            <th>General Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.WorkoutPlans.OrderByDescending(wp => wp.CreatedDate))
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.PlanName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.GeneralNotes)</td>
+                                <td>
+                                    @* Add links for Edit/Details/Delete Workout Plan if you have a WorkoutPlansController *@
+                                    @* <a asp-action="Details" asp-controller="WorkoutPlans" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a> |
+                                    <a asp-action="Edit" asp-controller="WorkoutPlans" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
+                                    <a asp-action="Delete" asp-controller="WorkoutPlans" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a> *@
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-        </div>
+        }
     </div>
 </div>

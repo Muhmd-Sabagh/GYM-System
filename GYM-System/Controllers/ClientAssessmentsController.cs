@@ -16,14 +16,13 @@ namespace GYM_System.Controllers
         }
 
         // GET: ClientAssessments
-        // This Index will show all assessments, but typically you'd navigate from ClientFile
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.ClientAssessments.Include(c => c.Client).OrderByDescending(c => c.Timestamp);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: ClientAssessments/Details/5 (Optional, if you want a dedicated details page)
+        // GET: ClientAssessments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,12 +42,10 @@ namespace GYM_System.Controllers
         }
 
         // GET: ClientAssessments/Create
-        // Can be accessed directly or with a clientId pre-filled
         public async Task<IActionResult> Create(int? clientId)
         {
             ViewBag.Clients = new SelectList(await _context.Clients.OrderBy(c => c.Name).ToListAsync(), "Id", "Name", clientId);
 
-            // Pre-fill FormCode if client is selected
             if (clientId.HasValue)
             {
                 var client = await _context.Clients.FindAsync(clientId.Value);
@@ -58,7 +55,37 @@ namespace GYM_System.Controllers
                 }
             }
 
-            return View();
+            // Provide sensible default values for required fields to avoid validation errors on initial form load
+            var newAssessment = new ClientAssessment
+            {
+                Timestamp = DateTime.Now,
+                DateOfBirth = DateTime.Now.AddYears(-20), // Example default
+                WeightKg = 0,
+                HeightCm = 0,
+                Gender = "ذكر", // Example default
+                Country = "Egypt", // Example default
+                Religion = "مسلم", // Example default
+                ServiceGoal = "حياة صحية", // Example default
+                JobProfession = "",
+                DailyEffortDescription = "لا يوجد مجهود تقريبا (وظيفة مكتبية مثلا)", // Example default
+                DietCommitmentObstacles = "",
+                DesiredMainMealsCount = 3, // Example default
+                DietFlexibilityPreference = "أريد مرونة في النظام الغذائي", // Example default
+                DietBudget = "ميزانية متوسطة", // Example default
+                PreferredProteinTypes = "",
+                PreferredCarbohydrateTypes = "",
+                PreferredHealthyFatTypes = "",
+                WorkoutExperience = "",
+                ResistanceTrainingDuration = "أول مرة أمارس تمارين المقاومة",
+                WorkoutLocation = "جيم",
+                AvailableWorkoutDaysCount = 3,
+                AvailableWorkoutDays = "",
+                PreferredCardioType = "تريدميل (مشاية)",
+                DailyStepsCount = "0",
+                ReasonForSubscription = ""
+            };
+
+            return View(newAssessment);
         }
 
         // POST: ClientAssessments/Create
@@ -70,20 +97,30 @@ namespace GYM_System.Controllers
             "FrontBodyPhotoPath,SideBodyPhotoPath,BackBodyPhotoPath," +
             "HasHealthProblems,HealthProblemsDetails,HasRecentTests,RecentTestsDetails,IsTakingMedicationsSupplements,MedicationsSupplementsDetails," +
             "HasMedicationAllergies,MedicationAllergiesDetails,HasChronicHereditaryDiseases,ChronicHereditaryDiseasesDetails," +
-            "HasPastSurgeries,PastSurgeriesDetails,IsPregnantOrPlanning,IsTakingVitaminsMinerals,VitaminsMineralsDetails,OtherMedicalNotes," +
-            "HasFoodToRemove,FoodToRemoveDetails,HasFoodToAdd,FoodToAddDetails,HasFoodToKeepFromPrevious,FoodToKeepFromPreviousDetails," +
-            "DesiredMealsCount,DietaryNotes," +
-            "WorkoutCommitmentLevel,WorkoutDaysPerWeek,DailySleepHours,DailyWaterIntake,DailyWalkingHours,HasInjuries,InjuriesDetails," +
-            "PreferredWorkoutDays,WorkoutGoals,AvailableEquipment,WorkoutLocation,WorkoutNotes"
+            "HasPastSurgeries,PastSurgeriesDetails,HasInjuries,InjuriesDetails,IsSmoker," +
+            "HasPreviousDietCommitment,PreviousDietExperience,DailyEffortDescription,DietCommitmentObstacles,DrinksSpecificBeverages,BeverageConsumptionDetails," +
+            "LastDietSystemAvailable,HasFoodAllergies,FoodAllergyDetails,DislikesSpecificFood,DislikedFoodDetails,WantsVitaminsMinerals,AvailableDesiredVitaminsMinerals," +
+            "DesiredMainMealsCount,DietFlexibilityPreference,DietBudget," +
+            "WorkoutExperience,ResistanceTrainingDuration,PracticesOtherSports,OtherSportsDetails,WorkoutLocation,AvailableHomeEquipment,AvailableWorkoutDaysCount," +
+            "HasExerciseDiscomfort,DiscomfortExercisesDetails,PreferredCardioType,DailyStepsCount," +
+            "PreviousOnlineTrainingExperience,ReasonForSubscription,OtherNotes"
         )] ClientAssessment clientAssessment)
         {
-            // Manually remove validation for navigation properties
-            ModelState.Remove("Client");
+            ModelState.Remove("Client"); // Remove validation for navigation property
 
-            // Handle multiple-choice strings (if coming from checkboxes, they might be string arrays)
-            // For simplicity, assuming the form directly binds to string, or you'll need custom model binding
-            // If using multiple checkboxes for e.g. PreferredWorkoutDays, you'd need to join them here:
-            // clientAssessment.PreferredWorkoutDays = string.Join(",", collection.Where(x => x.StartsWith("PreferredWorkoutDays_")).Select(x => x.Replace("PreferredWorkoutDays_", "")));
+            // --- Manually handle multiple-choice checkbox values from Request.Form ---
+            // These fields are not directly bound by [Bind] because they come as multiple values.
+            // They need to be joined into a single comma-separated string.
+            clientAssessment.PreferredProteinTypes = Request.Form["PreferredProteinTypes"].Any() ? string.Join(",", Request.Form["PreferredProteinTypes"]) : string.Empty;
+            clientAssessment.PreferredCarbohydrateTypes = Request.Form["PreferredCarbohydrateTypes"].Any() ? string.Join(",", Request.Form["PreferredCarbohydrateTypes"]) : string.Empty;
+            clientAssessment.PreferredHealthyFatTypes = Request.Form["PreferredHealthyFatTypes"].Any() ? string.Join(",", Request.Form["PreferredHealthyFatTypes"]) : string.Empty;
+            clientAssessment.AvailableWorkoutDays = Request.Form["AvailableWorkoutDays"].Any() ? string.Join(",", Request.Form["AvailableWorkoutDays"]) : string.Empty;
+            // Note: WorkoutGoals and AvailableEquipment are not in your latest ClientAssessment.cs,
+            // but were in my previous version. Removing them here to match your provided model.
+            // If you intend to add them back, ensure they are in your ClientAssessment.cs first.
+            // clientAssessment.WorkoutGoals = Request.Form["WorkoutGoals"].Any() ? string.Join(",", Request.Form["WorkoutGoals"]) : string.Empty;
+            // clientAssessment.AvailableEquipment = Request.Form["AvailableEquipment"].Any() ? string.Join(",", Request.Form["AvailableEquipment"]) : string.Empty;
+
 
             if (ModelState.IsValid)
             {
@@ -124,11 +161,13 @@ namespace GYM_System.Controllers
             "FrontBodyPhotoPath,SideBodyPhotoPath,BackBodyPhotoPath," +
             "HasHealthProblems,HealthProblemsDetails,HasRecentTests,RecentTestsDetails,IsTakingMedicationsSupplements,MedicationsSupplementsDetails," +
             "HasMedicationAllergies,MedicationAllergiesDetails,HasChronicHereditaryDiseases,ChronicHereditaryDiseasesDetails," +
-            "HasPastSurgeries,PastSurgeriesDetails,IsPregnantOrPlanning,IsTakingVitaminsMinerals,VitaminsMineralsDetails,OtherMedicalNotes," +
-            "HasFoodToRemove,FoodToRemoveDetails,HasFoodToAdd,FoodToAddDetails,HasFoodToKeepFromPrevious,FoodToKeepFromPreviousDetails," +
-            "DesiredMealsCount,DietaryNotes," +
-            "WorkoutCommitmentLevel,WorkoutDaysPerWeek,DailySleepHours,DailyWaterIntake,DailyWalkingHours,HasInjuries,InjuriesDetails," +
-            "PreferredWorkoutDays,WorkoutGoals,AvailableEquipment,WorkoutLocation,WorkoutNotes"
+            "HasPastSurgeries,PastSurgeriesDetails,HasInjuries,InjuriesDetails,IsSmoker," +
+            "HasPreviousDietCommitment,PreviousDietExperience,DailyEffortDescription,DietCommitmentObstacles,DrinksSpecificBeverages,BeverageConsumptionDetails," +
+            "LastDietSystemAvailable,HasFoodAllergies,FoodAllergyDetails,DislikesSpecificFood,DislikedFoodDetails,WantsVitaminsMinerals,AvailableDesiredVitaminsMinerals," +
+            "DesiredMainMealsCount,DietFlexibilityPreference,DietBudget," +
+            "WorkoutExperience,ResistanceTrainingDuration,PracticesOtherSports,OtherSportsDetails,WorkoutLocation,AvailableHomeEquipment,AvailableWorkoutDaysCount," +
+            "HasExerciseDiscomfort,DiscomfortExercisesDetails,PreferredCardioType,DailyStepsCount," +
+            "PreviousOnlineTrainingExperience,ReasonForSubscription,OtherNotes"
         )] ClientAssessment clientAssessment)
         {
             if (id != clientAssessment.Id)
@@ -136,7 +175,17 @@ namespace GYM_System.Controllers
                 return NotFound();
             }
 
-            ModelState.Remove("Client");
+            ModelState.Remove("Client"); // Remove validation for navigation property
+
+            // --- Manually handle multiple-choice checkbox values from Request.Form ---
+            clientAssessment.PreferredProteinTypes = Request.Form["PreferredProteinTypes"].Any() ? string.Join(",", Request.Form["PreferredProteinTypes"]) : string.Empty;
+            clientAssessment.PreferredCarbohydrateTypes = Request.Form["PreferredCarbohydrateTypes"].Any() ? string.Join(",", Request.Form["PreferredCarbohydrateTypes"]) : string.Empty;
+            clientAssessment.PreferredHealthyFatTypes = Request.Form["PreferredHealthyFatTypes"].Any() ? string.Join(",", Request.Form["PreferredHealthyFatTypes"]) : string.Empty;
+            clientAssessment.AvailableWorkoutDays = Request.Form["AvailableWorkoutDays"].Any() ? string.Join(",", Request.Form["AvailableWorkoutDays"]) : string.Empty;
+            // Note: WorkoutGoals and AvailableEquipment were removed to match your latest ClientAssessment.cs
+            // clientAssessment.WorkoutGoals = Request.Form["WorkoutGoals"].Any() ? string.Join(",", Request.Form["WorkoutGoals"]) : string.Empty;
+            // clientAssessment.AvailableEquipment = Request.Form["AvailableEquipment"].Any() ? string.Join(",", Request.Form["AvailableEquipment"]) : string.Empty;
+
 
             if (ModelState.IsValid)
             {

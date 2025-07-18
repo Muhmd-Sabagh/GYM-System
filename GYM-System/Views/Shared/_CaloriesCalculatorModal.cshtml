@@ -1,0 +1,155 @@
+﻿<div class="modal fade" id="caloriesCalculatorModal" tabindex="-1" aria-labelledby="caloriesCalculatorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-lg shadow-lg">
+            <div class="modal-header bg-dark text-white rounded-t-lg">
+                <h5 class="modal-title" id="caloriesCalculatorModalLabel">Calories Calculator</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="calculatorErrorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+                <div class="mb-3">
+                    <label for="ageInput" class="form-label">Age (years):</label>
+                    <input type="number" class="form-control rounded-md" id="ageInput" min="1" placeholder="e.g., 30">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label d-block">Gender:</label>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" id="genderMale" value="male" checked>
+                        <label class="form-check-label" for="genderMale">Male</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="female">
+                        <label class="form-check-label" for="genderFemale">Female</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="weightInput" class="form-label">Weight (kg):</label>
+                    <input type="number" class="form-control rounded-md" id="weightInput" step="0.1" min="1" placeholder="e.g., 70.5">
+                </div>
+
+                <div class="mb-3">
+                    <label for="heightInput" class="form-label">Height (cm):</label>
+                    <input type="number" class="form-control rounded-md" id="heightInput" step="0.1" min="1" placeholder="e.g., 175.0">
+                </div>
+
+                <div class="mb-3">
+                    <label for="activityLevelSelect" class="form-label">Activity Level:</label>
+                    <select class="form-select rounded-md" id="activityLevelSelect">
+                        <option value="1.2">Sedentary (little or no exercise)</option>
+                        <option value="1.375">Lightly Active (light exercise/sports 1-3 days/week)</option>
+                        <option value="1.55">Moderately Active (moderate exercise/sports 3-5 days/week)</option>
+                        <option value="1.725">Very Active (hard exercise/sports 6-7 days a week)</option>
+                        <option value="1.9">Extremely Active (very hard exercise/physical job)</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="goalSelect" class="form-label">Goal:</label>
+                    <select class="form-select rounded-md" id="goalSelect">
+                        <option value="maintain">Maintain Weight</option>
+                        <option value="loss">Weight Loss</option>
+                        <option value="gain">Muscle Gain</option>
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-primary w-100 rounded-md shadow-sm hover:scale-105 transition-all duration-300 ease-in-out" id="calculateCaloriesBtn">Calculate Calories</button>
+
+                <div class="mt-4 p-3 bg-light rounded-md border text-center" id="calculatorResults" style="display:none;">
+                    <h6 class="mb-2 text-primary">Your Daily Calorie Needs:</h6>
+                    <p class="fs-5 fw-bold mb-1" id="tdeeResult"></p>
+                    <p class="fs-5 fw-bold text-success" id="dailyGoalResult"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const calculateBtn = $('#calculateCaloriesBtn');
+        const ageInput = $('#ageInput');
+        const genderMale = $('#genderMale');
+        const genderFemale = $('#genderFemale');
+        const weightInput = $('#weightInput');
+        const heightInput = $('#heightInput');
+        const activityLevelSelect = $('#activityLevelSelect');
+        const goalSelect = $('#goalSelect');
+        const errorMessageDiv = $('#calculatorErrorMessage');
+        const resultsDiv = $('#calculatorResults');
+        const tdeeResultSpan = $('#tdeeResult');
+        const dailyGoalResultSpan = $('#dailyGoalResult');
+
+        calculateBtn.on('click', function () {
+            errorMessageDiv.addClass('d-none').text(''); // Clear previous errors
+            resultsDiv.hide(); // Hide previous results
+
+            const age = parseFloat(ageInput.val());
+            const weight = parseFloat(weightInput.val());
+            const height = parseFloat(heightInput.val());
+            const gender = $('input[name="gender"]:checked').val();
+            const activityFactor = parseFloat(activityLevelSelect.val());
+            const goal = goalSelect.val();
+
+            // --- Validation ---
+            if (isNaN(age) || age <= 0 || !Number.isInteger(age)) {
+                errorMessageDiv.removeClass('d-none').text('Please enter a valid positive integer for Age.');
+                return;
+            }
+            if (isNaN(weight) || weight <= 0) {
+                errorMessageDiv.removeClass('d-none').text('Please enter a valid positive number for Weight.');
+                return;
+            }
+            if (isNaN(height) || height <= 0) {
+                errorMessageDiv.removeClass('d-none').text('Please enter a valid positive number for Height.');
+                return;
+            }
+
+            // --- BMR Calculation ---
+            let bmr;
+            if (gender === 'male') {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else { // female
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+
+            // --- TDEE Calculation ---
+            const tdee = bmr * activityFactor;
+
+            // --- Daily Goal Calories Calculation ---
+            let dailyGoalCalories;
+            if (goal === 'loss') {
+                dailyGoalCalories = tdee - 500;
+            } else if (goal === 'gain') {
+                dailyGoalCalories = tdee + 500;
+            } else { // maintain
+                dailyGoalCalories = tdee;
+            }
+
+            // Ensure calories are not negative
+            if (dailyGoalCalories < 0) dailyGoalCalories = 0;
+
+            // --- Display Results ---
+            tdeeResultSpan.text(`TDEE: ${Math.round(tdee)} calories`);
+            dailyGoalResultSpan.text(`Daily Goal: ${Math.round(dailyGoalCalories)} calories`);
+            resultsDiv.show();
+        });
+
+        // Clear results and errors when modal is hidden
+        $('#caloriesCalculatorModal').on('hidden.bs.modal', function () {
+            errorMessageDiv.addClass('d-none').text('');
+            resultsDiv.hide();
+            tdeeResultSpan.text('');
+            dailyGoalResultSpan.text('');
+            // Optionally, clear input fields as well
+            ageInput.val('');
+            weightInput.val('');
+            heightInput.val('');
+            genderMale.prop('checked', true); // Reset gender to male
+            activityLevelSelect.val('1.2'); // Reset activity level
+            goalSelect.val('maintain'); // Reset goal
+        });
+    });
+</script>
