@@ -427,11 +427,11 @@ namespace GYM_System.Controllers
                     {
                         try
                         {
-                            // Expected columns for initial assessment: 67 (0 to 66)
-                            if (row.Count < 67) // Adjusted count
+                            // Expected columns for initial assessment: 67 (0 to 66)  (41 not nullable)
+                            if (row.Count < 41) // Adjusted count
                             {
                                 skippedInvalidFormCode++; // Or a more specific error for incomplete data
-                                Console.WriteLine($"Skipped initial assessment row due to insufficient columns: Expected 67, got {row.Count}. Row: {string.Join(",", row)}");
+                                Console.WriteLine($"Skipped initial assessment row due to insufficient columns: Expected 41 at least, got {row.Count}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -568,11 +568,11 @@ namespace GYM_System.Controllers
                     {
                         try
                         {
-                            // Expected columns for client update: 33 (0 to 32)
-                            if (row.Count < 33) // Adjusted count
+                            // Expected columns for client update: 33 (0 to 32) (15 not nullable)
+                            if (row.Count < 15) // Adjusted count
                             {
                                 skippedInvalidFormCode++; // Or a more specific error for incomplete data
-                                Console.WriteLine($"Skipped client update row due to insufficient columns: Expected 33, got {row.Count}. Row: {string.Join(",", row)}");
+                                Console.WriteLine($"Skipped client update row due to insufficient columns: Expected 15 at least, got {row.Count}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -612,25 +612,25 @@ namespace GYM_System.Controllers
                                 CurrentWeightKg = ParseDecimal(row.ElementAtOrDefault(2)) ?? 0,
 
                                 // Dietary Assessment Update (Questions 3-11)
-                                DietCommitmentLevel = row.ElementAtOrDefault(3)?.ToString() ?? string.Empty,
-                                HasFoodToRemove = ParseBool(row.ElementAtOrDefault(4)),
-                                FoodToRemoveDetails = row.ElementAtOrDefault(5)?.ToString(),
-                                HasFoodToAdd = ParseBool(row.ElementAtOrDefault(6)),
-                                FoodToAddDetails = row.ElementAtOrDefault(7)?.ToString(),
-                                HasFoodToKeepFromPrevious = ParseBool(row.ElementAtOrDefault(8)),
-                                FoodToKeepFromPreviousDetails = row.ElementAtOrDefault(9)?.ToString(),
-                                DesiredMealsCount = ParseInt(row.ElementAtOrDefault(10)) ?? 0,
-                                DietaryNotes = row.ElementAtOrDefault(11)?.ToString(),
+                                DietCommitmentLevel = row.ElementAtOrDefault(11)?.ToString() ?? string.Empty,
+                                HasFoodToRemove = ParseBool(row.ElementAtOrDefault(12)),
+                                FoodToRemoveDetails = row.ElementAtOrDefault(13)?.ToString(),
+                                HasFoodToAdd = ParseBool(row.ElementAtOrDefault(14)),
+                                FoodToAddDetails = row.ElementAtOrDefault(15)?.ToString(),
+                                HasFoodToKeepFromPrevious = ParseBool(row.ElementAtOrDefault(16)),
+                                FoodToKeepFromPreviousDetails = row.ElementAtOrDefault(17)?.ToString(),
+                                DesiredMealsCount = ParseInt(row.ElementAtOrDefault(18)) ?? 0,
+                                DietaryNotes = row.ElementAtOrDefault(19)?.ToString(),
 
                                 // Body Assessment Update (Questions 12-19)
-                                NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(12)),
-                                WaistCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(13)),
-                                HipCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(14)),
-                                ArmCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(15)),
-                                ThighCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(16)),
-                                FrontBodyPhotoPath = row.ElementAtOrDefault(17)?.ToString(),
-                                SideBodyPhotoPath = row.ElementAtOrDefault(18)?.ToString(),
-                                BackBodyPhotoPath = row.ElementAtOrDefault(19)?.ToString(),
+                                NeckCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(3)),
+                                WaistCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(4)),
+                                HipCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(5)),
+                                ArmCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(6)),
+                                ThighCircumferenceCm = ParseDecimal(row.ElementAtOrDefault(7)),
+                                FrontBodyPhotoPath = row.ElementAtOrDefault(8)?.ToString(),
+                                SideBodyPhotoPath = row.ElementAtOrDefault(9)?.ToString(),
+                                BackBodyPhotoPath = row.ElementAtOrDefault(10)?.ToString(),
 
                                 // Workout Assessment Update (Questions 20-31)
                                 WorkoutCommitmentLevel = row.ElementAtOrDefault(20)?.ToString() ?? string.Empty,

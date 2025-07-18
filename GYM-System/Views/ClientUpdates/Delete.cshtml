@@ -27,18 +27,146 @@
             <dd class="col-sm-8">@Html.DisplayFor(model => model.FormCode)</dd>
 
             <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Current Status & Dietary Update</h5>
+
+            <dt class="col-sm-4">Current Weight (kg):</dt>
+            <dd class="col-sm-8">@Model.CurrentWeightKg.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Diet Commitment Level:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DietCommitmentLevel)</dd>
+
+            <dt class="col-sm-4">Food to Remove?</dt>
+            <dd class="col-sm-8">@(Model.HasFoodToRemove ? "Yes" : "No")</dd>
+            @if (Model.HasFoodToRemove)
+            {
+                <dt class="col-sm-4">Remove Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.FoodToRemoveDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Food to Add?</dt>
+            <dd class="col-sm-8">@(Model.HasFoodToAdd ? "Yes" : "No")</dd>
+            @if (Model.HasFoodToAdd)
+            {
+                <dt class="col-sm-4">Add Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.FoodToAddDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Food to Keep From Previous?</dt>
+            <dd class="col-sm-8">@(Model.HasFoodToKeepFromPrevious ? "Yes" : "No")</dd>
+            @if (Model.HasFoodToKeepFromPrevious)
+            {
+                <dt class="col-sm-4">Keep Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.FoodToKeepFromPreviousDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Desired Meals Count:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DesiredMealsCount)</dd>
+
+            <dt class="col-sm-4">Dietary Notes:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DietaryNotes)</dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Body Assessment Update</h5>
 
             <dt class="col-sm-4">Neck (cm):</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.NeckCircumferenceCm)</dd>
+            <dd class="col-sm-8">@Model.NeckCircumferenceCm?.ToString("F1")</dd>
 
             <dt class="col-sm-4">Waist (cm):</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.WaistCircumferenceCm)</dd>
+            <dd class="col-sm-8">@Model.WaistCircumferenceCm?.ToString("F1")</dd>
 
-            <dt class="col-sm-4">Workout Commitment:</dt>
+            <dt class="col-sm-4">Hip (cm):</dt>
+            <dd class="col-sm-8">@Model.HipCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Arm (cm):</dt>
+            <dd class="col-sm-8">@Model.ArmCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Thigh (cm):</dt>
+            <dd class="col-sm-8">@Model.ThighCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Front Photo:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.FrontBodyPhotoPath))
+                {
+                    <a href="@Model.FrontBodyPhotoPath" target="_blank">View Photo</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </dd>
+
+            <dt class="col-sm-4">Side Photo:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.SideBodyPhotoPath))
+                {
+                    <a href="@Model.SideBodyPhotoPath" target="_blank">View Photo</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </dd>
+
+            <dt class="col-sm-4">Back Photo:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.BackBodyPhotoPath))
+                {
+                    <a href="@Model.BackBodyPhotoPath" target="_blank">View Photo</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Workout Assessment Update</h5>
+
+            <dt class="col-sm-4">Workout Commitment Level:</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutCommitmentLevel)</dd>
+
+            <dt class="col-sm-4">Previous Workout System Experience:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreviousWorkoutSystemExperience)</dd>
+
+            <dt class="col-sm-4">Has Weight/Reps Development:</dt>
+            <dd class="col-sm-8">@(Model.HasWeightRepsDevelopment ? "Yes" : "No")</dd>
+
+            <dt class="col-sm-4">Is Training Volume Suitable:</dt>
+            <dd class="col-sm-8">@(Model.IsTrainingVolumeSuitable ? "Yes" : "No")</dd>
+            @if (Model.IsTrainingVolumeSuitable)
+            {
+                <dt class="col-sm-4">Desired Volume Adjustment:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.DesiredTrainingVolumeAdjustment)</dd>
+            }
+
+            <dt class="col-sm-4">Is Training Intensity Suitable:</dt>
+            <dd class="col-sm-8">@(Model.IsTrainingIntensitySuitable ? "Yes" : "No")</dd>
+            @if (Model.IsTrainingIntensitySuitable)
+            {
+                <dt class="col-sm-4">Desired Intensity Adjustment:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.DesiredTrainingIntensityAdjustment)</dd>
+            }
+
+            <dt class="col-sm-4">Has Exercise Discomfort:</dt>
+            <dd class="col-sm-8">@(Model.HasExerciseDiscomfort ? "Yes" : "No")</dd>
+            @if (Model.HasExerciseDiscomfort)
+            {
+                <dt class="col-sm-4">Discomfort Exercise Name:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.DiscomfortExerciseName)</dd>
+            }
+
+            <dt class="col-sm-4">Available Workout Days Count:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AvailableWorkoutDaysCount)</dd>
+
+            <dt class="col-sm-4">Workout Location:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutLocation)</dd>
+
+            <dt class="col-sm-4">Available Home Equipment:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AvailableHomeEquipment)</dd>
 
             <dt class="col-sm-4">Notes:</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Notes)</dd>
+
         </dl>
     </div>
 </div>

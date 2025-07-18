@@ -27,15 +27,88 @@
             <dd class="col-sm-8">@Html.DisplayFor(model => model.FormCode)</dd>
 
             <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Client Information</h5>
+
+            <dt class="col-sm-4">Country:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Country)</dd>
+
+            <dt class="col-sm-4">Religion:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Religion)</dd>
+
+            <dt class="col-sm-4">Service Goal:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.ServiceGoal)</dd>
 
             <dt class="col-sm-4">Weight (kg):</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.WeightKg)</dd>
+            <dd class="col-sm-8">@Model.WeightKg.ToString("F1")</dd>
 
             <dt class="col-sm-4">Height (cm):</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.HeightCm)</dd>
+            <dd class="col-sm-8">@Model.HeightCm.ToString("F1")</dd>
 
             <dt class="col-sm-4">Gender:</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Gender)</dd>
+
+            <dt class="col-sm-4">Date of Birth:</dt>
+            <dd class="col-sm-8">@Model.DateOfBirth.ToShortDateString()</dd>
+
+            <dt class="col-sm-4">Job/Profession:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.JobProfession)</dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Body Assessment</h5>
+
+            <dt class="col-sm-4">Neck (cm):</dt>
+            <dd class="col-sm-8">@Model.NeckCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Waist (cm):</dt>
+            <dd class="col-sm-8">@Model.WaistCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Hip (cm):</dt>
+            <dd class="col-sm-8">@Model.HipCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Arm (cm):</dt>
+            <dd class="col-sm-8">@Model.ArmCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Thigh (cm):</dt>
+            <dd class="col-sm-8">@Model.ThighCircumferenceCm?.ToString("F1")</dd>
+
+            <dt class="col-sm-4">Front Photo:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.FrontBodyPhotoPath))
+                {
+                    <a href="@Model.FrontBodyPhotoPath" target="_blank">View Photo</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </dd>
+
+            <dt class="col-sm-4">Side Photo:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.SideBodyPhotoPath))
+                {
+                    <a href="@Model.SideBodyPhotoPath" target="_blank">View Photo</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </dd>
+
+            <dt class="col-sm-4">Back Photo:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.BackBodyPhotoPath))
+                {
+                    <a href="@Model.BackBodyPhotoPath" target="_blank">View Photo</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Medical Assessment</h5>
 
             <dt class="col-sm-4">Has Health Problems:</dt>
             <dd class="col-sm-8">@(Model.HasHealthProblems ? "Yes" : "No")</dd>
@@ -45,14 +118,182 @@
                 <dd class="col-sm-8">@Html.DisplayFor(model => model.HealthProblemsDetails)</dd>
             }
 
-            <dt class="col-sm-4">Desired Meals Count:</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.DesiredMealsCount)</dd>
+            <dt class="col-sm-4">Has Recent Tests:</dt>
+            <dd class="col-sm-8">@(Model.HasRecentTests ? "Yes" : "No")</dd>
+            @if (Model.HasRecentTests)
+            {
+                <dt class="col-sm-4">Recent Tests Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.RecentTestsDetails)</dd>
+            }
 
-            <dt class="col-sm-4">Workout Commitment:</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutCommitmentLevel)</dd>
+            <dt class="col-sm-4">Taking Meds/Supps:</dt>
+            <dd class="col-sm-8">@(Model.IsTakingMedicationsSupplements ? "Yes" : "No")</dd>
+            @if (Model.IsTakingMedicationsSupplements)
+            {
+                <dt class="col-sm-4">Meds/Supps Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.MedicationsSupplementsDetails)</dd>
+            }
 
-            <dt class="col-sm-4">Preferred Workout Days:</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreferredWorkoutDays)</dd>
+            <dt class="col-sm-4">Has Med Allergies:</dt>
+            <dd class="col-sm-8">@(Model.HasMedicationAllergies ? "Yes" : "No")</dd>
+            @if (Model.HasMedicationAllergies)
+            {
+                <dt class="col-sm-4">Med Allergies Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.MedicationAllergiesDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Has Chronic/Hereditary Diseases:</dt>
+            <dd class="col-sm-8">@(Model.HasChronicHereditaryDiseases ? "Yes" : "No")</dd>
+            @if (Model.HasChronicHereditaryDiseases)
+            {
+                <dt class="col-sm-4">Chronic Diseases Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.ChronicHereditaryDiseasesDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Has Past Surgeries:</dt>
+            <dd class="col-sm-8">@(Model.HasPastSurgeries ? "Yes" : "No")</dd>
+            @if (Model.HasPastSurgeries)
+            {
+                <dt class="col-sm-4">Past Surgeries Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.PastSurgeriesDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Has Injuries:</dt>
+            <dd class="col-sm-8">@(Model.HasInjuries ? "Yes" : "No")</dd>
+            @if (Model.HasInjuries)
+            {
+                <dt class="col-sm-4">Injuries Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.InjuriesDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Is Smoker:</dt>
+            <dd class="col-sm-8">@(Model.IsSmoker ? "Yes" : "No")</dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Dietary Assessment</h5>
+
+            <dt class="col-sm-4">Has Previous Diet Commitment:</dt>
+            <dd class="col-sm-8">@(Model.HasPreviousDietCommitment ? "Yes" : "No")</dd>
+            @if (Model.HasPreviousDietCommitment)
+            {
+                <dt class="col-sm-4">Previous Diet Experience:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.PreviousDietExperience)</dd>
+            }
+
+            <dt class="col-sm-4">Daily Effort Description:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DailyEffortDescription)</dd>
+
+            <dt class="col-sm-4">Diet Commitment Obstacles:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DietCommitmentObstacles)</dd>
+
+            <dt class="col-sm-4">Drinks Specific Beverages:</dt>
+            <dd class="col-sm-8">@(Model.DrinksSpecificBeverages ? "Yes" : "No")</dd>
+            @if (Model.DrinksSpecificBeverages)
+            {
+                <dt class="col-sm-4">Beverage Consumption Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.BeverageConsumptionDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Last Diet System Available:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.LastDietSystemAvailable)</dd>
+
+            <dt class="col-sm-4">Has Food Allergies:</dt>
+            <dd class="col-sm-8">@(Model.HasFoodAllergies ? "Yes" : "No")</dd>
+            @if (Model.HasFoodAllergies)
+            {
+                <dt class="col-sm-4">Food Allergy Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.FoodAllergyDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Dislikes Specific Food:</dt>
+            <dd class="col-sm-8">@(Model.DislikesSpecificFood ? "Yes" : "No")</dd>
+            @if (Model.DislikesSpecificFood)
+            {
+                <dt class="col-sm-4">Disliked Food Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.DislikedFoodDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Wants Vitamins/Minerals:</dt>
+            <dd class="col-sm-8">@(Model.WantsVitaminsMinerals ? "Yes" : "No")</dd>
+            @if (Model.WantsVitaminsMinerals)
+            {
+                <dt class="col-sm-4">Available/Desired Vitamins/Minerals:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.AvailableDesiredVitaminsMinerals)</dd>
+            }
+
+            <dt class="col-sm-4">Desired Main Meals Count:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DesiredMainMealsCount)</dd>
+
+            <dt class="col-sm-4">Diet Flexibility Preference:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DietFlexibilityPreference)</dd>
+
+            <dt class="col-sm-4">Diet Budget:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DietBudget)</dd>
+
+            <dt class="col-sm-4">Preferred Protein Types:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreferredProteinTypes)</dd>
+
+            <dt class="col-sm-4">Preferred Carbohydrate Types:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreferredCarbohydrateTypes)</dd>
+
+            <dt class="col-sm-4">Preferred Healthy Fat Types:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreferredHealthyFatTypes)</dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">Workout Assessment</h5>
+
+            <dt class="col-sm-4">Workout Experience:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutExperience)</dd>
+
+            <dt class="col-sm-4">Resistance Training Duration:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.ResistanceTrainingDuration)</dd>
+
+            <dt class="col-sm-4">Practices Other Sports:</dt>
+            <dd class="col-sm-8">@(Model.PracticesOtherSports ? "Yes" : "No")</dd>
+            @if (Model.PracticesOtherSports)
+            {
+                <dt class="col-sm-4">Other Sports Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.OtherSportsDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Workout Location:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.WorkoutLocation)</dd>
+
+            <dt class="col-sm-4">Available Home Equipment:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AvailableHomeEquipment)</dd>
+
+            <dt class="col-sm-4">Available Workout Days Count:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AvailableWorkoutDaysCount)</dd>
+
+            <dt class="col-sm-4">Available Workout Days:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.AvailableWorkoutDays)</dd>
+
+            <dt class="col-sm-4">Has Exercise Discomfort:</dt>
+            <dd class="col-sm-8">@(Model.HasExerciseDiscomfort ? "Yes" : "No")</dd>
+            @if (Model.HasExerciseDiscomfort)
+            {
+                <dt class="col-sm-4">Discomfort Exercises Details:</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.DiscomfortExercisesDetails)</dd>
+            }
+
+            <dt class="col-sm-4">Preferred Cardio Type:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreferredCardioType)</dd>
+
+            <dt class="col-sm-4">Daily Steps Count:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DailyStepsCount)</dd>
+
+            <hr class="my-3" />
+            <h5 class="col-12 mt-3 mb-3">General Assessment</h5>
+
+            <dt class="col-sm-4">Previous Online Training Experience:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PreviousOnlineTrainingExperience)</dd>
+
+            <dt class="col-sm-4">Reason for Subscription:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.ReasonForSubscription)</dd>
+
+            <dt class="col-sm-4">Other Notes:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.OtherNotes)</dd>
+
         </dl>
     </div>
 </div>

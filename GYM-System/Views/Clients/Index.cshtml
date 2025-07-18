@@ -6,9 +6,23 @@
 
 <h1 class="mb-4">Clients</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary mb-3">Add New Client</a>
-</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <a asp-action="Create" class="btn btn-primary">Add New Client</a>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary me-2 copy-link" 
+                data-url="https://forms.gle/vSMHQqUY314AxRtb6"
+                onclick="copyToClipboard(this)">
+            Initial Assessment Form
+        </button>
+        <button type="button" class="btn btn-primary copy-link" 
+                data-url="https://forms.gle/AMpcp9GvmbdgKNQ48"
+                onclick="copyToClipboard(this)">
+            Updates Assessment Form
+        </button>
+    </div>
+</div>
 
 <!-- Sync Google Forms Section -->
 <div class="card mb-4">
@@ -25,15 +39,15 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="initialAssessmentSheetRange" class="form-label">Initial Assessment Sheet Name & Range:</label>
-                    <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Form Responses 1!A:K" required />
-                    <div class="form-text">e.g., 'Form Responses 1!A:K' (Adjust columns as per your form response sheet)</div>
+                    <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Initial Assessment Responses!A:BO" required />
+                    <div class="form-text">e.g., 'Initial Assessment Responses!A:BO' (Adjust columns as per your form response sheet)</div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="updateFormSheetRange" class="form-label">Update Form Sheet Name & Range:</label>
-                    <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Update Responses!A:H" required />
-                    <div class="form-text">e.g., 'Update Responses!A:H' (Adjust columns as per your update form response sheet)</div>
+                    <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Progress Update Responses!A:AH" required />
+                    <div class="form-text">e.g., 'Progress Update Responses!A:AH' (Adjust columns as per your update form response sheet)</div>
                 </div>
                 <div class="col-md-6 d-flex align-items-end">
                     <button type="submit" class="btn btn-success w-100">Sync Google Forms</button>
@@ -86,3 +100,23 @@
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(button) {
+            const url = button.getAttribute('data-url');
+            navigator.clipboard.writeText(url).then(() => {
+                // Store original text
+                const originalText = button.textContent;
+                // Change button text to indicate success
+                button.textContent = 'Link Copied!';
+                // Revert back to original text after 2 seconds
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+}
