@@ -70,17 +70,16 @@ h3 {
 
 .navbar-brand {
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: var(--secondary-color) !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+/*    text-transform: uppercase;*/
     position: relative;
 }
 
-    .navbar-brand::after {
+    .navbar-brand::before {
         content: '💪';
-        margin-left: 0.5rem;
-        font-size: 1.2rem;
+        margin-right: 0.5rem;
+        font-size: 1.5rem;
     }
 
 .navbar-nav .nav-link {

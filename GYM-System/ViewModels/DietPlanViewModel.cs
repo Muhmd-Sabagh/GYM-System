@@ -34,6 +34,7 @@ namespace GYM_System.ViewModels
             Id = dietPlan.Id;
             PlanName = dietPlan.PlanName;
             ClientId = dietPlan.ClientId;
+            Client = dietPlan.Client;
             GeneralNotes = dietPlan.GeneralNotes;
 
             if (dietPlan.Versions != null)
