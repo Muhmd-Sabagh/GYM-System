@@ -1,0 +1,128 @@
+﻿@model GYM_System.Models.ClientUpdate
+
+<div class="details-container">
+    <dl class="row">
+        <dt class="col-12 col-md-4">كود الفورم:</dt>
+        <dd class="col-12 col-md-8">@Model.FormCode</dd>
+
+        <dt class="col-12 col-md-4">الوزن الحالي (كجم):</dt>
+        <dd class="col-12 col-md-8">@Model.CurrentWeightKg.ToString("F1")</dd>
+
+        <dt class="col-12 col-md-4">نسبة التزامك بالنظام الغذائي:</dt>
+        <dd class="col-12 col-md-8">@Model.DietCommitmentLevel</dd>
+
+        <dt class="col-12 col-md-4">هل هناك نوع أكل أو وجبة تريد أن تحذفها؟</dt>
+        <dd class="col-12 col-md-8">@(Model.HasFoodToRemove ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">اذكر نوع الأكل أو الوجبة المراد حذفها:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.FoodToRemoveDetails) ? "غير متاح" : Model.FoodToRemoveDetails)</dd>
+
+        <dt class="col-12 col-md-4">هل هناك نوع أكل أو وجبة تريد أن تضيفها؟</dt>
+        <dd class="col-12 col-md-8">@(Model.HasFoodToAdd ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">اذكر نوع الأكل أو الوجبة المراد إضافتها:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.FoodToAddDetails) ? "غير متاح" : Model.FoodToAddDetails)</dd>
+
+        <dt class="col-12 col-md-4">هل هناك نوع أكل أو وجبة تريد أن تحتفظ بها من النظام السابق؟</dt>
+        <dd class="col-12 col-md-8">@(Model.HasFoodToKeepFromPrevious ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">اذكر نوع الأكل أو الوجبة المراد الاحتفاظ بها:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.FoodToKeepFromPreviousDetails) ? "غير متاح" : Model.FoodToKeepFromPreviousDetails)</dd>
+
+        <dt class="col-12 col-md-4">كم عدد الوجبات التي تريدها في نظامك الغذائي الجديد؟</dt>
+        <dd class="col-12 col-md-8">@Model.DesiredMealsCount</dd>
+
+        <dt class="col-12 col-md-4">ملاحظات على النظام الغذائي:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.DietaryNotes) ? "غير متاح" : Model.DietaryNotes)</dd>
+
+        <dt class="col-12 col-md-4">محيط الرقبة (سم):</dt>
+        <dd class="col-12 col-md-8">@Model.NeckCircumferenceCm?.ToString("F1")</dd>
+
+        <dt class="col-12 col-md-4">محيط الوسط (سم):</dt>
+        <dd class="col-12 col-md-8">@Model.WaistCircumferenceCm?.ToString("F1")</dd>
+
+        <dt class="col-12 col-md-4">محيط الأرداف (سم):</dt>
+        <dd class="col-12 col-md-8">@Model.HipCircumferenceCm?.ToString("F1")</dd>
+
+        <dt class="col-12 col-md-4">محيط الذراع (سم):</dt>
+        <dd class="col-12 col-md-8">@Model.ArmCircumferenceCm?.ToString("F1")</dd>
+
+        <dt class="col-12 col-md-4">محيط الفخذ (سم):</dt>
+        <dd class="col-12 col-md-8">@Model.ThighCircumferenceCm?.ToString("F1")</dd>
+
+        <dt class="col-12 col-md-4">صورة واضحة لجسمك من الأمام:</dt>
+        <dd class="col-12 col-md-8">
+            @if (!string.IsNullOrEmpty(Model.FrontBodyPhotoPath))
+            {
+                <a href="@Model.FrontBodyPhotoPath" target="_blank" class="text-info">عرض الصورة</a>
+            }
+            else
+            {
+                <span>غير متاح</span>
+            }
+        </dd>
+
+        <dt class="col-12 col-md-4">صورة واضحة لجسمك من الجانب:</dt>
+        <dd class="col-12 col-md-8">
+            @if (!string.IsNullOrEmpty(Model.SideBodyPhotoPath))
+            {
+                <a href="@Model.SideBodyPhotoPath" target="_blank" class="text-info">عرض الصورة</a>
+            }
+            else
+            {
+                <span>غير متاح</span>
+            }
+        </dd>
+
+        <dt class="col-12 col-md-4">صورة واضحة لجسمك من الخلف:</dt>
+        <dd class="col-12 col-md-8">
+            @if (!string.IsNullOrEmpty(Model.BackBodyPhotoPath))
+            {
+                <a href="@Model.BackBodyPhotoPath" target="_blank" class="text-info">عرض الصورة</a>
+            }
+            else
+            {
+                <span>غير متاح</span>
+            }
+        </dd>
+
+        <dt class="col-12 col-md-4">نسبة التزامك بنظام التمرين:</dt>
+        <dd class="col-12 col-md-8">@Model.WorkoutCommitmentLevel</dd>
+
+        <dt class="col-12 col-md-4">تحدث بشكل عام عن نظام تمرينك في الفترة السابقة:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.PreviousWorkoutSystemExperience) ? "غير متاح" : Model.PreviousWorkoutSystemExperience)</dd>
+
+        <dt class="col-12 col-md-4">هل هناك تطور في الأوزان والعدات؟</dt>
+        <dd class="col-12 col-md-8">@(Model.HasWeightRepsDevelopment ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">هل شدة التمرين مناسبة لك؟</dt>
+        <dd class="col-12 col-md-8">@(Model.IsTrainingVolumeSuitable ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">إذا كانت الإجابة (لا) .. هل تريد شدة أعلى أم أقل؟</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.DesiredTrainingVolumeAdjustment) ? "غير متاح" : Model.DesiredTrainingVolumeAdjustment)</dd>
+
+        <dt class="col-12 col-md-4">هل حجم التمرين مناسب لك؟</dt>
+        <dd class="col-12 col-md-8">@(Model.IsTrainingIntensitySuitable ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">إذا كانت الإجابة (لا) .. هل تريد حجم أعلى أم أقل؟</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.DesiredTrainingIntensityAdjustment) ? "غير متاح" : Model.DesiredTrainingIntensityAdjustment)</dd>
+
+        <dt class="col-12 col-md-4">هل هناك تمارين تسبب لك آلام أو عدم راحة؟</dt>
+        <dd class="col-12 col-md-8">@(Model.HasExerciseDiscomfort ? "نعم" : "لا")</dd>
+
+        <dt class="col-12 col-md-4">اذكر اسم التمرين الذي يسبب عدم الراحة:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.DiscomfortExerciseName) ? "غير متاح" : Model.DiscomfortExerciseName)</dd>
+
+        <dt class="col-12 col-md-4">كم عدد الأيام المتاحة للتمرين؟</dt>
+        <dd class="col-12 col-md-8">@Model.AvailableWorkoutDaysCount</dd>
+
+        <dt class="col-12 col-md-4">أين تريد أن تمارس تمرينك؟</dt>
+        <dd class="col-12 col-md-8">@Model.WorkoutLocation</dd>
+
+        <dt class="col-12 col-md-4">اذكر الأدوات المتاحة لديك في المنزل:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.AvailableHomeEquipment) ? "غير متاح" : Model.AvailableHomeEquipment)</dd>
+
+        <dt class="col-12 col-md-4">ملاحظات:</dt>
+        <dd class="col-12 col-md-8">@(string.IsNullOrEmpty(Model.Notes) ? "غير متاح" : Model.Notes)</dd>
+    </dl>
+</div>

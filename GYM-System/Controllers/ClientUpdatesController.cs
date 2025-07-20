@@ -201,6 +201,23 @@ namespace GYM_System.Controllers
             return RedirectToAction("ClientFile", "Clients", new { id = clientUpdate?.ClientId });
         }
 
+        // GET: ClientUpdates/GetUpdateDetails/5
+        // This action provides the full update details as a partial view for the modal
+        [HttpGet]
+        public async Task<IActionResult> GetUpdateDetails(int id)
+        {
+            var clientUpdate = await _context.ClientUpdates
+                .Include(cu => cu.Client)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (clientUpdate == null)
+            {
+                return Content("<p class='text-danger'>لم يتم العثور على التحديث.</p>");
+            }
+
+            return PartialView("_DetailsPartial", clientUpdate);
+        }
+
         private bool ClientUpdateExists(int id)
         {
             return _context.ClientUpdates.Any(e => e.Id == id);

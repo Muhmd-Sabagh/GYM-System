@@ -2,106 +2,108 @@
     ViewData["Title"] = "Welcome to SuperSheets";
 }
 
-<style>
-    /* Specific styles for the Home page hero section */
-    .hero-section {
-        background: url('/images/home/hero1.jpg') no-repeat center center / cover;
-        color: var(--gym-text-light);
-        padding: 80px 0;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-        border-radius: 0.75rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .hero-overlay {
-        background-color: rgba(0, 0, 0, 0.4); /* Dark overlay for text readability */
-        padding: 40px 20px;
-        border-radius: 0.75rem;
-        display: inline-block; /* To contain the overlay to its content */
-    }
-
-    .hero-section h1 {
-        font-size: 3.5rem;
-        font-weight: 800; /* Extra bold */
-        margin-bottom: 0.5rem;
-        color: var(--gym-accent-green);
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    }
-
-    .hero-section p {
-        font-size: 1.4rem;
-        max-width: 800px;
-        margin: 0 auto 30px auto;
-        color: whitesmoke;
-    }
-
-    .feature-card {
-        text-align: center;
-        padding: 2rem;
-        border-radius: 0.75rem;
-        background-color: var(--gym-card-bg);
-        border: 1px solid var(--gym-border-color);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%; /* Ensure cards in a row have equal height */
-    }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-        }
-
-        .feature-card i {
-            font-size: 3rem;
-            color: var(--gym-accent-green);
-            margin-bottom: 1rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.75rem;
-            color: var(--gym-accent-blue);
-            margin-bottom: 0.75rem;
-        }
-
-        .feature-card p {
+@section Styles {
+    <style>
+        /* Specific styles for the Home page hero section */
+        .hero-section {
+            background: url('/images/home/hero1.jpg') no-repeat center center / cover;
             color: var(--gym-text-light);
-            font-size: 1rem;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
         }
 
-    .section-title {
-        text-align: center;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--gym-accent-green);
-        margin-bottom: 2.5rem;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-    }
+        .hero-overlay {
+            background-color: rgba(0, 0, 0, 0.4); /* Dark overlay for text readability */
+            padding: 40px 20px;
+            border-radius: 0.75rem;
+            display: inline-block; /* To contain the overlay to its content */
+        }
 
-    .why-choose-us img {
-        max-width: 400px;
-        height: auto;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Responsive adjustments */
-    @@media (max-width: 768px) {
         .hero-section h1 {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
+            font-weight: 800; /* Extra bold */
+            margin-bottom: 0.5rem;
+            color: hsla(143, 70%, 70%, 1); /* Lighter green */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
         }
 
         .hero-section p {
-            font-size: 1.1rem;
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            color: whitesmoke;
         }
 
         .feature-card {
-            margin-bottom: 1.5rem; /* Add space between cards on small screens */
+            text-align: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            background-color: var(--gym-card-bg);
+            border: 1px solid var(--gym-border-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%; /* Ensure cards in a row have equal height */
         }
-    }
-</style>
+
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            }
+
+            .feature-card i {
+                font-size: 3rem;
+                color: var(--gym-accent-green);
+                margin-bottom: 1rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.75rem;
+                color: var(--gym-accent-blue);
+                margin-bottom: 0.75rem;
+            }
+
+            .feature-card p {
+                color: var(--gym-text-light);
+                font-size: 1rem;
+            }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gym-accent-green);
+            margin-bottom: 2.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .why-choose-us img {
+            max-width: 400px;
+            height: auto;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-section p {
+                font-size: 1.1rem;
+            }
+
+            .feature-card {
+                margin-bottom: 1.5rem; /* Add space between cards on small screens */
+            }
+        }
+    </style>
+}
 
 <div class="hero-section">
     <div class="hero-overlay">
@@ -119,7 +121,7 @@
                 <i class="bi bi-people-fill"></i> <!-- Bootstrap Icon for People -->
                 <h3>Client Management</h3>
                 <p>Effortlessly manage client data, subscriptions, assessments, and updates in one centralized system.</p>
-                <a asp-controller="Clients" asp-action="Index" class="btn btn-outline-primary mt-3">View Clients</a>
+                <a asp-controller="Clients" asp-action="Index" class="btn btn-outline-primary mt-3 text-white">View Clients</a>
             </div>
         </div>
         <div class="col">
@@ -127,8 +129,8 @@
                 <i class="bi bi-clipboard-data-fill"></i> <!-- Bootstrap Icon for Clipboard Data -->
                 <h3>Personalized Plans</h3>
                 <p>Create detailed diet and workout plans tailored to each client's unique goals and needs.</p>
-                <a asp-controller="DietPlanMaker" asp-action="Index" class="btn btn-outline-primary mt-3">Create Diet Plan</a>
-                <a asp-controller="WorkoutPlanMaker" asp-action="Index" class="btn btn-outline-primary mt-3">Create Workout Plan</a>
+                <a asp-controller="DietPlanMaker" asp-action="Index" class="btn btn-outline-primary mt-3 text-white">Create Diet Plan</a>
+                <a asp-controller="WorkoutPlanMaker" asp-action="Index" class="btn btn-outline-primary mt-3 text-white">Create Workout Plan</a>
             </div>
         </div>
         <div class="col">
@@ -136,7 +138,7 @@
                 <i class="bi bi-file-earmark-pdf-fill"></i> <!-- Bootstrap Icon for PDF File -->
                 <h3>PDF Generation & Sync</h3>
                 <p>Generate professional PDF plans and seamlessly sync client data from Google Forms.</p>
-                <a asp-controller="SavedPlans" asp-action="Index" class="btn btn-outline-primary mt-3">View Saved Plans</a>
+                <a asp-controller="SavedPlans" asp-action="Index" class="btn btn-outline-primary mt-3 text-white">View Saved Plans</a>
             </div>
         </div>
     </div>

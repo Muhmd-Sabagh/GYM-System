@@ -19,6 +19,12 @@
     --border-radius: 0.5rem;
     --border-radius-lg: 0.75rem;
     --transition: all 0.3s ease;
+    --gym-border-color-light: rgba(255, 255, 255, 0.1);
+    --gym-accent-blue: #00bcd4;
+    --gym-text-light: #e0e0e0;
+    --gym-card-bg: #2c3e50;
+    --gym-table-header-bg: #34495e;
+    --gym-border-color: #4a627a;
 }
 
 /* Global Styles */
@@ -640,4 +646,83 @@ h3 {
 .icon-settings::before {
     content: "⚙️";
     margin-right: 0.5rem;
+}
+
+/* --- Styles for Details Partial Views (moved from partials) --- */
+.details-container {
+    direction: rtl;
+    text-align: right;
+    padding: 1rem;
+    font-size: 1.05rem; /* Slightly larger font for readability */
+    /* Add a subtle border around the entire container for a more defined look */
+    border: 1px solid var(--gym-border-color-light); /* Lighter border for the main container */
+    border-radius: 0.5rem; /* Match card border-radius */
+    margin-top: 1rem; /* Add some space above the container */
+}
+
+.details-container dt {
+    font-weight: 500;
+    color: var(--gym-accent-blue);
+    margin-bottom: 0;
+    padding: 0.75rem 0.75rem; /* Adjust padding for cell-like appearance */
+    border-bottom: 1px solid var(--gym-border-color-light); /* Light border at the bottom */
+    border-left: 1px solid var(--gym-border-color-light); /* Light border on the left (for RTL grid) */
+}
+
+.details-container dd {
+    color: var(--gym-text-light); /* Light text for answers */
+    margin-bottom: 0; /* Remove margin-bottom to allow borders to meet */
+    margin-right: 0;
+    padding: 0.75rem 0.75rem; /* Adjust padding for cell-like appearance */
+    border-bottom: 1px solid var(--gym-border-color-light); /* Light border at the bottom */
+}
+
+@media (max-width: 768px){
+    .details-container dt {
+        border-left: none;
+    }
+
+    .details-container dd {
+        padding-right: 1.5rem;
+    }
+}
+
+/* Adjust padding for the dl elements within the modal body */
+.details-container dl.row {
+    margin-bottom: 0; /* Remove default bottom margin from dl */
+    /* Remove any default row padding that might interfere with borders */
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%; /* Ensure the row takes full width */
+}
+
+/* Style for image links */
+.details-container .text-info {
+    color: #00bcd4 !important; /* Ensure Bootstrap info color is used for links */
+    text-decoration: underline;
+}
+.details-container .text-info:hover {
+    color: #00838f !important;
+}
+
+/* Ensure the modal content itself also uses the dark theme */
+#detailsModal .modal-content {
+    background-color: var(--gym-card-bg); /* Consistent dark background */
+    border: 1px solid var(--gym-border-color);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+    color: var(--gym-text-light); /* Ensure modal text is light */
+}
+
+#detailsModal .modal-header {
+    background-color: var(--gym-table-header-bg); /* Darker header */
+    color: var(--gym-text-light);
+    border-bottom: 1px solid var(--gym-border-color);
+}
+
+#detailsModal .modal-body {
+    background-color: var(--gym-card-bg);
+}
+
+#detailsModal .btn-close-white {
+    filter: invert(1); /* Makes the close button white on dark background */
 }

@@ -247,6 +247,23 @@ namespace GYM_System.Controllers
             return RedirectToAction("ClientFile", "Clients", new { id = clientAssessment?.ClientId });
         }
 
+        // GET: ClientAssessments/GetAssessmentDetails/5
+        // This action provides the full assessment details as a partial view for the modal
+        [HttpGet]
+        public async Task<IActionResult> GetAssessmentDetails(int id)
+        {
+            var clientAssessment = await _context.ClientAssessments
+                .Include(ca => ca.Client)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (clientAssessment == null)
+            {
+                return Content("<p class='text-danger'>لم يتم العثور على التقييم.</p>");
+            }
+
+            return PartialView("_DetailsPartial", clientAssessment);
+        }
+
         private bool ClientAssessmentExists(int id)
         {
             return _context.ClientAssessments.Any(e => e.Id == id);
