@@ -65,34 +65,6 @@ namespace GYM_System.Controllers
             return View(clients);
         }
 
-        // GET: Clients/Details/5 - Updated to include all related data
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var client = await _context.Clients
-                .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.PackageType)
-                .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.Currency)
-                .Include(c => c.Subscriptions)
-                    .ThenInclude(s => s.PaymentAccount)
-                .Include(c => c.ClientAssessments.OrderByDescending(ca => ca.Timestamp)) // Include assessments
-                .Include(c => c.ClientUpdates.OrderByDescending(cu => cu.Timestamp))     // Include updates
-                .Include(c => c.DietPlans.OrderByDescending(dp => dp.CreatedDate))       // Include diet plans
-                .Include(c => c.WorkoutPlans.OrderByDescending(wp => wp.CreatedDate))     // Include workout plans
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (client == null)
-            {
-                return NotFound();
-            }
-
-            return View(client);
-        }
-
         // GET: Clients/ClientFile/5 - Comprehensive client view (already updated)
         public async Task<IActionResult> ClientFile(int? id)
         {

@@ -216,6 +216,62 @@ namespace SuperSheets.Controllers
             }
         }
 
+        // GET: DietPlanMaker/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var dietPlan = await _context.DietPlans
+                .Include(dp => dp.Client)
+                .Include(dp => dp.Versions)
+                    .ThenInclude(dpv => dpv.Meals)
+                        .ThenInclude(m => m.MealFoodItems)
+                            .ThenInclude(mfi => mfi.FoodItem)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (dietPlan == null)
+            {
+                return NotFound();
+            }
+
+            // Populate calculated macros for display on the delete confirmation page
+            var viewModel = new DietPlanViewModel(dietPlan);
+            CalculateMacrosForViewModel(viewModel);
+
+            return View(viewModel);
+        }
+
+        // POST: DietPlanMaker/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var dietPlan = await _context.DietPlans
+                .Include(dp => dp.Versions)
+                    .ThenInclude(dpv => dpv.Meals)
+                        .ThenInclude(m => m.MealFoodItems)
+                .FirstOrDefaultAsync(dp => dp.Id == id);
+
+            if (dietPlan != null)
+            {
+                // Manually remove child entities to avoid issues with cascade delete if not configured
+                _context.MealFoodItems.RemoveRange(dietPlan.Versions.SelectMany(v => v.Meals).SelectMany(m => m.MealFoodItems));
+                _context.Meals.RemoveRange(dietPlan.Versions.SelectMany(v => v.Meals));
+                _context.DietPlanVersions.RemoveRange(dietPlan.Versions);
+                _context.DietPlans.Remove(dietPlan);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Diet Plan deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Diet Plan not found for deletion.";
+            }
+            return RedirectToAction("Index", "SavedPlans"); // Redirect to Saved Plans list
+        }
+
 
         // Helper to calculate total macros for a MealViewModel
         private void CalculateMacrosForMealViewModel(MealViewModel mealVm, List<FoodItem> allFoodItems)

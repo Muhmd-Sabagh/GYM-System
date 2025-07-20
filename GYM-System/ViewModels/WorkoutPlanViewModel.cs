@@ -19,6 +19,7 @@ namespace GYM_System.ViewModels
         [StringLength(1000, ErrorMessage = "General Notes cannot exceed 1000 characters.")]
         [Display(Name = "General Notes for Plan")]
         public string? GeneralNotes { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public List<WorkoutDayViewModel> WorkoutDays { get; set; } = new List<WorkoutDayViewModel>();
 
@@ -34,6 +35,8 @@ namespace GYM_System.ViewModels
             Id = workoutPlan.Id;
             PlanName = workoutPlan.PlanName;
             ClientId = workoutPlan.ClientId;
+            Client = workoutPlan.Client;
+            CreatedDate = workoutPlan.CreatedDate;
             GeneralNotes = workoutPlan.GeneralNotes;
 
             if (workoutPlan.WorkoutDays != null)

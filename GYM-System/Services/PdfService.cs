@@ -77,12 +77,12 @@ namespace GYM_System.Services
                                         });
                                     });
 
-                                // Right side: Client Name - Diet Plan
+                                // Center: Client Name - Diet Plan
                                 row.RelativeItem(4)
                                     .AlignCenter()
                                     .Column(clientInfoColumn =>
                                     {
-                                        clientInfoColumn.Item().Text($"{dietPlan.Client?.Name ?? "Client"} - Diet Plan")
+                                        clientInfoColumn.Item().AlignCenter().Text($"{dietPlan.Client?.Name ?? "Client"} - Diet Plan")
                                             .FontSize(16).Bold().FontColor(Colors.Blue.Darken2);
                                     });
                             });
@@ -255,157 +255,150 @@ namespace GYM_System.Services
                     page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter")); // Using Inter as requested
 
                     page.Header()
-                        .PaddingBottom(15)
+                        .PaddingBottom(7)
                         .Column(column =>
                         {
                             column.Item().Row(row =>
                             {
-                                row.ConstantItem(100).Element(container =>
-                                {
-                                    container.Image(File.Exists(_logoPath) ? _logoPath : _placeholderLogoPath)
-                                        .FitWidth();
-                                });
+                                // Left side: Logo
+                                row.RelativeItem(1)
+                                    .Column(clientInfoColumn =>
+                                    {
+                                        clientInfoColumn.Item().AlignLeft().Element(container =>
+                                        {
+                                            container.Width(80).Height(80).Image(File.Exists(_logoPath) ? _logoPath : _placeholderLogoPath)
+                                                .FitWidth();
+                                        });
+                                    });
 
-                                row.RelativeItem()
-                                    .AlignRight()
-                                    .Text("إدارة سوبر جيم") // Super Gym Management
-                                    .FontSize(16)
-                                    .Bold()
-                                    .FontColor(Colors.Blue.Darken2);
+                                // Center: Client Name - Workout Plan
+                                row.RelativeItem(4)
+                                    .AlignCenter()
+                                    .Column(clientInfoColumn =>
+                                    {
+                                        clientInfoColumn.Item().AlignCenter().Text($"{workoutPlan.Client?.Name ?? "Client"} - Workout Plan")
+                                            .FontSize(16).Bold().FontColor(Colors.Blue.Darken2);
+                                    });
                             });
 
-                            column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            column.Item().PaddingTop(5).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                         });
 
                     page.Content()
-                        .PaddingVertical(10)
+                        .PaddingVertical(5)
                         .Column(column =>
                         {
-                            column.Item().Text(text =>
-                            {
-                                text.Span("خطة التمرين: ").SemiBold().FontSize(14);
-                                text.Span(workoutPlan.PlanName).FontSize(14);
-                            });
-
-                            if (workoutPlan.Client != null)
-                            {
-                                column.Item().Text(text =>
-                                {
-                                    text.Span("العميل: ").SemiBold();
-                                    text.Span(workoutPlan.Client.Name);
-                                });
-                            }
-
                             if (!string.IsNullOrEmpty(workoutPlan.GeneralNotes))
                             {
-                                column.Item().PaddingTop(5).Text(text =>
+                                column.Item().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(7).AlignRight().Text(text =>
                                 {
-                                    text.Span("ملاحظات عامة: ").SemiBold();
-                                    text.Span(workoutPlan.GeneralNotes);
+                                    text.Span("ملاحظات عامة: ").SemiBold().DirectionFromRightToLeft();
+                                    text.Span(workoutPlan.GeneralNotes).DirectionFromRightToLeft();
                                 });
                             }
 
-                            column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            // Calculate workout plan totals
+                            var totalExercises = workoutPlan.WorkoutDays.Sum(d => d.WorkoutExercises.Count());
+                            var totalDays = workoutPlan.WorkoutDays.Count();
+
+                            // Plan Totals Table
+                            column.Item().PaddingTop(10).Border(1).BorderColor(Colors.Black.Blue).Padding(5).Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn(); // Total Days
+                                    columns.RelativeColumn(); // Total Exercises
+                                    columns.RelativeColumn(); // Plan Name
+                                });
+
+                                table.Header(header =>
+                                {
+                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("إجمالي الأيام").SemiBold().AlignCenter().FontColor(Colors.Blue.Darken1);
+                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("إجمالي التمارين").SemiBold().AlignCenter().FontColor(Colors.Red.Darken1);
+                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("اسم الخطة").SemiBold().AlignCenter().FontColor(Colors.Green.Darken1);
+                                });
+
+                                table.Cell().PaddingVertical(2).Text(totalDays.ToString()).AlignCenter().FontColor(Colors.Blue.Darken1);
+                                table.Cell().PaddingVertical(2).Text(totalExercises.ToString()).AlignCenter().FontColor(Colors.Red.Darken1);
+                                table.Cell().PaddingVertical(2).Text(workoutPlan.PlanName ?? "خطة التمرين").AlignCenter().FontColor(Colors.Green.Darken1);
+                            });
+
+                            column.Item().PaddingTop(10).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten1);
 
                             // Render each workout day
                             foreach (var day in workoutPlan.WorkoutDays)
                             {
-                                if (day != workoutPlan.WorkoutDays.First())
+                                column.Item().PaddingVertical(7).Column(dayColumn =>
                                 {
-                                    column.Item().PaddingTop(15).PageBreak(); // Start new day on a new page
-                                }
-
-                                // Workout Day Header Bar
-                                column.Item().Background(Colors.Blue.Lighten4).Padding(8).Row(dayHeaderRow =>
-                                {
-                                    dayHeaderRow.RelativeItem().AlignLeft().Text($"إجمالي التمارين: {day.WorkoutExercises.Count()}").SemiBold().FontSize(11).FontColor(Colors.White);
-                                    dayHeaderRow.RelativeItem().AlignRight().Text($"اليوم: {day.DayName}").SemiBold().FontSize(11).FontColor(Colors.White);
-                                    if (!string.IsNullOrEmpty(day.Subtitle))
+                                    // Day Header Bar (similar to meal header)
+                                    dayColumn.Item().Background(Colors.Blue.Medium).Padding(8).Row(dayHeaderRow =>
                                     {
-                                        dayHeaderRow.RelativeItem().AlignRight().Text($" ({day.Subtitle})").FontSize(10).Italic().FontColor(Colors.White);
-                                    }
-                                });
-
-                                if (!string.IsNullOrEmpty(day.DayNotes))
-                                {
-                                    column.Item().PaddingTop(3).Text(text =>
-                                    {
-                                        text.Span("ملاحظات اليوم: ").SemiBold();
-                                        text.Span(day.DayNotes);
-                                    });
-                                }
-
-                                column.Item().PaddingTop(10).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten1);
-
-                                // Render each exercise in the day
-                                foreach (var workoutExercise in day.WorkoutExercises)
-                                {
-                                    column.Item().PaddingVertical(8).Column(exerciseColumn =>
-                                    {
-                                        exerciseColumn.Item().Row(exerciseRow =>
+                                        dayHeaderRow.RelativeItem().AlignLeft().Text($"إجمالي التمارين: {day.WorkoutExercises.Count()}").SemiBold().FontSize(11).FontColor(Colors.White);
+                                        dayHeaderRow.RelativeItem().AlignRight().Text($"{day.DayName}").SemiBold().FontSize(11).FontColor(Colors.White);
+                                        if (!string.IsNullOrEmpty(day.Subtitle))
                                         {
-                                            // Exercise Image
-                                            exerciseRow.ConstantItem(60).Element(imgContainer =>
-                                            {
-                                                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, workoutExercise.Exercise.ImagePath.Substring(1));
-                                                imgContainer.Width(50).Height(50).Image(imagePath).FitWidth();
-                                            });
-
-                                            // Exercise Name and Video Link
-                                            exerciseRow.RelativeItem().Column(nameVideoCol =>
-                                            {
-                                                nameVideoCol.Item().Text(text =>
-                                                {
-                                                    text.Span("التمرين: ").SemiBold().FontSize(11);
-                                                    text.Span(workoutExercise.Exercise?.Name ?? "غير متاح").FontSize(11).FontColor(Colors.Green.Darken1);
-                                                });
-
-                                                if (!string.IsNullOrEmpty(workoutExercise.Exercise?.YouTubeLink))
-                                                {
-                                                    nameVideoCol.Item().PaddingTop(2).Hyperlink(workoutExercise.Exercise.YouTubeLink).Text("مشاهدة الفيديو").FontSize(9).FontColor(Colors.Blue.Darken1).Underline();
-                                                }
-                                            });
-                                        });
-
-
-                                        // Exercise Details Table (Sets, Reps, Rest, Tempo, RPE/RIR)
-                                        exerciseColumn.Item().PaddingTop(5).Table(table =>
-                                        {
-                                            table.ColumnsDefinition(columns =>
-                                            {
-                                                columns.RelativeColumn(); // Sets
-                                                columns.RelativeColumn(); // Reps
-                                                columns.RelativeColumn(); // Rest
-                                                columns.RelativeColumn(); // Tempo
-                                                columns.RelativeColumn(); // RPE/RIR
-                                            });
-
-                                            table.Header(header =>
-                                            {
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("المجموعات").SemiBold().AlignRight();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("التكرارات").SemiBold().AlignRight();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("الراحة").SemiBold().AlignRight();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("الإيقاع").SemiBold().AlignRight();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("RPE/RIR").SemiBold().AlignRight();
-                                            });
-
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Sets ?? "-").AlignRight();
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Reps ?? "-").AlignRight();
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Rest ?? "-").AlignRight();
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Tempo ?? "-").AlignRight();
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.RpeRir ?? "-").AlignRight();
-                                        });
-
-                                        if (!string.IsNullOrEmpty(workoutExercise.ExerciseNotes))
-                                        {
-                                            exerciseColumn.Item().PaddingTop(5).Text(text =>
-                                            {
-                                                text.Span("ملاحظات: ").SemiBold().FontSize(9);
-                                                text.Span(workoutExercise.ExerciseNotes).FontSize(9);
-                                            });
+                                            dayHeaderRow.RelativeItem().AlignRight().Text($" ({day.Subtitle})").FontSize(10).Italic().FontColor(Colors.White);
                                         }
                                     });
-                                }
+
+                                    dayColumn.Item().PaddingTop(5).Row(dayContentRow =>
+                                    {
+                                        // Left Column: Day Notes
+                                        dayContentRow.RelativeItem(1)
+                                            .Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                            .Column(leftCol =>
+                                            {
+                                                leftCol.Item().AlignCenter().Text("ملاحظات اليوم").SemiBold().FontSize(10).LineHeight(2);
+                                                leftCol.Item().AlignCenter().Text(day.DayNotes ?? "لا توجد ملاحظات").FontSize(9);
+                                            });
+
+                                        // Right Column: Exercises Table
+                                        dayContentRow.RelativeItem(4)
+                                            .PaddingLeft(10)
+                                            .Table(table =>
+                                            {
+                                                table.ColumnsDefinition(columns =>
+                                                {
+                                                    columns.RelativeColumn(1); // Exercise Video Link
+                                                    columns.RelativeColumn(1); // RPE/RIR
+                                                    columns.RelativeColumn(1); // Tempo
+                                                    columns.RelativeColumn(1); // Rest
+                                                    columns.RelativeColumn(1); // Reps
+                                                    columns.RelativeColumn(1); // Sets
+                                                    columns.RelativeColumn(2); // Exercise Name
+                                                });
+
+                                                table.Header(header =>
+                                                {
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("فيديو").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("RPE/RIR").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("الإيقاع").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("الراحة").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("التكرارات").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("المجموعات").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("التمرين").SemiBold().AlignRight();
+                                                });
+
+                                                foreach (var workoutExercise in day.WorkoutExercises)
+                                                {
+                                                    table.Cell().PaddingVertical(3).Hyperlink(workoutExercise.Exercise?.YouTubeLink ?? "_").Text("فيديو").FontSize(10).FontColor(Colors.Blue.Darken1).Underline().AlignCenter();
+                                                    table.Cell().PaddingVertical(3).Text(workoutExercise.RpeRir ?? "-").AlignCenter();
+                                                    table.Cell().PaddingVertical(3).Text(workoutExercise.Tempo ?? "-").AlignCenter();
+                                                    table.Cell().PaddingVertical(3).Text(workoutExercise.Rest ?? "-").AlignCenter();
+                                                    table.Cell().PaddingVertical(3).Text(workoutExercise.Reps ?? "-").AlignCenter();
+                                                    table.Cell().PaddingVertical(3).Text(workoutExercise.Sets ?? "-").AlignCenter();
+                                                    table.Cell().PaddingVertical(3).Column(exerciseCol =>
+                                                    {
+                                                        exerciseCol.Item().Text($"{workoutExercise.Exercise?.Name ?? "غير متاح"}").AlignRight().DirectionFromRightToLeft();
+                                                        if (!string.IsNullOrEmpty(workoutExercise.ExerciseNotes))
+                                                        {
+                                                            exerciseCol.Item().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(2).Text(workoutExercise.ExerciseNotes).FontSize(8).FontColor(Colors.Grey.Darken1);
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                    });
+                                });
                             }
                         });
 

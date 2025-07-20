@@ -5,153 +5,140 @@
     var clients = ViewBag.Clients as List<GYM_System.Models.Client>;
 }
 
-<h1>Saved Plans</h1>
+<h1 class="mb-4">Saved Plans</h1>
 
 <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-        Search & Filter Plans
+    <div class="card-header bg-primary">
+        <h5 class="mb-0 text-white">Search & Filter Plans</h5>
     </div>
     <div class="card-body">
         <form asp-action="Index" method="get">
-            <div class="row mb-3">
-                <div class="col-md-6">
+            <div class="row g-3">
+                <div class="col-md-4">
                     <label for="searchString" class="form-label">Search by Plan/Client Name:</label>
-                    <input type="text" name="searchString" id="searchString" class="form-control" value="@ViewData["CurrentSearchString"]" />
+                    <input type="text" name="searchString" id="searchString" class="form-control" value="@ViewBag.searchString" placeholder="Plan or Client Name" />
                 </div>
-                <div class="col-md-6">
-                    <label for="clientCode" class="form-label">Filter by Client Name:</label>
-                    @* <input type="text" name="clientCode" id="clientCode" class="form-control" value="@ViewData["CurrentClientCode"]" /> *@
-                    @* Alternatively, use a dropdown for client names: *@
-                    <select name="clientId" id="clientId" class="form-select" asp-items="@(new SelectList(clients, "Id", "Name"))">
-                        <option value="">-- Select Client --</option>
-                    </select>
-
+                <div class="col-md-4">
+                    <label for="clientCode" class="form-label">Filter by Client Code:</label>
+                    <input type="text" name="clientCode" id="clientCode" class="form-control" value="@ViewBag.clientCode" placeholder="Client Code" />
                 </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label for="startDate" class="form-label">Start Date:</label>
-                    <input type="date" name="startDate" id="startDate" class="form-control" value="@(ViewData["CurrentStartDate"] != null ? ((DateTime)ViewData["CurrentStartDate"]).ToString("yyyy-MM-dd") : "")" />
-                </div>
-                <div class="col-md-3">
-                    <label for="endDate" class="form-label">End Date:</label>
-                    <input type="date" name="endDate" id="endDate" class="form-control" value="@(ViewData["CurrentEndDate"] != null ? ((DateTime)ViewData["CurrentEndDate"]).ToString("yyyy-MM-dd") : "")" />
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="planType" class="form-label">Plan Type:</label>
                     <select name="planType" id="planType" class="form-select">
                         <option value="">All</option>
-                        @{
-                            var dietValue = ((int)GYM_System.ViewModels.PlanType.Diet).ToString();
-                            var workoutValue = ((int)GYM_System.ViewModels.PlanType.Workout).ToString();
-                            var currentPlanType = ViewData["CurrentPlanType"]?.ToString();
-
-                            var isDietSelected = currentPlanType == dietValue ? "selected" : "";
-                            var isWorkoutSelected = currentPlanType == workoutValue ? "selected" : "";
-                        }
-                        <option value="">All</option>
-                        @Html.Raw($"<option value=\"{dietValue}\" {isDietSelected}>Diet</option>")
-                        @Html.Raw($"<option value=\"{workoutValue}\" {isWorkoutSelected}>Workout</option>")
+                        <option value="Diet" selected="@(ViewBag.planType == "Diet")">Diet Plan</option>
+                        <option value="Workout" selected="@(ViewBag.planType == "Workout")">Workout Plan</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="row mb-3 border p-3 rounded">
-                <h6 class="mb-3">Diet Plan Filters (Only applies to Diet Plans)</h6>
                 <div class="col-md-3">
-                    <label for="minCalories" class="form-label">Min Calories:</label>
-                    <input type="number" step="0.01" name="minCalories" id="minCalories" class="form-control" value="@ViewData["CurrentMinCalories"]" />
+                    <label for="startDate" class="form-label">Start Date:</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control" value="@(ViewBag.startDate != null ? ((DateTime)ViewBag.startDate).ToString("yyyy-MM-dd") : "")" />
                 </div>
                 <div class="col-md-3">
+                    <label for="endDate" class="form-label">End Date:</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control" value="@(ViewBag.endDate != null ? ((DateTime)ViewBag.endDate).ToString("yyyy-MM-dd") : "")" />
+                </div>
+                <div class="col-md-2">
+                    <label for="minCalories" class="form-label">Min Calories:</label>
+                    <input type="number" name="minCalories" id="minCalories" class="form-control" step="0.1" value="@(ViewBag.minCalories != null ? ((decimal)ViewBag.minCalories).ToString("F1") : "")" />
+                </div>
+                <div class="col-md-2">
                     <label for="maxCalories" class="form-label">Max Calories:</label>
-                    <input type="number" step="0.01" name="maxCalories" id="maxCalories" class="form-control" value="@ViewData["CurrentMaxCalories"]" />
+                    <input type="number" name="maxCalories" id="maxCalories" class="form-control" step="0.1" value="@(ViewBag.maxCalories != null ? ((decimal)ViewBag.maxCalories).ToString("F1") : "")" />
                 </div>
                 <div class="col-md-2">
                     <label for="minProtein" class="form-label">Min Protein:</label>
-                    <input type="number" step="0.01" name="minProtein" id="minProtein" class="form-control" value="@ViewData["CurrentMinProtein"]" />
+                    <input type="number" name="minProtein" id="minProtein" class="form-control" step="0.1" value="@(ViewBag.minProtein != null ? ((decimal)ViewBag.minProtein).ToString("F1") : "")" />
                 </div>
                 <div class="col-md-2">
                     <label for="maxProtein" class="form-label">Max Protein:</label>
-                    <input type="number" step="0.01" name="maxProtein" id="maxProtein" class="form-control" value="@ViewData["CurrentMaxProtein"]" />
+                    <input type="number" name="maxProtein" id="maxProtein" class="form-control" step="0.1" value="@(ViewBag.maxProtein != null ? ((decimal)ViewBag.maxProtein).ToString("F1") : "")" />
                 </div>
                 <div class="col-md-2">
                     <label for="minCarbs" class="form-label">Min Carbs:</label>
-                    <input type="number" step="0.01" name="minCarbs" id="minCarbs" class="form-control" value="@ViewData["CurrentMinCarbs"]" />
+                    <input type="number" name="minCarbs" id="minCarbs" class="form-control" step="0.1" value="@(ViewBag.minCarbs != null ? ((decimal)ViewBag.minCarbs).ToString("F1") : "")" />
                 </div>
                 <div class="col-md-2">
                     <label for="maxCarbs" class="form-label">Max Carbs:</label>
-                    <input type="number" step="0.01" name="maxCarbs" id="maxCarbs" class="form-control" value="@ViewData["CurrentMaxCarbs"]" />
+                    <input type="number" name="maxCarbs" id="maxCarbs" class="form-control" step="0.1" value="@(ViewBag.maxCarbs != null ? ((decimal)ViewBag.maxCarbs).ToString("F1") : "")" />
                 </div>
                 <div class="col-md-2">
                     <label for="minFat" class="form-label">Min Fat:</label>
-                    <input type="number" step="0.01" name="minFat" id="minFat" class="form-control" value="@ViewData["CurrentMinFat"]" />
+                    <input type="number" name="minFat" id="minFat" class="form-control" step="0.1" value="@(ViewBag.minFat != null ? ((decimal)ViewBag.minFat).ToString("F1") : "")" />
                 </div>
                 <div class="col-md-2">
                     <label for="maxFat" class="form-label">Max Fat:</label>
-                    <input type="number" step="0.01" name="maxFat" id="maxFat" class="form-control" value="@ViewData["CurrentMaxFat"]" />
+                    <input type="number" name="maxFat" id="maxFat" class="form-control" step="0.1" value="@(ViewBag.maxFat != null ? ((decimal)ViewBag.maxFat).ToString("F1") : "")" />
                 </div>
-            </div>
-
-            <div class="row mb-3 border p-3 rounded mt-3">
-                <h6 class="mb-3">Workout Plan Filters (Only applies to Workout Plans)</h6>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="minDays" class="form-label">Min Workout Days:</label>
-                    <input type="number" name="minDays" id="minDays" class="form-control" value="@ViewData["CurrentMinDays"]" />
+                    <input type="number" name="minDays" id="minDays" class="form-control" min="0" value="@(ViewBag.minDays)" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="maxDays" class="form-label">Max Workout Days:</label>
-                    <input type="number" name="maxDays" id="maxDays" class="form-control" value="@ViewData["CurrentMaxDays"]" />
+                    <input type="number" name="maxDays" id="maxDays" class="form-control" min="0" value="@(ViewBag.maxDays)" />
                 </div>
-            </div>
-
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                <a asp-action="Index" class="btn btn-secondary">Clear Filters</a>
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+                    <a asp-action="Index" class="btn btn-secondary">Clear Filters</a>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<table class="table table-striped table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.PlanName)</th>
-            <th>@Html.DisplayNameFor(model => model.ClientName)</th>
-            <th>@Html.DisplayNameFor(model => model.CreatedDate)</th>
-            <th>@Html.DisplayNameFor(model => model.Type)</th>
-            <th>Calories</th>
-            <th>Protein</th>
-            <th>Carbs</th>
-            <th>Fat</th>
-            <th>Workout Days</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.PlanName)</td>
-                <td>@Html.DisplayFor(modelItem => item.ClientName)</td>
-                <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
-                <td>@Html.DisplayFor(modelItem => item.Type)</td>
-                <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalCalories?.ToString("F1") : "-")</td>
-                <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalProtein?.ToString("F1") : "-")</td>
-                <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalCarbs?.ToString("F1") : "-")</td>
-                <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalFat?.ToString("F1") : "-")</td>
-                <td>@(item.Type == GYM_System.ViewModels.PlanType.Workout ? item.NumberOfDays?.ToString() : "-")</td>
-                <td>
-                    @if (item.Type == GYM_System.ViewModels.PlanType.Diet)
-                    {
-                        <a asp-controller="DietPlanMaker" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm btn-info">Edit</a>
-                    }
-                    else if (item.Type == GYM_System.ViewModels.PlanType.Workout)
-                    {
-                        <a asp-controller="WorkoutPlanMaker" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm btn-info">Edit</a>
-                    }
-                </td>
+                <th>Plan Name</th>
+                <th>Client Name</th>
+                <th>Created Date</th>
+                <th>Type</th>
+                <th>Total Calories</th>
+                <th>Total Protein</th>
+                <th>Total Carbs</th>
+                <th>Total Fat</th>
+                <th>Number of Days</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.PlanName)</td>
+                    <td>
+                        @if (item.ClientName != null)
+                        {
+                            <a asp-controller="Clients" asp-action="ClientFile" asp-route-clientId="@item.ClientId">@Html.DisplayFor(modelItem => item.ClientName)</a>
+                        }
+                        else
+                        {
+                            <span>N/A</span>
+                        }
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Type)</td>
+                    <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalCalories?.ToString("F1") : "-")</td>
+                    <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalProtein?.ToString("F1") : "-")</td>
+                    <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalCarbs?.ToString("F1") : "-")</td>
+                    <td>@(item.Type == GYM_System.ViewModels.PlanType.Diet ? item.TotalFat?.ToString("F1") : "-")</td>
+                    <td>@(item.Type == GYM_System.ViewModels.PlanType.Workout ? item.NumberOfDays.ToString() : "-")</td>
+                    <td>
+                        @if (item.Type == GYM_System.ViewModels.PlanType.Diet)
+                        {
+                            <a asp-action="Index" asp-controller="DietPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-warning mb-1" title="Edit Diet Plan"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-controller="DietPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Diet Plan"><i class="bi bi-trash"></i></a>
+                        }
+                        else if (item.Type == GYM_System.ViewModels.PlanType.Workout)
+                        {
+                            <a asp-action="Index" asp-controller="WorkoutPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-warning mb-1" title="Edit Workout Plan"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-controller="WorkoutPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Workout Plan"><i class="bi bi-trash"></i></a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

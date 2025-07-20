@@ -73,7 +73,7 @@ namespace GYM_System.Migrations
                     b.HasIndex("FormCode")
                         .IsUnique();
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.ClientAssessment", b =>
@@ -353,7 +353,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ClientAssessments");
+                    b.ToTable("ClientAssessments", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.ClientUpdate", b =>
@@ -492,7 +492,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ClientUpdates");
+                    b.ToTable("ClientUpdates", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.Currency", b =>
@@ -522,7 +522,7 @@ namespace GYM_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Currencies");
+                    b.ToTable("Currencies", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.DietPlan", b =>
@@ -552,7 +552,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("DietPlans");
+                    b.ToTable("DietPlans", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.DietPlanVersion", b =>
@@ -582,7 +582,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("DietPlanId");
 
-                    b.ToTable("DietPlanVersions");
+                    b.ToTable("DietPlanVersions", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.Exercise", b =>
@@ -608,7 +608,7 @@ namespace GYM_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Exercises");
+                    b.ToTable("Exercises", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.FoodItem", b =>
@@ -647,7 +647,7 @@ namespace GYM_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FoodItems");
+                    b.ToTable("FoodItems", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.Meal", b =>
@@ -674,7 +674,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("DietPlanVersionId");
 
-                    b.ToTable("Meals");
+                    b.ToTable("Meals", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.MealFoodItem", b =>
@@ -700,7 +700,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("MealId");
 
-                    b.ToTable("MealFoodItems");
+                    b.ToTable("MealFoodItems", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.Package", b =>
@@ -725,7 +725,7 @@ namespace GYM_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Packages");
+                    b.ToTable("Packages", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.PaymentAccount", b =>
@@ -750,7 +750,7 @@ namespace GYM_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentAccounts");
+                    b.ToTable("PaymentAccounts", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.Subscription", b =>
@@ -795,7 +795,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("PaymentAccountId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.WorkoutDay", b =>
@@ -826,7 +826,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("WorkoutPlanId");
 
-                    b.ToTable("WorkoutDays");
+                    b.ToTable("WorkoutDays", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.WorkoutExercise", b =>
@@ -873,7 +873,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("WorkoutDayId");
 
-                    b.ToTable("WorkoutExercises");
+                    b.ToTable("WorkoutExercises", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.WorkoutPlan", b =>
@@ -903,7 +903,7 @@ namespace GYM_System.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("WorkoutPlans");
+                    b.ToTable("WorkoutPlans", (string)null);
                 });
 
             modelBuilder.Entity("GYM_System.Models.ClientAssessment", b =>

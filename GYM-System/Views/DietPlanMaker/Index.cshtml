@@ -9,8 +9,8 @@
 <h1 class="mb-4">Diet Plan Maker</h1>
 
 <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Diet Plan Details</h5>
+    <div class="card-header bg-primary">
+        <h5 class="mb-0 text-white">Diet Plan Details</h5>
     </div>
     <div class="card-body">
         <form asp-action="Save" method="post" id="dietPlanForm">
@@ -27,7 +27,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="ClientId" class="form-label"></label>
+                        <label asp-for="ClientId" class="form-label">Client Name:</label>
                         <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
                             <option value="">-- Select Client (Optional) --</option>
                         </select>
@@ -47,8 +47,8 @@
                 @for (int i = 0; i < Model.Versions.Count; i++)
                 {
                     <div class="card mb-3 version-card" data-version-index="@i">
-                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
+                        <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 text-white">
                                 Version <span class="version-number">@(i + 1)</span>:
                                 <input type="text" asp-for="Versions[i].VersionName" class="form-control d-inline-block w-auto me-2" placeholder="Version Name" />
                                 <span asp-validation-for="Versions[i].VersionName" class="text-warning"></span>
@@ -279,8 +279,8 @@
 
                 var newVersionHtml = `
                     <div class="card mb-3 version-card" data-version-index="${newVersionIndex}">
-                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
+                        <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 text-white">
                                 Version <span class="version-number">${newVersionIndex + 1}</span>:
                                 <input type="text" name="Versions[${newVersionIndex}].VersionName" class="form-control d-inline-block w-auto me-2" placeholder="Version Name" value="Version ${newVersionIndex + 1}" />
                                 <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].VersionName"></span>

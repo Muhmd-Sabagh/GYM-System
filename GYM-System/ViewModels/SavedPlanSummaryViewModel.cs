@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GYM_System.Models; // For PlanType enum
 
 namespace GYM_System.ViewModels
 {
@@ -9,6 +8,8 @@ namespace GYM_System.ViewModels
 
         [Display(Name = "Plan Name")]
         public string PlanName { get; set; } = string.Empty;
+
+        public int? ClientId { get; set; }
 
         [Display(Name = "Client Name")]
         public string? ClientName { get; set; }

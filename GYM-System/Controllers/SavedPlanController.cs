@@ -83,6 +83,7 @@ namespace GYM_System.Controllers
                 {
                     Id = dp.Id,
                     PlanName = dp.PlanName,
+                    ClientId = dp.ClientId,
                     ClientName = dp.Client?.Name,
                     CreatedDate = dp.CreatedDate,
                     Type = PlanType.Diet,
@@ -100,6 +101,7 @@ namespace GYM_System.Controllers
                 {
                     Id = wp.Id,
                     PlanName = wp.PlanName,
+                    ClientId = wp.ClientId,
                     ClientName = wp.Client?.Name,
                     CreatedDate = wp.CreatedDate,
                     Type = PlanType.Workout,

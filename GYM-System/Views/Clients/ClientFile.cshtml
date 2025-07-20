@@ -9,12 +9,11 @@
 <div class="mb-4 d-flex flex-wrap gap-2">
     <a asp-action="Index" class="btn btn-secondary">Back to Clients List</a>
     <a asp-action="Edit" asp-route-id="@Model.Client.Id" class="btn btn-info">Edit Client Details</a>
-    <a asp-action="Details" asp-route-id="@Model.Client.Id" class="btn btn-info">View Client Summary</a>
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0">Client Basic Information</h4>
+    <div class="card-header bg-dark">
+        <h4 class="mb-0 text-white">Client Basic Information</h4>
     </div>
     <div class="card-body">
         <dl class="row mb-0">
@@ -53,8 +52,8 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Subscriptions</h4>
+    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 text-white">Subscriptions</h4>
         <a asp-action="AddSubscription" asp-controller="Clients" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Add New Subscription</a>
     </div>
     <div class="card-body">
@@ -98,8 +97,8 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a asp-action="EditSubscription" asp-controller="Clients" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
-                                    <a asp-action="DeleteSubscription" asp-controller="Clients" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                    <a asp-action="EditSubscription" asp-controller="Clients" asp-route-id="@item.Id" class="btn btn-sm btn-warning mb-1" title="Edit Subsciption"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="DeleteSubscription" asp-controller="Clients" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Subscription"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                         }
@@ -111,8 +110,8 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Initial Assessments</h4>
+    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 text-white">Initial Assessments</h4>
         <a asp-action="Create" asp-controller="ClientAssessments" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Add One Manually</a>
     </div>
     <div class="card-body">
@@ -283,8 +282,8 @@
                                 <td>@Html.DisplayFor(modelItem => item.ReasonForSubscription)</td>
                                 <td>@Html.DisplayFor(modelItem => item.OtherNotes)</td>
                                 <td>
-                                    <a asp-action="Edit" asp-controller="ClientAssessments" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
-                                    <a asp-action="Delete" asp-controller="ClientAssessments" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                    <a asp-action="Edit" asp-controller="ClientAssessments" asp-route-id="@item.Id" class="btn btn-sm btn-warning mb-1" title="Edit Assessment"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-controller="ClientAssessments" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Assessment"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                         }
@@ -296,8 +295,8 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Client Updates</h4>
+    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 text-white">Client Updates</h4>
         <a asp-action="Create" asp-controller="ClientUpdates" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Add One Manually</a>
     </div>
     <div class="card-body">
@@ -400,8 +399,8 @@
                                 <td>@Html.DisplayFor(modelItem => item.AvailableHomeEquipment)</td>
                                 <td>@Html.DisplayFor(modelItem => item.Notes)</td>
                                 <td>
-                                    <a asp-action="Edit" asp-controller="ClientUpdates" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
-                                    <a asp-action="Delete" asp-controller="ClientUpdates" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                    <a asp-action="Edit" asp-controller="ClientUpdates" asp-route-id="@item.Id" class="btn btn-sm btn-warning mb-1" title="Edit Assessment"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-controller="ClientUpdates" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Assessment"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                         }
@@ -413,10 +412,10 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Diet Plans</h4>
+    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 text-white">Diet Plans</h4>
         @* Add button to create new diet plan if you have a DietPlansController *@
-        @* <a asp-action="Create" asp-controller="DietPlans" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Create New Diet Plan</a> *@
+        <a asp-action="Index" asp-controller="DietPlanMaker" class="btn btn-sm btn-success">Create New Diet Plan</a>
     </div>
     <div class="card-body">
         @if (!Model.DietPlans.Any())
@@ -443,10 +442,9 @@
                                 <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
                                 <td>@Html.DisplayFor(modelItem => item.GeneralNotes)</td>
                                 <td>
-                                    @* Add links for Edit/Details/Delete Diet Plan if you have a DietPlansController *@
-                                    @* <a asp-action="Details" asp-controller="DietPlans" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a> |
-                                    <a asp-action="Edit" asp-controller="DietPlans" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
-                                    <a asp-action="Delete" asp-controller="DietPlans" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a> *@
+                                    @* Add links for Edit/Delete Diet Plan if you have a DietPlansController *@
+                                    <a asp-action="Index" asp-controller="DietPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-md-1 me-0 mb-1 mb-md-0" title="Edit Diet Plan"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-controller="DietPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Diet Plan"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                         }
@@ -458,10 +456,10 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Workout Plans</h4>
+    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 text-white">Workout Plans</h4>
         @* Add button to create new workout plan if you have a WorkoutPlansController *@
-        @* <a asp-action="Create" asp-controller="WorkoutPlans" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-success">Create New Workout Plan</a> *@
+        <a asp-action="Index" asp-controller="WorkoutPlanMaker" class="btn btn-sm btn-success">Create New Workout Plan</a>
     </div>
     <div class="card-body">
         @if (!Model.WorkoutPlans.Any())
@@ -488,10 +486,9 @@
                                 <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
                                 <td>@Html.DisplayFor(modelItem => item.GeneralNotes)</td>
                                 <td>
-                                    @* Add links for Edit/Details/Delete Workout Plan if you have a WorkoutPlansController *@
-                                    @* <a asp-action="Details" asp-controller="WorkoutPlans" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a> |
-                                    <a asp-action="Edit" asp-controller="WorkoutPlans" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> |
-                                    <a asp-action="Delete" asp-controller="WorkoutPlans" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a> *@
+                                    @* Add links for Edit/Delete Workout Plan if you have a WorkoutPlansController *@
+                                    <a asp-action="Index" asp-controller="WorkoutPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-md-1 me-0 mb-1 mb-md-0" title="Edit Workout Plan"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-controller="WorkoutPlanMaker" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Workout Plan"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                         }

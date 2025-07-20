@@ -66,6 +66,7 @@ h3 {
     box-shadow: var(--shadow-lg);
     backdrop-filter: blur(10px);
     border-bottom: 2px solid var(--secondary-color);
+    z-index: 3;
 }
 
 .navbar-brand {
@@ -285,9 +286,9 @@ h3 {
     .table thead th {
         background: linear-gradient(135deg, var(--dark-color), #374151);
         color: white;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-weight: 500;
+/*        text-transform: uppercase;*/
+/*        letter-spacing: 0.5px;*/
         padding: 1rem;
         border: none;
         position: sticky;
@@ -302,7 +303,6 @@ h3 {
 
         .table tbody tr:hover {
             background: rgba(30, 58, 138, 0.05);
-            transform: scale(1.01);
         }
 
     .table td {

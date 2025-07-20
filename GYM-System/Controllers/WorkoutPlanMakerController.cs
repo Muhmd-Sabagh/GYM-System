@@ -183,5 +183,57 @@ namespace SuperSheets.Controllers
                 return RedirectToAction(nameof(Index), new { id = id });
             }
         }
+
+        // GET: WorkoutPlanMaker/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var workoutPlan = await _context.WorkoutPlans
+                .Include(wp => wp.Client)
+                .Include(wp => wp.WorkoutDays)
+                    .ThenInclude(wd => wd.WorkoutExercises)
+                        .ThenInclude(we => we.Exercise)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (workoutPlan == null)
+            {
+                return NotFound();
+            }
+
+            // For display on the delete confirmation page
+            var viewModel = new WorkoutPlanViewModel(workoutPlan);
+
+            return View(viewModel);
+        }
+
+        // POST: WorkoutPlanMaker/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var workoutPlan = await _context.WorkoutPlans
+                .Include(wp => wp.WorkoutDays)
+                    .ThenInclude(wd => wd.WorkoutExercises)
+                .FirstOrDefaultAsync(wp => wp.Id == id);
+
+            if (workoutPlan != null)
+            {
+                // Manually remove child entities to avoid issues with cascade delete if not configured
+                _context.WorkoutExercises.RemoveRange(workoutPlan.WorkoutDays.SelectMany(wd => wd.WorkoutExercises));
+                _context.WorkoutDays.RemoveRange(workoutPlan.WorkoutDays);
+                _context.WorkoutPlans.Remove(workoutPlan);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Workout Plan deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Workout Plan not found for deletion.";
+            }
+            return RedirectToAction("Index", "SavedPlans"); // Redirect to Saved Plans list
+        }
     }
 }

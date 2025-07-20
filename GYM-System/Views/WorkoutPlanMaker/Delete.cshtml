@@ -1,0 +1,108 @@
+﻿@model GYM_System.ViewModels.WorkoutPlanViewModel
+
+@{
+    ViewData["Title"] = "Delete Workout Plan";
+}
+
+<h1 class="mb-4">Delete Workout Plan</h1>
+
+<h3>Are you sure you want to delete this Workout Plan for @(Model.Client?.Name ?? "N/A") (Plan Name: @Model.PlanName)?</h3>
+<div class="alert alert-danger mt-3" role="alert">
+    <strong>Warning:</strong> Deleting this Workout Plan is irreversible and will remove all its days and exercises.
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-dark">
+        <h5 class="mb-0 text-white">Workout Plan Details</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Plan Name:</dt>
+            <dd class="col-sm-8">@Model.PlanName</dd> @* Direct access *@
+
+            <dt class="col-sm-4">Client Name:</dt>
+            <dd class="col-sm-8">@(Model.Client?.Name ?? "N/A")</dd> @* Direct access, handle null client *@
+
+            <dt class="col-sm-4">Created Date:</dt>
+            <dd class="col-sm-8">@Model.CreatedDate.ToShortDateString()</dd> @* Direct access, format date *@
+
+            <dt class="col-sm-4">General Notes:</dt>
+            <dd class="col-sm-8">@Model.GeneralNotes</dd> @* Direct access *@
+        </dl>
+
+        <hr class="my-3" />
+        <h5 class="mb-3">Workout Days:</h5>
+        @if (!Model.WorkoutDays.Any())
+        {
+            <p>No workout days found for this plan.</p>
+        }
+        else
+        {
+            @foreach (var day in Model.WorkoutDays)
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6>Day: @day.DayName (@day.Subtitle)</h6> @* Direct access *@
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">Day Notes:</dt>
+                            <dd class="col-sm-8">@day.DayNotes</dd> @* Direct access *@
+                        </dl>
+
+                        <h6 class="mt-3">Exercises:</h6>
+                        @if (!day.WorkoutExercises.Any())
+                        {
+                            <p>No exercises found for this day.</p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Exercise Name</th>
+                                            <th>Sets</th>
+                                            <th>Reps</th>
+                                            <th>Rest</th>
+                                            <th>Tempo</th>
+                                            <th>RPE/RIR</th>
+                                            <th>Notes</th>
+                                            <th>Video</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var exercise in day.WorkoutExercises)
+                                        {
+                                            <tr>
+                                                <td>@(exercise.Exercise?.Name ?? "N/A")</td> @* Direct access, handle null Exercise *@
+                                                <td>@exercise.Sets</td> @* Direct access *@
+                                                <td>@exercise.Reps</td> @* Direct access *@
+                                                <td>@exercise.Rest</td> @* Direct access *@
+                                                <td>@exercise.Tempo</td> @* Direct access *@
+                                                <td>@exercise.RpeRir</td> @* Direct access *@
+                                                <td>@exercise.ExerciseNotes</td> @* Direct access *@
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(exercise.Exercise?.YouTubeLink))
+                                                    {
+                                                        <a href="@exercise.Exercise.YouTubeLink" target="_blank">Watch</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<form asp-action="Delete" class="mt-4">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete Workout Plan" class="btn btn-danger me-2" />
+    <a asp-action="Index" asp-controller="SavedPlans" class="btn btn-secondary">Cancel</a>
+</form>
