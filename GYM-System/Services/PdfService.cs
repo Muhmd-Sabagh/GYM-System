@@ -31,21 +31,26 @@ namespace GYM_System.Services
                 Directory.CreateDirectory(_savedPlansPath);
             }
 
-            // Path to your actual gym logo (relative to wwwroot)
+            // Paths for images (assuming they are in wwwroot/images)
             _logoPath = Path.Combine(_hostEnvironment.WebRootPath, "images/logo", "logo.jpg");
-            // Path to the new local placeholder logo (relative to wwwroot)
             _placeholderLogoPath = Path.Combine(_hostEnvironment.WebRootPath, "images/logo", "placeholder_logo.png");
 
-            // Register Inter font if not already registered (QuestPDF default might be too generic)
-            // This assumes Inter.ttf is available in your project or system fonts
-            // For simplicity, QuestPDF uses a default font if not specified, or you can register one.
-            // If you have a specific .ttf file: FontManager.RegisterFont(File.OpenRead("path/to/Inter.ttf"));
-            // Or if it's a system font: FontManager.RegisterSystemFont("Inter");
-            // For now, we'll rely on QuestPDF's defaults or system fonts.
+            // Register Inter font for better Arabic rendering if available
+            // You might need to place Inter.ttf in a 'fonts' folder within wwwroot
+            // Or ensure it's a system font on the server.
+            // For example: FontManager.RegisterFont(File.OpenRead(Path.Combine(_hostEnvironment.WebRootPath, "fonts", "Inter-Regular.ttf")));
+            // For now, relying on QuestPDF's default font or system fonts if not explicitly registered.
         }
 
         public byte[] GenerateDietPlanPdf(DietPlanViewModel dietPlan)
         {
+            // Calculate overall totals for the entire diet plan
+            var allMeals = dietPlan.Versions?.Where(v => v.IsActiveForPdf).SelectMany(v => v.Meals).ToList() ?? new List<MealViewModel>();
+            var totalPlanCalories = allMeals.Sum(m => m.TotalCalories);
+            var totalPlanProtein = allMeals.Sum(m => m.TotalProtein);
+            var totalPlanCarbs = allMeals.Sum(m => m.TotalCarbs);
+            var totalPlanFat = allMeals.Sum(m => m.TotalFat);
+
             return Document.Create(container =>
             {
                 container.Page(page =>
@@ -53,60 +58,50 @@ namespace GYM_System.Services
                     page.Size(PageSizes.A4);
                     page.Margin(30);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter"));
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter")); // Using Inter as requested
 
                     page.Header()
-                        .PaddingBottom(15)
+                        .PaddingBottom(7)
                         .Column(column =>
                         {
                             column.Item().Row(row =>
                             {
-                                row.ConstantItem(100).Element(container =>
-                                {
-                                    container.Image(File.Exists(_logoPath) ? _logoPath : _placeholderLogoPath)
-                                        .FitWidth();
-                                });
+                                // Left side: Logo
+                                row.RelativeItem(1)
+                                    .Column(clientInfoColumn =>
+                                    {
+                                        clientInfoColumn.Item().AlignLeft().Element(container =>
+                                        {
+                                            container.Width(80).Height(80).Image(File.Exists(_logoPath) ? _logoPath : _placeholderLogoPath)
+                                                .FitWidth();
+                                        });
+                                    });
 
-                                row.RelativeItem()
-                                    .AlignRight()
-                                    .Text("Super Gym Management")
-                                    .FontSize(16)
-                                    .Bold()
-                                    .FontColor(Colors.Blue.Darken2);
+                                // Right side: Client Name - Diet Plan
+                                row.RelativeItem(4)
+                                    .AlignCenter()
+                                    .Column(clientInfoColumn =>
+                                    {
+                                        clientInfoColumn.Item().Text($"{dietPlan.Client?.Name ?? "Client"} - Diet Plan")
+                                            .FontSize(16).Bold().FontColor(Colors.Blue.Darken2);
+                                    });
                             });
 
-                            column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            column.Item().PaddingTop(5).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                         });
 
                     page.Content()
-                        .PaddingVertical(10)
+                        .PaddingVertical(5)
                         .Column(column =>
                         {
-                            column.Item().Text(text =>
-                            {
-                                text.Span("Diet Plan: ").SemiBold().FontSize(14);
-                                text.Span(dietPlan.PlanName).FontSize(14);
-                            });
-
-                            if (dietPlan.Client != null)
-                            {
-                                column.Item().Text(text =>
-                                {
-                                    text.Span("Client: ").SemiBold();
-                                    text.Span(dietPlan.Client.Name);
-                                });
-                            }
-
                             if (!string.IsNullOrEmpty(dietPlan.GeneralNotes))
                             {
-                                column.Item().PaddingTop(5).Text(text =>
+                                column.Item().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(7).AlignRight().Text(text =>
                                 {
-                                    text.Span("General Notes: ").SemiBold();
-                                    text.Span(dietPlan.GeneralNotes);
+                                    text.Span("ملاحظات عامة: ").SemiBold().DirectionFromRightToLeft();
+                                    text.Span(dietPlan.GeneralNotes).DirectionFromRightToLeft();
                                 });
                             }
-
-                            column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
 
                             var activeVersions = dietPlan.Versions.Where(v => v.IsActiveForPdf).ToList();
                             DietPlanVersionViewModel version;
@@ -116,90 +111,119 @@ namespace GYM_System.Services
                             {
                                 version = activeVersions[i];
 
-                                if (i > 0)
+                                if (activeVersions.Count > 1)
                                 {
-                                    column.Item().PaddingTop(15).PageBreak(); // Start new version on a new page
+                                    if (i > 0)
+                                    {
+                                        column.Item().PageBreak(); // Start new version on a new page
+                                    }
+
+                                    column.Item().AlignRight().PaddingTop(10).Text(text =>
+                                    {
+                                        text.Span("النسخة: ").SemiBold().FontSize(12).DirectionFromRightToLeft();
+                                        text.Span(version.VersionName).FontSize(12).FontColor(Colors.Blue.Medium).DirectionFromRightToLeft();
+                                    });
+
+                                    if (!string.IsNullOrEmpty(version.VersionNotes))
+                                    {
+                                        column.Item().PaddingTop(3).AlignRight().Text(text =>
+                                        {
+                                            text.Span("ملاحظات النسخة: ").SemiBold().DirectionFromRightToLeft();
+                                            text.Span(version.VersionNotes).DirectionFromRightToLeft();
+                                        });
+                                    }
                                 }
 
-                                column.Item().Text(text =>
+                                // Calculate totals for the current version
+                                var totalVersionCalories = version.Meals.Sum(m => m.TotalCalories);
+                                var totalVersionProtein = version.Meals.Sum(m => m.TotalProtein);
+                                var totalVersionCarbs = version.Meals.Sum(m => m.TotalCarbs);
+                                var totalVersionFat = version.Meals.Sum(m => m.TotalFat);
+
+                                // Version Totals Table
+                                column.Item().PaddingTop(10).Border(1).BorderColor(Colors.Black.Blue).Padding(5).Table(table =>
                                 {
-                                    text.Span("Version: ").SemiBold().FontSize(12);
-                                    text.Span(version.VersionName).FontSize(12).FontColor(Colors.Blue.Medium);
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(); // Calories
+                                        columns.RelativeColumn(); // Protein
+                                        columns.RelativeColumn(); // Carbs
+                                        columns.RelativeColumn(); // Fat
+                                    });
+
+                                    table.Header(header =>
+                                    {
+                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("السعرات").SemiBold().AlignCenter().FontColor(Colors.Blue.Darken1);
+                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("بروتين").SemiBold().AlignCenter().FontColor(Colors.Red.Darken1);
+                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("كاربوهيدرات").SemiBold().AlignCenter().FontColor(Colors.Brown.Darken1);
+                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("دهون").SemiBold().AlignCenter().FontColor(Colors.Green.Darken1);
+                                    });
+
+                                    table.Cell().PaddingVertical(2).Text(totalVersionCalories.ToString("F1")).AlignCenter().FontColor(Colors.Blue.Darken1);
+                                    table.Cell().PaddingVertical(2).Text(totalVersionProtein.ToString("F1")).AlignCenter().FontColor(Colors.Red.Darken1);
+                                    table.Cell().PaddingVertical(2).Text(totalVersionCarbs.ToString("F1")).AlignCenter().FontColor(Colors.Brown.Darken1);
+                                    table.Cell().PaddingVertical(2).Text(totalVersionFat.ToString("F1")).AlignCenter().FontColor(Colors.Green.Darken1);
                                 });
 
-                                if (!string.IsNullOrEmpty(version.VersionNotes))
-                                {
-                                    column.Item().PaddingTop(3).Text(text =>
-                                    {
-                                        text.Span("Notes: ").SemiBold();
-                                        text.Span(version.VersionNotes);
-                                    });
-                                }
 
                                 column.Item().PaddingTop(10).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten1);
 
                                 // Render each meal in the version
                                 foreach (var meal in version.Meals)
                                 {
-                                    column.Item().PaddingVertical(10).Column(mealColumn =>
+                                    column.Item().PaddingVertical(7).Column(mealColumn =>
                                     {
-                                        mealColumn.Item().Text(text =>
+                                        // Meal Header Bar
+                                        mealColumn.Item().Background(Colors.Blue.Medium).Padding(8).Row(mealHeaderRow =>
                                         {
-                                            text.Span("Meal: ").SemiBold().FontSize(11);
-                                            text.Span(meal.MealName).FontSize(11).FontColor(Colors.Green.Darken1);
+                                            mealHeaderRow.RelativeItem().AlignLeft().Text($"السعرات: {meal.TotalCalories:F1}").SemiBold().FontSize(11).FontColor(Colors.White);
+                                            mealHeaderRow.RelativeItem().AlignRight().Text($"{meal.MealName}").SemiBold().FontSize(11).FontColor(Colors.White);
                                         });
 
-                                        if (!string.IsNullOrEmpty(meal.MealNotes))
+                                        mealColumn.Item().PaddingTop(5).Row(mealContentRow =>
                                         {
-                                            mealColumn.Item().PaddingTop(2).Text(text =>
-                                            {
-                                                text.Span("Notes: ").SemiBold().FontSize(9);
-                                                text.Span(meal.MealNotes).FontSize(9);
-                                            });
-                                        }
+                                            // Left Column: Meal Notes and Image Placeholder
+                                            mealContentRow.RelativeItem(1)
+                                                .Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                                .Column(leftCol =>
+                                                {
+                                                    leftCol.Item().AlignCenter().Text("ملاحظات").SemiBold().FontSize(10).LineHeight(2);
+                                                    leftCol.Item().AlignCenter().Text(meal.MealNotes ?? "لا توجد ملاحظات").FontSize(9);
+                                                });
 
-                                        // Meal Food Items Table
-                                        mealColumn.Item().PaddingTop(5).Table(table =>
-                                        {
-                                            table.ColumnsDefinition(columns =>
-                                            {
-                                                columns.RelativeColumn(2); // Food Item Name
-                                                columns.RelativeColumn(1); // Unit
-                                                columns.RelativeColumn(1); // Quantity
-                                                columns.RelativeColumn(1); // Calories
-                                                columns.RelativeColumn(1); // Protein
-                                                columns.RelativeColumn(1); // Carbs
-                                                columns.RelativeColumn(1); // Fat
-                                            });
+                                            // Right Column: Meal Food Items Table
+                                            mealContentRow.RelativeItem(2)
+                                                .PaddingLeft(10) // Space between columns
+                                                .Table(table =>
+                                                {
+                                                    table.ColumnsDefinition(columns =>
+                                                    {
+                                                        columns.RelativeColumn(1); // Unit
+                                                        columns.RelativeColumn(1); // Quantity
+                                                        columns.RelativeColumn(3); // Food Item Name
+                                                        columns.ConstantColumn(60); // Food Image
+                                                    });
 
-                                            table.Header(header =>
-                                            {
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Food Item").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Unit").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Qty").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Cal").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Prot").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Carb").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Fat").SemiBold();
-                                            });
+                                                    table.Header(header =>
+                                                    {
+                                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("الوحدة").SemiBold().AlignRight();
+                                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("الكمية").SemiBold().AlignRight();
+                                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("النوع").SemiBold().AlignRight();
+                                                        header.Cell().BorderBottom(1).PaddingBottom(5).Text("صورة").SemiBold().AlignRight();
+                                                    });
 
-                                            foreach (var mfi in meal.MealFoodItems)
-                                            {
-                                                table.Cell().PaddingVertical(2).Text($"{mfi.FoodItem?.Name}");
-                                                table.Cell().PaddingVertical(2).Text(mfi.FoodItem?.Unit.ToString());
-                                                table.Cell().PaddingVertical(2).Text(mfi.Quantity.ToString("F1"));
-                                                table.Cell().PaddingVertical(2).Text(mfi.Calories.ToString("F1"));
-                                                table.Cell().PaddingVertical(2).Text(mfi.Protein.ToString("F1"));
-                                                table.Cell().PaddingVertical(2).Text(mfi.Carbs.ToString("F1"));
-                                                table.Cell().PaddingVertical(2).Text(mfi.Fat.ToString("F1"));
-                                            }
-
-                                            // Meal Totals Row
-                                            table.Cell().ColumnSpan(3).AlignCenter().PaddingVertical(3).Text("Meal Totals:").SemiBold();
-                                            table.Cell().PaddingVertical(3).Text(meal.TotalCalories.ToString("F1")).SemiBold();
-                                            table.Cell().PaddingVertical(3).Text(meal.TotalProtein.ToString("F1")).SemiBold();
-                                            table.Cell().PaddingVertical(3).Text(meal.TotalCarbs.ToString("F1")).SemiBold();
-                                            table.Cell().PaddingVertical(3).Text(meal.TotalFat.ToString("F1")).SemiBold();
+                                                    foreach (var mfi in meal.MealFoodItems)
+                                                    {
+                                                        table.Cell().PaddingVertical(2).Text(mfi.FoodItem?.Unit.ToString()).AlignRight();
+                                                        table.Cell().PaddingVertical(2).Text(mfi.Quantity.ToString("F1")).AlignRight();
+                                                        table.Cell().PaddingVertical(2).Text($"{mfi.FoodItem?.Name}").AlignRight();
+                                                        table.Cell().PaddingVertical(2).AlignRight().Element(imgContainer =>
+                                                        {
+                                                            var imagePath = Path.Combine(_hostEnvironment.WebRootPath, mfi.FoodItem.ImagePath.Substring(1));
+                                                            imgContainer.Width(20).Height(20).Image(imagePath).FitWidth();
+                                                        });
+                                                    }
+                                                });
                                         });
                                     });
                                 }
@@ -210,9 +234,9 @@ namespace GYM_System.Services
                         .AlignCenter()
                         .Text(x =>
                         {
-                            x.Span("Page ");
+                            x.Span("صفحة ");
                             x.CurrentPageNumber();
-                            x.Span(" of ");
+                            x.Span(" من ");
                             x.TotalPages();
                         });
                 });
@@ -228,7 +252,7 @@ namespace GYM_System.Services
                     page.Size(PageSizes.A4);
                     page.Margin(30);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter"));
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter")); // Using Inter as requested
 
                     page.Header()
                         .PaddingBottom(15)
@@ -244,7 +268,7 @@ namespace GYM_System.Services
 
                                 row.RelativeItem()
                                     .AlignRight()
-                                    .Text("Super Gym Management")
+                                    .Text("إدارة سوبر جيم") // Super Gym Management
                                     .FontSize(16)
                                     .Bold()
                                     .FontColor(Colors.Blue.Darken2);
@@ -259,7 +283,7 @@ namespace GYM_System.Services
                         {
                             column.Item().Text(text =>
                             {
-                                text.Span("Workout Plan: ").SemiBold().FontSize(14);
+                                text.Span("خطة التمرين: ").SemiBold().FontSize(14);
                                 text.Span(workoutPlan.PlanName).FontSize(14);
                             });
 
@@ -267,7 +291,7 @@ namespace GYM_System.Services
                             {
                                 column.Item().Text(text =>
                                 {
-                                    text.Span("Client: ").SemiBold();
+                                    text.Span("العميل: ").SemiBold();
                                     text.Span(workoutPlan.Client.Name);
                                 });
                             }
@@ -276,7 +300,7 @@ namespace GYM_System.Services
                             {
                                 column.Item().PaddingTop(5).Text(text =>
                                 {
-                                    text.Span("General Notes: ").SemiBold();
+                                    text.Span("ملاحظات عامة: ").SemiBold();
                                     text.Span(workoutPlan.GeneralNotes);
                                 });
                             }
@@ -291,13 +315,14 @@ namespace GYM_System.Services
                                     column.Item().PaddingTop(15).PageBreak(); // Start new day on a new page
                                 }
 
-                                column.Item().Text(text =>
+                                // Workout Day Header Bar
+                                column.Item().Background(Colors.Blue.Lighten4).Padding(8).Row(dayHeaderRow =>
                                 {
-                                    text.Span("Day: ").SemiBold().FontSize(12);
-                                    text.Span(day.DayName).FontSize(12).FontColor(Colors.Blue.Medium);
+                                    dayHeaderRow.RelativeItem().AlignLeft().Text($"إجمالي التمارين: {day.WorkoutExercises.Count()}").SemiBold().FontSize(11).FontColor(Colors.White);
+                                    dayHeaderRow.RelativeItem().AlignRight().Text($"اليوم: {day.DayName}").SemiBold().FontSize(11).FontColor(Colors.White);
                                     if (!string.IsNullOrEmpty(day.Subtitle))
                                     {
-                                        text.Span($" ({day.Subtitle})").FontSize(11).Italic();
+                                        dayHeaderRow.RelativeItem().AlignRight().Text($" ({day.Subtitle})").FontSize(10).Italic().FontColor(Colors.White);
                                     }
                                 });
 
@@ -305,7 +330,7 @@ namespace GYM_System.Services
                                 {
                                     column.Item().PaddingTop(3).Text(text =>
                                     {
-                                        text.Span("Notes: ").SemiBold();
+                                        text.Span("ملاحظات اليوم: ").SemiBold();
                                         text.Span(day.DayNotes);
                                     });
                                 }
@@ -317,17 +342,31 @@ namespace GYM_System.Services
                                 {
                                     column.Item().PaddingVertical(8).Column(exerciseColumn =>
                                     {
-                                        exerciseColumn.Item().Text(text =>
+                                        exerciseColumn.Item().Row(exerciseRow =>
                                         {
-                                            text.Span("Exercise: ").SemiBold().FontSize(11);
-                                            text.Span(workoutExercise.Exercise?.Name ?? "N/A").FontSize(11).FontColor(Colors.Green.Darken1);
+                                            // Exercise Image
+                                            exerciseRow.ConstantItem(60).Element(imgContainer =>
+                                            {
+                                                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, workoutExercise.Exercise.ImagePath.Substring(1));
+                                                imgContainer.Width(50).Height(50).Image(imagePath).FitWidth();
+                                            });
+
+                                            // Exercise Name and Video Link
+                                            exerciseRow.RelativeItem().Column(nameVideoCol =>
+                                            {
+                                                nameVideoCol.Item().Text(text =>
+                                                {
+                                                    text.Span("التمرين: ").SemiBold().FontSize(11);
+                                                    text.Span(workoutExercise.Exercise?.Name ?? "غير متاح").FontSize(11).FontColor(Colors.Green.Darken1);
+                                                });
+
+                                                if (!string.IsNullOrEmpty(workoutExercise.Exercise?.YouTubeLink))
+                                                {
+                                                    nameVideoCol.Item().PaddingTop(2).Hyperlink(workoutExercise.Exercise.YouTubeLink).Text("مشاهدة الفيديو").FontSize(9).FontColor(Colors.Blue.Darken1).Underline();
+                                                }
+                                            });
                                         });
 
-                                        if (!string.IsNullOrEmpty(workoutExercise.Exercise?.YouTubeLink))
-                                        {
-                                            // Create a clickable link for YouTube
-                                            exerciseColumn.Item().PaddingTop(2).Hyperlink(workoutExercise.Exercise.YouTubeLink).Text("Watch Video").FontSize(9).FontColor(Colors.Blue.Darken1).Underline();
-                                        }
 
                                         // Exercise Details Table (Sets, Reps, Rest, Tempo, RPE/RIR)
                                         exerciseColumn.Item().PaddingTop(5).Table(table =>
@@ -343,25 +382,25 @@ namespace GYM_System.Services
 
                                             table.Header(header =>
                                             {
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Sets").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Reps").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Rest").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("Tempo").SemiBold();
-                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("RPE/RIR").SemiBold();
+                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("المجموعات").SemiBold().AlignRight();
+                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("التكرارات").SemiBold().AlignRight();
+                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("الراحة").SemiBold().AlignRight();
+                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("الإيقاع").SemiBold().AlignRight();
+                                                header.Cell().BorderBottom(1).PaddingBottom(5).Text("RPE/RIR").SemiBold().AlignRight();
                                             });
 
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Sets ?? "-");
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Reps ?? "-");
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Rest ?? "-");
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Tempo ?? "-");
-                                            table.Cell().PaddingVertical(2).Text(workoutExercise.RpeRir ?? "-");
+                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Sets ?? "-").AlignRight();
+                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Reps ?? "-").AlignRight();
+                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Rest ?? "-").AlignRight();
+                                            table.Cell().PaddingVertical(2).Text(workoutExercise.Tempo ?? "-").AlignRight();
+                                            table.Cell().PaddingVertical(2).Text(workoutExercise.RpeRir ?? "-").AlignRight();
                                         });
 
                                         if (!string.IsNullOrEmpty(workoutExercise.ExerciseNotes))
                                         {
                                             exerciseColumn.Item().PaddingTop(5).Text(text =>
                                             {
-                                                text.Span("Notes: ").SemiBold().FontSize(9);
+                                                text.Span("ملاحظات: ").SemiBold().FontSize(9);
                                                 text.Span(workoutExercise.ExerciseNotes).FontSize(9);
                                             });
                                         }
@@ -374,9 +413,9 @@ namespace GYM_System.Services
                         .AlignCenter()
                         .Text(x =>
                         {
-                            x.Span("Page ");
+                            x.Span("صفحة ");
                             x.CurrentPageNumber();
-                            x.Span(" of ");
+                            x.Span(" من ");
                             x.TotalPages();
                         });
                 });
