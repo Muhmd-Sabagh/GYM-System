@@ -111,7 +111,7 @@
                     <td>
                         @if (item.ClientName != null)
                         {
-                            <a asp-controller="Clients" asp-action="ClientFile" asp-route-clientId="@item.ClientId">@Html.DisplayFor(modelItem => item.ClientName)</a>
+                            <a asp-controller="Clients" asp-action="ClientFile" asp-route-Id="@item.ClientId">@Html.DisplayFor(modelItem => item.ClientName)</a>
                         }
                         else
                         {

@@ -1,6 +1,9 @@
+using GYM_System.Controllers;
 using GYM_System.Data;
 using GYM_System.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,19 @@ builder.Services.AddSingleton<GoogleSheetsService>();
 // Add PdfService to the DI container as a Scoped service
 builder.Services.AddScoped<PdfService>(); // Changed from Singleton to Scoped for better practice, though Singleton would also work here.
 
+// Configure Kestrel to listen on port 5129 and any IP address
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Listen(IPAddress.Any, 5129);
+});
+
+// Automatically open the browser to the application URL when it starts
+//System.Diagnostics.Process.Start(new ProcessStartInfo
+//{
+//    FileName = $"http://{HomeController.GetLocalIpAddress()}:5129",
+//    UseShellExecute = true
+//});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,9 +43,9 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

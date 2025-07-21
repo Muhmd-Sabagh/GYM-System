@@ -86,8 +86,19 @@
 
 
     <footer class="border-top footer text-muted bg-light mt-5 py-3">
-        <div class="container">
-            &copy; @DateTime.Now.Year - C. Yousef Shaarawy
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                &copy; @DateTime.Now.Year - C. Yousef Shaarawy
+            </div>
+            <div class="text-end">
+                <img src="/Home/QR" alt="QR Code" width="100" height="100" />
+                <br />
+                <small class="text-muted">
+                    <a href="@($"http://{Context.Connection.LocalIpAddress}:5129")" target="_blank">
+                        @($"http://{Context.Connection.LocalIpAddress}:5129")
+                    </a>
+                </small>
+            </div>
         </div>
     </footer>
 
