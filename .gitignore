@@ -365,3 +365,6 @@ FodyWeavers.xsd
 
 # Saved Plans
 SavedPlans/
+
+# Client Secret file
+client_secret.json

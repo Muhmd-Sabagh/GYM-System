@@ -26,6 +26,7 @@ namespace GYM_System.Data
         public DbSet<Package> Packages { get; set; } = default!;
         public DbSet<Currency> Currencies { get; set; } = default!;
         public DbSet<PaymentAccount> PaymentAccounts { get; set; } = default!;
+        public DbSet<SpreadSheet> SpreadSheets { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

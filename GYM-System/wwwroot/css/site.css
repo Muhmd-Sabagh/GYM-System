@@ -281,6 +281,18 @@ h3 {
         transform: translateY(-2px);
     }
 
+.btn-outline-secondary {
+    border: 2px solid var(--text-secondary);
+    color: var(--text-secondary);
+    background: transparent;
+}
+
+    .btn-outline-secondary:hover {
+        background: var(--text-secondary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
 /* Table Enhancements */
 .table {
     background: rgba(255, 255, 255, 0.95);

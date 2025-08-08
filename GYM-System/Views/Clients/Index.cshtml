@@ -6,17 +6,17 @@
 
 <h1 class="mb-4">Clients</h1>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3 gap-2">
     <div>
         <a asp-action="Create" class="btn btn-primary">Add New Client</a>
     </div>
-    <div>
-        <button type="button" class="btn btn-primary me-2 copy-link" 
+    <div class="d-flex flex-column flex-md-row gap-2 align-self-end">
+        <button type="button" class="btn btn-primary copy-link"
                 data-url="https://forms.gle/vSMHQqUY314AxRtb6"
                 onclick="copyToClipboard(this)">
             Initial Assessment Form
         </button>
-        <button type="button" class="btn btn-primary copy-link" 
+        <button type="button" class="btn btn-primary copy-link"
                 data-url="https://forms.gle/AMpcp9GvmbdgKNQ48"
                 onclick="copyToClipboard(this)">
             Updates Assessment Form
@@ -27,31 +27,48 @@
 <!-- Sync Google Forms Section -->
 <div class="card mb-4">
     <div class="card-header bg-dark">
-         <h5 class="mb-0 text-white">Sync Google Forms</h5>
+        <h5 class="mb-0 text-white">Sync Google Forms</h5>
     </div>
     <div class="card-body">
-        <form asp-action="SyncGoogleForms" method="post">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="spreadsheetId" class="form-label">Google Sheet ID:</label>
-                    <input type="text" id="spreadsheetId" name="spreadsheetId" class="form-control" value="YOUR_GOOGLE_SHEET_ID_HERE" required />
-                    <div class="form-text">Find this in your Google Sheet URL (e.g., https://docs.google.com/spreadsheets/d/<b>YOUR_ID_HERE</b>/edit)</div>
+        <form asp-action="SaveSpreadSheetSettings" method="post" id="settingForm">
+            <div id="inputSection" style="display:none;">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="spreadsheetId" class="form-label">Google Sheet ID:</label>
+                        <input type="text" id="spreadsheetId" name="spreadsheetId" class="form-control" value="@ViewBag.SheetId" required />
+                        <div class="form-text">Find this in your Google Sheet URL (e.g., https://docs.google.com/spreadsheets/d/<b>YOUR_ID_HERE</b>/edit)</div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="initialAssessmentSheetRange" class="form-label">Initial Assessment Sheet Name & Range:</label>
-                    <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="Initial Assessment Responses!A:BO" required />
-                    <div class="form-text">e.g., 'Initial Assessment Responses!A:BO' (Adjust columns as per your form response sheet)</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="initialAssessmentSheetRange" class="form-label">Initial Assessment Sheet Name & Range:</label>
+                        <input type="text" id="initialAssessmentSheetRange" name="initialAssessmentSheetRange" class="form-control" value="@ViewBag.InitialAssessmentSheetNameAndRange" required />
+                        <div class="form-text">e.g., 'SheetName!A:Z' (Adjust columns as per your form response sheet)</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="updateFormSheetRange" class="form-label">Update Form Sheet Name & Range:</label>
+                        <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="@ViewBag.UpdateFormSheetNameAndRange" required />
+                        <div class="form-text">e.g., 'SheetName!A:Z' (Adjust columns as per your update form response sheet)</div>
+                    </div>
+                </div>
+                <div class="row mb-3 mx-1 gap-2">
+                    <button type="submit" class="btn btn-primary col-sm-4 col-md-2">Save</button>
+                    <button type="button" class="btn btn-outline-secondary col-sm-4 col-md-2" id="cancelBtn">Cancel</button>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="updateFormSheetRange" class="form-label">Update Form Sheet Name & Range:</label>
-                    <input type="text" id="updateFormSheetRange" name="updateFormSheetRange" class="form-control" value="Progress Update Responses!A:AH" required />
-                    <div class="form-text">e.g., 'Progress Update Responses!A:AH' (Adjust columns as per your update form response sheet)</div>
+
+            <div class="flex-column align-items-start" id="readonlySection">
+                <div class="mb-3">
+                    <p><strong>Google Sheet ID:</strong> @ViewBag.SheetId</p>
                 </div>
-                <div class="col-md-6 d-flex align-items-end">
-                    <button type="submit" class="btn btn-success w-100">Sync Google Forms</button>
+                <div class="mb-3">
+                    <button type="button" id="editBtn" class="btn btn-secondary">Edit Sheet Info</button>
                 </div>
+            </div>
+        </form>
+        <form asp-action="SyncGoogleForms" method="post" id="syncForm">
+            <div class="col-md-5">
+                <button type="submit" class="btn btn-success w-100">Sync Google Forms</button>
             </div>
         </form>
     </div>
@@ -118,5 +135,15 @@
                 console.error('Failed to copy:', err);
             });
         }
+
+        document.getElementById("editBtn").addEventListener("click", function () {
+            document.getElementById("readonlySection").style.display = "none";
+            document.getElementById("inputSection").style.display = "block";
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            document.getElementById("readonlySection").style.display = "block";
+            document.getElementById("inputSection").style.display = "none";
+        });
     </script>
 }

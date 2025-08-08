@@ -13,11 +13,13 @@ namespace GYM_System.Controllers
     {
         readonly GymDbContext _context;
         readonly GoogleSheetsService _googleSheetsService;
+        SpreadSheet? spreadSheetSettings;
 
         public ClientsController(GymDbContext context, GoogleSheetsService googleSheetsService)
         {
             _context = context;
             _googleSheetsService = googleSheetsService;
+            spreadSheetSettings = _context.SpreadSheets.FirstOrDefault();
         }
 
         // Helper to update client status based on subscriptions
@@ -62,6 +64,11 @@ namespace GYM_System.Controllers
                                         .Include(c => c.Subscriptions)
                                         .OrderByDescending(c => c.JoinDate)
                                         .ToListAsync();
+
+            ViewBag.SheetId = spreadSheetSettings?.SheetId ?? "N/A";
+            ViewBag.InitialAssessmentSheetNameAndRange = spreadSheetSettings?.InitialAssessmentSheetNameAndRange ?? "N/A";
+            ViewBag.UpdateFormSheetNameAndRange = spreadSheetSettings?.UpdateFormSheetNameAndRange ?? "N/A";
+
             return View(clients);
         }
 
@@ -382,8 +389,11 @@ namespace GYM_System.Controllers
 
         // POST: Clients/SyncGoogleForms
         [HttpPost]
-        public async Task<IActionResult> SyncGoogleForms(string spreadsheetId, string initialAssessmentSheetRange, string updateFormSheetRange)
+        public async Task<IActionResult> SyncGoogleForms()
         {
+            string spreadsheetId = spreadSheetSettings?.SheetId ?? "N/A";
+            string initialAssessmentSheetRange = spreadSheetSettings?.InitialAssessmentSheetNameAndRange ?? "N/A";
+            string updateFormSheetRange = spreadSheetSettings?.UpdateFormSheetNameAndRange ?? "N/A";
             int assessmentsImported = 0;
             int updatesImported = 0;
             int skippedInvalidFormCode = 0;
@@ -400,10 +410,10 @@ namespace GYM_System.Controllers
                         try
                         {
                             // Expected columns for initial assessment: 67 (0 to 66)  (41 not nullable)
-                            if (row.Count < 41) // Adjusted count
+                            if (row.Count < 30) // Adjusted count
                             {
                                 skippedInvalidFormCode++; // Or a more specific error for incomplete data
-                                Console.WriteLine($"Skipped initial assessment row due to insufficient columns: Expected 41 at least, got {row.Count}. Row: {string.Join(",", row)}");
+                                Console.WriteLine($"Skipped initial assessment row due to insufficient columns: Expected 30 at least, got {row.Count}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -469,7 +479,7 @@ namespace GYM_System.Controllers
                                 MedicationsSupplementsDetails = row.ElementAtOrDefault(23)?.ToString(),
                                 HasMedicationAllergies = ParseBool(row.ElementAtOrDefault(24)),
                                 MedicationAllergiesDetails = row.ElementAtOrDefault(25)?.ToString(),
-                                HasChronicHereditaryDiseases = ParseBool(row.ElementAtOrDefault(26)), // Assuming this maps to Q26 in markdown (duplicate was Q24)
+                                HasChronicHereditaryDiseases = ParseBool(row.ElementAtOrDefault(26)),
                                 ChronicHereditaryDiseasesDetails = row.ElementAtOrDefault(27)?.ToString(),
                                 HasPastSurgeries = ParseBool(row.ElementAtOrDefault(28)),
                                 PastSurgeriesDetails = row.ElementAtOrDefault(29)?.ToString(),
@@ -506,7 +516,7 @@ namespace GYM_System.Controllers
                                 WorkoutLocation = row.ElementAtOrDefault(56)?.ToString() ?? string.Empty,
                                 AvailableHomeEquipment = row.ElementAtOrDefault(57)?.ToString(),
                                 AvailableWorkoutDaysCount = ParseInt(row.ElementAtOrDefault(58)) ?? 0,
-                                AvailableWorkoutDays = row.ElementAtOrDefault(59)?.ToString() ?? string.Empty, // multiple choices
+                                AvailableWorkoutDays = row.ElementAtOrDefault(59)?.ToString() ?? string.Empty,
                                 HasExerciseDiscomfort = ParseBool(row.ElementAtOrDefault(60)),
                                 DiscomfortExercisesDetails = row.ElementAtOrDefault(61)?.ToString(),
                                 PreferredCardioType = row.ElementAtOrDefault(62)?.ToString() ?? string.Empty,
@@ -541,10 +551,10 @@ namespace GYM_System.Controllers
                         try
                         {
                             // Expected columns for client update: 33 (0 to 32) (15 not nullable)
-                            if (row.Count < 15) // Adjusted count
+                            if (row.Count < 10) // Adjusted count
                             {
                                 skippedInvalidFormCode++; // Or a more specific error for incomplete data
-                                Console.WriteLine($"Skipped client update row due to insufficient columns: Expected 15 at least, got {row.Count}. Row: {string.Join(",", row)}");
+                                Console.WriteLine($"Skipped client update row due to insufficient columns: Expected 10 at least, got {row.Count}. Row: {string.Join(",", row)}");
                                 continue;
                             }
 
@@ -656,6 +666,32 @@ namespace GYM_System.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SaveSpreadSheetSettings(string spreadsheetId, string initialAssessmentSheetRange, string updateFormSheetRange)
+        {
+            if (spreadSheetSettings != null)
+            {
+                spreadSheetSettings.SheetId = spreadsheetId.Trim();
+                spreadSheetSettings.InitialAssessmentSheetNameAndRange = initialAssessmentSheetRange.Trim();
+                spreadSheetSettings.UpdateFormSheetNameAndRange = updateFormSheetRange.Trim();
+
+                _context.SpreadSheets.Update(spreadSheetSettings);
+            }
+            else
+            {
+                spreadSheetSettings = new SpreadSheet
+                {
+                    SheetId = spreadsheetId.Trim(),
+                    InitialAssessmentSheetNameAndRange = initialAssessmentSheetRange.Trim(),
+                    UpdateFormSheetNameAndRange = updateFormSheetRange.Trim()
+                };
+                _context.SpreadSheets.Add(spreadSheetSettings);
+            }
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         private decimal? ParseDecimal(object? value)
         {
             if (value != null && decimal.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result))
@@ -702,7 +738,7 @@ namespace GYM_System.Controllers
             {
                 return false;
             }
-            return null; // For any other unexpected value
+            return null;
         }
 
 
