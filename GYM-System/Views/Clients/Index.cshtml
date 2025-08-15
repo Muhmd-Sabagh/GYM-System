@@ -122,18 +122,49 @@
     <script>
         function copyToClipboard(button) {
             const url = button.getAttribute('data-url');
-            navigator.clipboard.writeText(url).then(() => {
-                // Store original text
-                const originalText = button.textContent;
-                // Change button text to indicate success
-                button.textContent = 'Link Copied!';
-                // Revert back to original text after 2 seconds
-                setTimeout(() => {
-                    button.textContent = originalText;
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-            });
+
+            // Try modern API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url)
+                    .then(() => showCopied(button))
+                    .catch(err => {
+                        console.warn('Clipboard API failed, using fallback:', err);
+                        fallbackCopy(url, button);
+                    });
+            } else {
+                // Always fallback for unsupported environments
+                fallbackCopy(url, button);
+            }
+        }
+
+        // Fallback for environments without navigator.clipboard
+        function fallbackCopy(text, button) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; // Prevent scroll to bottom
+            textarea.style.opacity = '0'; // Invisible
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+                showCopied(button);
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                alert('Copy failed, please copy manually: ' + text);
+            }
+
+            document.body.removeChild(textarea);
+        }
+
+        // Show feedback to the user
+        function showCopied(button) {
+            const originalText = button.textContent;
+            button.textContent = 'Link Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
         }
 
         document.getElementById("editBtn").addEventListener("click", function () {
