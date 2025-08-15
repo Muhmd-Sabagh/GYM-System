@@ -360,7 +360,7 @@ namespace GYM_System.Services
                                                 table.ColumnsDefinition(columns =>
                                                 {
                                                     columns.RelativeColumn(1); // Exercise Video Link
-                                                    columns.RelativeColumn(1); // RPE/RIR
+                                                    columns.RelativeColumn(1); // RIR
                                                     columns.RelativeColumn(1); // Tempo
                                                     columns.RelativeColumn(1); // Rest
                                                     columns.RelativeColumn(1); // Reps
@@ -371,7 +371,7 @@ namespace GYM_System.Services
                                                 table.Header(header =>
                                                 {
                                                     header.Cell().BorderBottom(1).PaddingBottom(5).Text("فيديو").SemiBold().AlignCenter();
-                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("RPE/RIR").SemiBold().AlignCenter();
+                                                    header.Cell().BorderBottom(1).PaddingBottom(5).Text("RIR").SemiBold().AlignCenter();
                                                     header.Cell().BorderBottom(1).PaddingBottom(5).Text("الإيقاع").SemiBold().AlignCenter();
                                                     header.Cell().BorderBottom(1).PaddingBottom(5).Text("الراحة").SemiBold().AlignCenter();
                                                     header.Cell().BorderBottom(1).PaddingBottom(5).Text("التكرارات").SemiBold().AlignCenter();

@@ -58,8 +58,8 @@
                 <button type="button" class="btn btn-primary w-100 rounded-md shadow-sm hover:scale-105 transition-all duration-300 ease-in-out" id="calculateCaloriesBtn">Calculate Calories</button>
 
                 <div class="mt-4 p-3 bg-light rounded-md border text-center" id="calculatorResults" style="display:none;">
-                    <h6 class="mb-2 text-primary">Your Daily Calorie Needs:</h6>
                     <p class="fs-5 fw-bold mb-1" id="tdeeResult"></p>
+                    <p class="fs-5 fw-bold mb-1 text-primary" id="mbrResult"></p>
                     <p class="fs-5 fw-bold text-success" id="dailyGoalResult"></p>
                 </div>
             </div>
@@ -81,6 +81,7 @@
         const errorMessageDiv = $('#calculatorErrorMessage');
         const resultsDiv = $('#calculatorResults');
         const tdeeResultSpan = $('#tdeeResult');
+        const mbrResultSpan = $('#mbrResult');
         const dailyGoalResultSpan = $('#dailyGoalResult');
 
         calculateBtn.on('click', function () {
@@ -133,8 +134,9 @@
             if (dailyGoalCalories < 0) dailyGoalCalories = 0;
 
             // --- Display Results ---
-            tdeeResultSpan.text(`TDEE: ${Math.round(tdee)} calories`);
-            dailyGoalResultSpan.text(`Daily Goal: ${Math.round(dailyGoalCalories)} calories`);
+            tdeeResultSpan.text(`TDEE: ${Math.round(tdee)}`);
+            mbrResultSpan.text(`MBR: ${Math.round(bmr)}`);
+            dailyGoalResultSpan.text(`Daily Goal: ${Math.round(dailyGoalCalories)}`);
             resultsDiv.show();
         });
 
@@ -143,6 +145,7 @@
             errorMessageDiv.addClass('d-none').text('');
             resultsDiv.hide();
             tdeeResultSpan.text('');
+            mbrResultSpan.text('');
             dailyGoalResultSpan.text('');
             // Optionally, clear input fields as well
             ageInput.val('');

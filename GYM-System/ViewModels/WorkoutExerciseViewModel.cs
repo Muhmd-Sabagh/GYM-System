@@ -24,8 +24,8 @@ namespace GYM_System.ViewModels
         [StringLength(50, ErrorMessage = "Tempo cannot exceed 50 characters.")]
         public string? Tempo { get; set; } // e.g., "2-0-1-0"
 
-        [StringLength(50, ErrorMessage = "RPE/RIR cannot exceed 50 characters.")]
-        [Display(Name = "RPE/RIR")]
+        [StringLength(50, ErrorMessage = "RIR cannot exceed 50 characters.")]
+        [Display(Name = "RIR")]
         public string? RpeRir { get; set; } // RPE/RIR, e.g., "RPE 8", "RIR 2"
 
         [StringLength(1000, ErrorMessage = "Exercise Notes cannot exceed 1000 characters.")]
