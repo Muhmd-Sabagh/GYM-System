@@ -79,7 +79,7 @@ h3 {
     font-weight: 700;
     font-size: 1.2rem;
     color: var(--secondary-color) !important;
-/*    text-transform: uppercase;*/
+    /*    text-transform: uppercase;*/
     position: relative;
 }
 
@@ -305,8 +305,8 @@ h3 {
         background: linear-gradient(135deg, var(--dark-color), #374151);
         color: white;
         font-weight: 500;
-/*        text-transform: uppercase;*/
-/*        letter-spacing: 0.5px;*/
+        /*        text-transform: uppercase;*/
+        /*        letter-spacing: 0.5px;*/
         padding: 1rem;
         border: none;
         position: sticky;
@@ -672,30 +672,36 @@ h3 {
     margin-top: 1rem; /* Add some space above the container */
 }
 
-.details-container dt {
-    font-weight: 500;
-    color: var(--gym-accent-blue);
-    margin-bottom: 0;
-    padding: 0.75rem 0.75rem; /* Adjust padding for cell-like appearance */
-    border-bottom: 1px solid var(--gym-border-color-light); /* Light border at the bottom */
-    border-left: 1px solid var(--gym-border-color-light); /* Light border on the left (for RTL grid) */
-}
+    .details-container dt {
+        font-weight: 500;
+        color: var(--gym-accent-blue);
+        margin-bottom: 0;
+        padding: 0.75rem 0.75rem; /* Adjust padding for cell-like appearance */
+        border-bottom: 1px solid var(--gym-border-color-light); /* Light border at the bottom */
+        border-left: 1px solid var(--gym-border-color-light); /* Light border on the left (for RTL grid) */
+    }
 
-.details-container dd {
-    color: var(--gym-text-light); /* Light text for answers */
-    margin-bottom: 0; /* Remove margin-bottom to allow borders to meet */
-    margin-right: 0;
-    padding: 0.75rem 0.75rem; /* Adjust padding for cell-like appearance */
-    border-bottom: 1px solid var(--gym-border-color-light); /* Light border at the bottom */
-}
+    .details-container dd {
+        color: var(--gym-text-light); /* Light text for answers */
+        margin-bottom: 0; /* Remove margin-bottom to allow borders to meet */
+        margin-right: 0;
+        padding: 0.75rem 0.75rem; /* Adjust padding for cell-like appearance */
+        border-bottom: 1px solid var(--gym-border-color-light); /* Light border at the bottom */
+    }
 
-@media (max-width: 768px){
+@media (max-width: 768px) {
     .details-container dt {
         border-left: none;
     }
 
     .details-container dd {
         padding-right: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
     }
 }
 
@@ -713,9 +719,10 @@ h3 {
     color: #00bcd4 !important; /* Ensure Bootstrap info color is used for links */
     text-decoration: underline;
 }
-.details-container .text-info:hover {
-    color: #00838f !important;
-}
+
+    .details-container .text-info:hover {
+        color: #00838f !important;
+    }
 
 /* Ensure the modal content itself also uses the dark theme */
 #detailsModal .modal-content {

@@ -93,7 +93,7 @@
         <tbody>
             @foreach (var item in Model)
             {
-                <tr>
+                <tr style="@(item.Status == GYM_System.Models.SubscriptionStatus.Expired ? "background-color: #F5BA53;" : (item.Status == GYM_System.Models.SubscriptionStatus.Inactive ? "background-color: #DBE0E5;" : ""))">
                     <td>@Html.DisplayFor(modelItem => item.ClientCode)</td>
                     <td>@Html.DisplayFor(modelItem => item.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.Phone)</td>

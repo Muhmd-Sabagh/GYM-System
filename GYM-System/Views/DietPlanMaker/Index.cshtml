@@ -70,6 +70,7 @@
 
                             <h5 class="mt-4 mb-3">Meals for this Version</h5>
                             <div id="mealsContainer_@i">
+                                @* Existing food items will be rendered here by JavaScript if loading an existing plan *@
                                 @for (int j = 0; j < Model.Versions[i].Meals.Count; j++)
                                 {
                                     <div class="card mb-3 meal-card" data-meal-index="@j">
@@ -120,7 +121,7 @@
                                                     @foreach (var item in foodItems)
                                                     {
                                                         <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
-                                                            @item.Name (@item.Unit) - @item.CaloriesPer100Units Cal
+                                                            @item.Name
                                                         </option>
                                                     }
                                                 </select>
@@ -139,6 +140,16 @@
                                         </div>
                                     </div>
                                 }
+                            </div>
+                            <!-- Added a new section for Version Totals -->
+                            <div class="text-center mt-4 p-3 bg-dark text-white rounded">
+                                <h4 class="mb-0 text-white">Version Totals:</h4>
+                                <div class="fw-bold fs-5 mt-2">
+                                    Cal: <span class="version-total-calories">0.0</span> |
+                                    Prot: <span class="version-total-protein">0.0</span> |
+                                    Carb: <span class="version-total-carbs">0.0</span> |
+                                    Fat: <span class="version-total-fat">0.0</span>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer text-end">
@@ -163,7 +174,6 @@
     }
     <script>
         $(document).ready(function () {
-
             // Function to update the naming of inputs/selects after adding/removing elements
             function updateElementNames() {
                 $('#versionsContainer').find('.version-card').each(function (versionIdx) {
@@ -263,8 +273,32 @@
                 mealCard.find('.meal-total-protein').text(totalProtein.toFixed(1));
                 mealCard.find('.meal-total-carbs').text(totalCarbs.toFixed(1));
                 mealCard.find('.meal-total-fat').text(totalFat.toFixed(1));
+
+                // Added: Call the function to update the version totals after updating a meal's totals.
+                updateVersionTotals(mealCard.closest('.version-card'));
             }
 
+            // Added: Function to calculate and update version totals
+            function updateVersionTotals(versionCard) {
+                var totalCalories = 0;
+                var totalProtein = 0;
+                var totalCarbs = 0;
+                var totalFat = 0;
+
+                // Loop through each meal card in the current version
+                versionCard.find('.meal-card').each(function () {
+                    totalCalories += parseFloat($(this).find('.meal-total-calories').text());
+                    totalProtein += parseFloat($(this).find('.meal-total-protein').text());
+                    totalCarbs += parseFloat($(this).find('.meal-total-carbs').text());
+                    totalFat += parseFloat($(this).find('.meal-total-fat').text());
+                });
+
+                // Update the total spans for the version
+                versionCard.find('.version-total-calories').text(totalCalories.toFixed(1));
+                versionCard.find('.version-total-protein').text(totalProtein.toFixed(1));
+                versionCard.find('.version-total-carbs').text(totalCarbs.toFixed(1));
+                versionCard.find('.version-total-fat').text(totalFat.toFixed(1));
+            }
 
             // Add new Version
             $('#versionsContainer').on('click', '.add-version', function () {
@@ -307,7 +341,7 @@
                                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                         <h6 class="mb-0">
                                             Meal <span class="meal-number">1</span>:
-                                            <input type="text" name="Versions[${newVersionIndex}].Meals[0].MealName" class="form-control d-inline-block w-auto me-2" placeholder="Meal Name" value="Breakfast" />
+                                            <input type="text" name="Versions[${newVersionIndex}].Meals[0].MealName" class="form-control d-inline-block w-auto me-2" placeholder="Meal Name" value="الإفطار" />
                                             <span class="text-warning field-validation-valid" data-valmsg-for="Versions[${newVersionIndex}].Meals[0].MealName"></span>
                                         </h6>
                                         <button type="button" class="btn btn-danger btn-sm remove-meal">Remove Meal</button>
@@ -341,6 +375,16 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Added: Version Totals for the new version -->
+                            <div class="text-center mt-4 p-3 bg-dark text-white rounded">
+                                <h4 class="mb-0">Version Totals:</h4>
+                                <div class="fw-bold fs-5 mt-2">
+                                    Cal: <span class="version-total-calories">0.0</span> |
+                                    Prot: <span class="version-total-protein">0.0</span> |
+                                    Carb: <span class="version-total-carbs">0.0</span> |
+                                    Fat: <span class="version-total-fat">0.0</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-footer text-end">
                             <button type="button" class="btn btn-outline-info add-version">Add Another Version</button>
@@ -349,6 +393,7 @@
                 `;
                 $('#versionsContainer').append(newVersionHtml);
                 updateElementNames(); // Update all names after adding
+                updateVersionTotals($('#versionsContainer').find('.version-card').last()); // Added: Update the totals for the new version
             });
 
             // Remove Version
@@ -419,15 +464,18 @@
                 `;
                 mealsContainer.append(newMealHtml);
                 updateElementNames(); // Update all names after adding
+                updateVersionTotals(currentVersionCard); // Added: Update version totals after adding a new meal
             });
 
             // Remove Meal
             $('#versionsContainer').on('click', '.remove-meal', function () {
                 var mealCard = $(this).closest('.meal-card');
                 var mealsContainer = mealCard.parent();
+                var versionCard = $(this).closest('.version-card'); // Added: Get the parent version card
                 if (mealsContainer.find('.meal-card').length > 1) {
                     mealCard.remove();
                     updateElementNames(); // Update all names after removal
+                    updateVersionTotals(versionCard); // Added: Update version totals after removing a meal
                 } else {
                     alert("You must have at least one meal per version.");
                 }
@@ -509,6 +557,10 @@
             });
             $('.meal-card').each(function() {
                 updateMealTotals($(this));
+            });
+            // Added: Initial calculation on page load for existing versions
+            $('.version-card').each(function () {
+                updateVersionTotals($(this));
             });
         });
     </script>

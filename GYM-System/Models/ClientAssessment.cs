@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System; // For DateTime
-using System.Collections.Generic; // For ICollection if needed elsewhere, though not directly for this model's properties
 
 namespace GYM_System.Models
 {
