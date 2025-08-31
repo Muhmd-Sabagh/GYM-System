@@ -1,0 +1,61 @@
+﻿@model IEnumerable<GYM_System.Models.Client>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Client Code</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Join Date</th>
+                <th>Form Code</th>
+                <th>Subscription Status</th>
+                <th>Diet Status</th>
+                <th>Workout Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    <tr style="@(item.Status == GYM_System.Models.SubscriptionStatus.Expired ? "background-color: #F5BA53;" : (item.Status == GYM_System.Models.SubscriptionStatus.Inactive ? "background-color: #DBE0E5;" : ""))">
+                        <td>@Html.DisplayFor(modelItem => item.ClientCode)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.JoinDate)</td>
+                        <td>@Html.DisplayFor(modelItem => item.FormCode)</td>
+                        <td>
+                            <span class="badge @(item.Status == GYM_System.Models.SubscriptionStatus.Active ? "bg-success" : (item.Status == GYM_System.Models.SubscriptionStatus.Expired ? "bg-warning text-dark" : "bg-secondary"))">
+                                @Html.DisplayFor(modelItem => item.Status)
+                            </span>
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.DietStatus)</td>
+                        <td>@Html.DisplayFor(modelItem => item.WorkoutStatus)</td>
+                        <td>
+                            <a asp-action="ClientFile" asp-route-id="@item.Id" class="btn btn-sm btn-primary mb-1" title="Show Client Details"><i class="bi bi-eye"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info mb-1" title="Edit Client Details"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete Client"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        <i class="bi bi-search"></i> No clients found matching your search criteria.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Show total count -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">Total: @Model.Count() client(s)</small>
+</div>

@@ -57,19 +57,113 @@ namespace GYM_System.Controllers
         }
 
 
-        // GET: Clients
-        public async Task<IActionResult> Index()
+        // Helper to populate subscription status dropdown from enum
+        private void PopulateFilterDropdowns()
         {
-            var clients = await _context.Clients
-                                        .Include(c => c.Subscriptions)
-                                        .OrderByDescending(c => c.JoinDate)
-                                        .ToListAsync();
+            // Create SelectList from SubscriptionStatus enum values
+            var subscriptionStatuses = Enum.GetValues(typeof(SubscriptionStatus))
+                .Cast<SubscriptionStatus>()
+                .Select(e => new SelectListItem
+                {
+                    Value = e.ToString(),
+                    Text = e.ToString()
+                })
+                .ToList();
 
+            ViewBag.SubscriptionStatuses = subscriptionStatuses;
+        }
+
+        // Index method
+        public async Task<IActionResult> Index(string searchTerm, string statusFilter, DateTime? joinDateFrom, DateTime? joinDateTo)
+        {
+            // Start with all clients including subscriptions
+            var clientsQuery = _context.Clients.Include(c => c.Subscriptions).AsQueryable();
+
+            // Apply search filter - search in name, phone, email, and client code
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                clientsQuery = clientsQuery.Where(c =>
+                    c.Name.Contains(searchTerm) ||
+                    c.Phone.Contains(searchTerm) ||
+                    c.Email.Contains(searchTerm) ||
+                    c.ClientCode.Contains(searchTerm));
+            }
+
+            // Apply subscription status filter using enum parsing
+            if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse<SubscriptionStatus>(statusFilter, out var status))
+            {
+                clientsQuery = clientsQuery.Where(c => c.Status == status);
+            }
+
+            // Apply join date range filter
+            if (joinDateFrom.HasValue)
+            {
+                clientsQuery = clientsQuery.Where(c => c.JoinDate >= joinDateFrom.Value);
+            }
+
+            if (joinDateTo.HasValue)
+            {
+                // Include the entire day by adding 23:59:59
+                var endDate = joinDateTo.Value.Date.AddDays(1).AddTicks(-1);
+                clientsQuery = clientsQuery.Where(c => c.JoinDate <= endDate);
+            }
+
+            // Execute query and order results
+            var clients = await clientsQuery.OrderByDescending(c => c.JoinDate).ToListAsync();
+
+            // Populate filter dropdowns with enum values
+            PopulateFilterDropdowns();
+
+            // Preserve filter values for the view
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.StatusFilter = statusFilter;
+            ViewBag.JoinDateFrom = joinDateFrom?.ToString("yyyy-MM-dd");
+            ViewBag.JoinDateTo = joinDateTo?.ToString("yyyy-MM-dd");
+
+            // Existing ViewBag properties for Google Sheets
             ViewBag.SheetId = spreadSheetSettings?.SheetId ?? "N/A";
             ViewBag.InitialAssessmentSheetNameAndRange = spreadSheetSettings?.InitialAssessmentSheetNameAndRange ?? "N/A";
             ViewBag.UpdateFormSheetNameAndRange = spreadSheetSettings?.UpdateFormSheetNameAndRange ?? "N/A";
 
             return View(clients);
+        }
+
+        // Method for AJAX search functionality
+        [HttpGet]
+        public async Task<IActionResult> SearchClients(string searchTerm, string statusFilter, DateTime? joinDateFrom, DateTime? joinDateTo)
+        {
+            // Reuse the same filtering logic from Index
+            var clientsQuery = _context.Clients.Include(c => c.Subscriptions).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                clientsQuery = clientsQuery.Where(c =>
+                    c.Name.Contains(searchTerm) ||
+                    c.Phone.Contains(searchTerm) ||
+                    c.Email.Contains(searchTerm) ||
+                    c.ClientCode.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse<SubscriptionStatus>(statusFilter, out var status))
+            {
+                clientsQuery = clientsQuery.Where(c => c.Status == status);
+            }
+
+            if (joinDateFrom.HasValue)
+            {
+                clientsQuery = clientsQuery.Where(c => c.JoinDate >= joinDateFrom.Value);
+            }
+
+            if (joinDateTo.HasValue)
+            {
+                var endDate = joinDateTo.Value.Date.AddDays(1).AddTicks(-1);
+                clientsQuery = clientsQuery.Where(c => c.JoinDate <= endDate);
+            }
+
+            var clients = await clientsQuery.OrderByDescending(c => c.JoinDate).ToListAsync();
+
+            // Return partial view for AJAX updates
+            return PartialView("_ClientsTablePartial", clients);
         }
 
         // GET: Clients/ClientFile/5 - Comprehensive client view (already updated)
