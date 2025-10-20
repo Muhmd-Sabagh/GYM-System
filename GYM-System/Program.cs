@@ -37,6 +37,24 @@ builder.Services.AddScoped<PdfService>(); // Changed from Singleton to Scoped fo
 
 var app = builder.Build();
 
+
+// Apply pending EF Core migrations at startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var db = services.GetRequiredService<GymDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while applying database migrations.");
+        throw;
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
