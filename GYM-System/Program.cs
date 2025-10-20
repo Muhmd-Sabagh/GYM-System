@@ -29,11 +29,11 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 });
 
 // Automatically open the browser to the application URL when it starts
-System.Diagnostics.Process.Start(new ProcessStartInfo
-{
-    FileName = $"http://{HomeController.GetLocalIpAddress()}:5129",
-    UseShellExecute = true
-});
+//System.Diagnostics.Process.Start(new ProcessStartInfo
+//{
+//    FileName = $"http://{HomeController.GetLocalIpAddress()}:5129",
+//    UseShellExecute = true
+//});
 
 var app = builder.Build();
 

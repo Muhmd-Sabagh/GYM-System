@@ -92,11 +92,11 @@
                 <!-- Subscription Status Filter -->
                 <div class="col-md-2 mb-3">
                     <label for="statusFilter" class="form-label">Status:</label>
-                    <select id="statusFilter" name="statusFilter" class="form-select">
+                    <select id="statusFilter" name="statusFilter" class="form-select clientsFilter">
                         <option value="">All Statuses</option>
                         @foreach (var status in ViewBag.SubscriptionStatuses as IEnumerable<SelectListItem>)
                         {
-                            <option value="@status.Value" selected="@(ViewBag.StatusFilter == status.Value)">
+                            <option value="@status.Value" selected=@(ViewBag.StatusFilter == status.Value)>
                                 @status.Text
                             </option>
                         }
@@ -106,21 +106,24 @@
                 <!-- Join Date From Filter -->
                 <div class="col-md-2 mb-3">
                     <label for="joinDateFrom" class="form-label">Join From:</label>
-                    <input type="date" id="joinDateFrom" name="joinDateFrom" class="form-control"
+                    <input type="date" id="joinDateFrom" name="joinDateFrom" class="form-control clientsFilter"
                            value="@ViewBag.JoinDateFrom" />
                 </div>
 
                 <!-- Join Date To Filter -->
                 <div class="col-md-2 mb-3">
                     <label for="joinDateTo" class="form-label">Join To:</label>
-                    <input type="date" id="joinDateTo" name="joinDateTo" class="form-control"
+                    <input type="date" id="joinDateTo" name="joinDateTo" class="form-control clientsFilter"
                            value="@ViewBag.JoinDateTo" />
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="col-md-3 mb-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Clear All</a>
+                    @* <button type="button" id="applyFiltersBtn" class="btn btn-primary">
+                        <span class="spinner-border spinner-border-sm d-none" id="loadingSpinner" role="status" aria-hidden="true"></span>
+                        Apply Filters
+                    </button> *@
+                    <button type="button" id="clearFiltersBtn" class="btn btn-outline-secondary">Clear All</button>
                 </div>
             </div>
         </form>
@@ -206,11 +209,113 @@
             document.getElementById("inputSection").style.display = "none";
         });
 
+        // AJAX search and filter functionality
+        // document.getElementById('applyFiltersBtn').addEventListener('click', function() {
+        //     applyFiltersWithAjax();
+        // });
+
+        // Apply filters when any filter input changes
+        document.getElementById('searchTerm').addEventListener('input', function() {
+            applyFiltersWithAjax();
+        });
+
+        document.querySelectorAll('.clientsFilter').forEach(function(element) {
+            element.addEventListener('change', function() {
+                applyFiltersWithAjax();
+            });
+        });
+
+        // Clear all filters functionality
+        document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+            // Reset all form inputs
+            document.getElementById('searchTerm').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('joinDateFrom').value = '';
+            document.getElementById('joinDateTo').value = '';
+
+            // Apply filters with empty values (shows all clients)
+            applyFiltersWithAjax();
+        });
+
+        // Function to apply filters using AJAX
+        function applyFiltersWithAjax() {
+            // const button = document.getElementById('applyFiltersBtn');
+            // const spinner = document.getElementById('loadingSpinner');
+
+            // Show loading state
+            // button.disabled = true;
+            // spinner.classList.remove('d-none');
+
+            // Collect form data
+            const searchTerm = document.getElementById('searchTerm').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const joinDateFrom = document.getElementById('joinDateFrom').value;
+            const joinDateTo = document.getElementById('joinDateTo').value;
+
+            // Build query parameters
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('searchTerm', searchTerm);
+            if (statusFilter) params.append('statusFilter', statusFilter);
+            if (joinDateFrom) params.append('joinDateFrom', joinDateFrom);
+            if (joinDateTo) params.append('joinDateTo', joinDateTo);
+
+            // Make AJAX request
+            fetch(`@Url.Action("SearchClients", "Clients")?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/html',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Update the table container with new results
+                document.getElementById('clientsTableContainer').innerHTML = html;
+
+                // Update URL with current filters (optional - for bookmarking/sharing)
+                const newUrl = new URL(window.location);
+                if (searchTerm) newUrl.searchParams.set('searchTerm', searchTerm);
+                else newUrl.searchParams.delete('searchTerm');
+
+                if (statusFilter) newUrl.searchParams.set('statusFilter', statusFilter);
+                else newUrl.searchParams.delete('statusFilter');
+
+                if (joinDateFrom) newUrl.searchParams.set('joinDateFrom', joinDateFrom);
+                else newUrl.searchParams.delete('joinDateFrom');
+
+                if (joinDateTo) newUrl.searchParams.set('joinDateTo', joinDateTo);
+                else newUrl.searchParams.delete('joinDateTo');
+
+                window.history.replaceState({}, '', newUrl);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error message to user
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <strong>Error:</strong> Failed to apply filters. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('#clientsTableContainer').before(alertDiv);
+            });
+            // .finally(() => {
+                // Hide loading state
+                // button.disabled = false;
+                // spinner.classList.add('d-none');
+            // });
+        }
+
         // Optional: Add Enter key support for search input
         document.getElementById('searchTerm').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                document.getElementById('searchFilterForm').submit();
+                applyFiltersWithAjax();
             }
         });
     </script>

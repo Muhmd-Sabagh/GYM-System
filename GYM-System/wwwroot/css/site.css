@@ -140,7 +140,7 @@ h3 {
 }
 
     .card:hover {
-        transform: translateY(-5px);
+        /*        transform: translateY(-5px);*/
         box-shadow: var(--shadow-lg);
     }
 
@@ -458,6 +458,34 @@ h3 {
     border-right: none;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+/* Custom styling for Select2 dropdowns to match Bootstrap theme */
+.select2-container--bootstrap-5 .select2-selection {
+    min-height: 50px;
+    border-radius: var(--border-radius);
+    border-color: var(--border-color);
+    width: fit-content;
+}
+
+@media (max-width: 768px) {
+    .select2-container--bootstrap-5 .select2-selection {
+        width: 100%;
+    }
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+/* Enhanced search results styling */
+.select2-results__option {
+    padding: 8px 12px;
+}
+
+.select2-results__option--highlighted {
+    background-color: var(--bs-primary);
 }
 
 /* Home Page Enhancements */

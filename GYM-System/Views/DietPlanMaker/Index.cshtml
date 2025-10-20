@@ -28,8 +28,8 @@
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="ClientId" class="form-label">Client Name:</label>
-                        <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
-                            <option value="">-- Select Client (Optional) --</option>
+                        <select asp-for="ClientId" class="form-control client-dropdown" asp-items="@(new SelectList(clients, "Id", "Name"))" data-placeholder="-- Search and Select Client (Optional) --">
+                            <option value="">-- Search and Select Client (Optional) --</option>
                         </select>
                         <span asp-validation-for="ClientId" class="text-danger"></span>
                     </div>
@@ -115,17 +115,26 @@
                                                     </div>
                                                 }
                                             </div>
-                                            <div class="input-group mt-3">
+                                            <div class="food-item-input-group mt-3">
                                                 <select class="form-select food-item-selector" data-version-index="@i" data-meal-index="@j">
-                                                    <option value="">Select Food Item...</option>
+                                                    <option value="">Search Food Items...</option>
                                                     @foreach (var item in foodItems)
                                                     {
-                                                        <option value="@item.Id" data-calories="@item.CaloriesPer100Units" data-protein="@item.ProteinPer100Units" data-carbs="@item.CarbsPer100Units" data-fat="@item.FatPer100Units" data-unit="@item.Unit" data-name="@item.Name">
-                                                            @item.Name
+                                                        <option value="@item.Id"
+                                                                data-calories="@item.CaloriesPer100Units"
+                                                                data-protein="@item.ProteinPer100Units"
+                                                                data-carbs="@item.CarbsPer100Units"
+                                                                data-fat="@item.FatPer100Units"
+                                                                data-unit="@item.Unit"
+                                                                data-name="@item.Name"
+                                                                data-search="@item.Name @item.Unit @item.CaloriesPer100Units cal">
+                                                            @item.Name (@item.Unit)
                                                         </option>
                                                     }
                                                 </select>
-                                                <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
+                                                <button type="button" class="btn btn-success add-food-item mt-2">
+                                                    <i class="bi bi-plus-lg me-1"></i>Add Food Item
+                                                </button>
                                             </div>
                                             <div class="text-end mt-3 fw-bold">
                                                 Meal Totals:
@@ -174,6 +183,56 @@
     }
     <script>
         $(document).ready(function () {
+
+            // Initialize searchable dropdowns on page load
+            initializeSearchableDropdowns();
+
+            // Function to initialize Select2 on all relevant dropdowns
+            function initializeSearchableDropdowns() {
+                // Initialize client dropdown with search functionality
+                $('.client-dropdown').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: '-- Search and Select Client (Optional) --',
+                    width: '100%'
+                });
+
+                // Initialize food item dropdowns with enhanced search
+                $('.food-item-selector').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: 'Search Food Items...',
+                    width: '100%',
+                    // Custom matcher for better search functionality
+                    matcher: function(params, data) {
+                        // If there are no search terms, return all data
+                        if ($.trim(params.term) === '') {
+                            return data;
+                        }
+
+                        // Skip if there is no 'children' property (for optgroups)
+                        if (typeof data.text === 'undefined') {
+                            return null;
+                        }
+
+                        // Search in text, data-search attribute, and data-name
+                        var searchText = data.text.toLowerCase();
+                        var searchTerms = params.term.toLowerCase();
+                        var dataSearch = $(data.element).data('search') || '';
+                        var dataName = $(data.element).data('name') || '';
+
+                        var combinedSearchText = (searchText + ' ' + dataSearch + ' ' + dataName).toLowerCase();
+
+                        if (combinedSearchText.indexOf(searchTerms) > -1) {
+                            return data;
+                        }
+
+                        // Return null if the term should not be displayed
+                        return null;
+                    }
+                });
+            }
+
             // Function to update the naming of inputs/selects after adding/removing elements
             function updateElementNames() {
                 $('#versionsContainer').find('.version-card').each(function (versionIdx) {
@@ -229,6 +288,45 @@
                         });
                     });
                 });
+
+                // Re-initialize Select2 on food item dropdowns after name updates
+                reinitializeFoodItemDropdowns();
+            }
+
+            // Helper function to reinitialize food item dropdowns after DOM changes
+            function reinitializeFoodItemDropdowns() {
+                // Destroy existing Select2 instances on food item selectors
+                $('.food-item-selector').select2('destroy');
+
+                // Reinitialize with search functionality
+                $('.food-item-selector').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: 'Search Food Items...',
+                    width: '100%',
+                    matcher: function(params, data) {
+                        if ($.trim(params.term) === '') {
+                            return data;
+                        }
+
+                        if (typeof data.text === 'undefined') {
+                            return null;
+                        }
+
+                        var searchText = data.text.toLowerCase();
+                        var searchTerms = params.term.toLowerCase();
+                        var dataSearch = $(data.element).data('search') || '';
+                        var dataName = $(data.element).data('name') || '';
+
+                        var combinedSearchText = (searchText + ' ' + dataSearch + ' ' + dataName).toLowerCase();
+
+                        if (combinedSearchText.indexOf(searchTerms) > -1) {
+                            return data;
+                        }
+
+                        return null;
+                    }
+                });
             }
 
             // Function to calculate macros for a single meal food item row
@@ -236,12 +334,7 @@
                 var quantity = parseFloat(row.find('.quantity-input').val());
                 var foodItemId = row.find('input[name$=".FoodItemId"]').val();
 
-                // Ensure foodItems is accessible (it's from ViewBag, so need to pass it from Razor to JS)
-                // In Razor: var foodItemsJs = @Html.Raw(Json.Serialize(foodItems));
-                // In JS: var foodItems = foodItemsJs;
-                // For now, assuming foodItems is globally available or passed correctly.
-                var foodItemsData = @Html.Raw(Json.Serialize(foodItems)); // Pass foodItems from ViewBag to JS
-
+                var foodItemsData = @Html.Raw(Json.Serialize(foodItems));
                 var foodItemData = foodItemsData.find(item => item.id == foodItemId);
 
                 if (foodItemData && quantity > 0) {
@@ -274,18 +367,16 @@
                 mealCard.find('.meal-total-carbs').text(totalCarbs.toFixed(1));
                 mealCard.find('.meal-total-fat').text(totalFat.toFixed(1));
 
-                // Added: Call the function to update the version totals after updating a meal's totals.
                 updateVersionTotals(mealCard.closest('.version-card'));
             }
 
-            // Added: Function to calculate and update version totals
+            // Function to calculate and update version totals
             function updateVersionTotals(versionCard) {
                 var totalCalories = 0;
                 var totalProtein = 0;
                 var totalCarbs = 0;
                 var totalFat = 0;
 
-                // Loop through each meal card in the current version
                 versionCard.find('.meal-card').each(function () {
                     totalCalories += parseFloat($(this).find('.meal-total-calories').text());
                     totalProtein += parseFloat($(this).find('.meal-total-protein').text());
@@ -293,7 +384,6 @@
                     totalFat += parseFloat($(this).find('.meal-total-fat').text());
                 });
 
-                // Update the total spans for the version
                 versionCard.find('.version-total-calories').text(totalCalories.toFixed(1));
                 versionCard.find('.version-total-protein').text(totalProtein.toFixed(1));
                 versionCard.find('.version-total-carbs').text(totalCarbs.toFixed(1));
@@ -305,10 +395,20 @@
                 var currentVersionCount = $('#versionsContainer .version-card').length;
                 var newVersionIndex = currentVersionCount;
 
+                // Enhanced food items options generation with search data
                 var foodItemsHtmlOptions = '';
                 var foodItemsData = @Html.Raw(Json.Serialize(foodItems));
                 foodItemsData.forEach(function(item) {
-                    foodItemsHtmlOptions += `<option value="${item.id}" data-calories="${item.caloriesPer100Units}" data-protein="${item.proteinPer100Units}" data-carbs="${item.carbsPer100Units}" data-fat="${item.fatPer100Units}" data-unit="${item.unit}" data-name="${item.name}">${item.name} (${item.unit}) - ${item.caloriesPer100Units} Cal</option>`;
+                    foodItemsHtmlOptions += `<option value="${item.id}"
+                        data-calories="${item.caloriesPer100Units}"
+                        data-protein="${item.proteinPer100Units}"
+                        data-carbs="${item.carbsPer100Units}"
+                        data-fat="${item.fatPer100Units}"
+                        data-unit="${item.unit}"
+                        data-name="${item.name}"
+                        data-search="${item.name} ${item.unit} ${item.caloriesPer100Units}cal">
+                        ${item.name} (${item.unit}) - ${item.caloriesPer100Units} Cal
+                    </option>`;
                 });
 
                 var newVersionHtml = `
@@ -336,7 +436,6 @@
 
                             <h5 class="mt-4 mb-3">Meals for this Version</h5>
                             <div id="mealsContainer_${newVersionIndex}">
-                                <!-- Initial meal for new version -->
                                 <div class="card mb-3 meal-card" data-meal-index="0">
                                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                         <h6 class="mb-0">
@@ -355,12 +454,14 @@
                                         <h6 class="mt-3 mb-2">Food Items for this Meal</h6>
                                         <div id="foodItemsContainer_${newVersionIndex}_0">
                                         </div>
-                                        <div class="input-group mt-3">
+                                        <div class="food-item-input-group mt-3">
                                             <select class="form-select food-item-selector" data-version-index="${newVersionIndex}" data-meal-index="0">
-                                                <option value="">Select Food Item...</option>
+                                                <option value="">Search Food Items...</option>
                                                 ${foodItemsHtmlOptions}
                                             </select>
-                                            <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
+                                            <button type="button" class="btn btn-success add-food-item mt-2">
+                                                    <i class="bi bi-plus-lg me-1"></i>Add Food Item
+                                            </button>
                                         </div>
                                         <div class="text-end mt-3 fw-bold">
                                             Meal Totals:
@@ -375,7 +476,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Added: Version Totals for the new version -->
                             <div class="text-center mt-4 p-3 bg-dark text-white rounded">
                                 <h4 class="mb-0">Version Totals:</h4>
                                 <div class="fw-bold fs-5 mt-2">
@@ -392,15 +492,15 @@
                     </div>
                 `;
                 $('#versionsContainer').append(newVersionHtml);
-                updateElementNames(); // Update all names after adding
-                updateVersionTotals($('#versionsContainer').find('.version-card').last()); // Added: Update the totals for the new version
+                updateElementNames();
+                updateVersionTotals($('#versionsContainer').find('.version-card').last());
             });
 
             // Remove Version
             $('#versionsContainer').on('click', '.remove-version', function () {
                 if ($('#versionsContainer .version-card').length > 1) {
                     $(this).closest('.version-card').remove();
-                    updateElementNames(); // Update all names after removal
+                    updateElementNames();
                 } else {
                     alert("You must have at least one version.");
                 }
@@ -417,10 +517,20 @@
                 var mealNames = ["الإفطار", "وجبة خفيفة", "الغداء", "وجبة قبل التمرين", "وجبة بعد التمرين", "العشاء"];
                 var defaultMealName = mealNames[newMealIndex % mealNames.length] || `Meal ${newMealIndex + 1}`;
 
+                // Enhanced food items options with search data
                 var foodItemsHtmlOptions = '';
                 var foodItemsData = @Html.Raw(Json.Serialize(foodItems));
                 foodItemsData.forEach(function(item) {
-                    foodItemsHtmlOptions += `<option value="${item.id}" data-calories="${item.caloriesPer100Units}" data-protein="${item.proteinPer100Units}" data-carbs="${item.carbsPer100Units}" data-fat="${item.fatPer100Units}" data-unit="${item.unit}" data-name="${item.name}">${item.name} (${item.unit}) - ${item.caloriesPer100Units} Cal</option>`;
+                    foodItemsHtmlOptions += `<option value="${item.id}"
+                        data-calories="${item.caloriesPer100Units}"
+                        data-protein="${item.proteinPer100Units}"
+                        data-carbs="${item.carbsPer100Units}"
+                        data-fat="${item.fatPer100Units}"
+                        data-unit="${item.unit}"
+                        data-name="${item.name}"
+                        data-search="${item.name} ${item.unit} ${item.caloriesPer100Units}cal">
+                        ${item.name} (${item.unit}) - ${item.caloriesPer100Units} Cal
+                    </option>`;
                 });
 
                 var newMealHtml = `
@@ -444,7 +554,7 @@
                             </div>
                             <div class="input-group mt-3">
                                 <select class="form-select food-item-selector" data-version-index="${versionIndex}" data-meal-index="${newMealIndex}">
-                                    <option value="">Select Food Item...</option>
+                                    <option value="">Search Food Items...</option>
                                     ${foodItemsHtmlOptions}
                                 </select>
                                 <button type="button" class="btn btn-success add-food-item">Add Food Item</button>
@@ -463,24 +573,23 @@
                     </div>
                 `;
                 mealsContainer.append(newMealHtml);
-                updateElementNames(); // Update all names after adding
-                updateVersionTotals(currentVersionCard); // Added: Update version totals after adding a new meal
+                updateElementNames();
+                updateVersionTotals(currentVersionCard);
             });
 
             // Remove Meal
             $('#versionsContainer').on('click', '.remove-meal', function () {
                 var mealCard = $(this).closest('.meal-card');
                 var mealsContainer = mealCard.parent();
-                var versionCard = $(this).closest('.version-card'); // Added: Get the parent version card
+                var versionCard = $(this).closest('.version-card');
                 if (mealsContainer.find('.meal-card').length > 1) {
                     mealCard.remove();
-                    updateElementNames(); // Update all names after removal
-                    updateVersionTotals(versionCard); // Added: Update version totals after removing a meal
+                    updateElementNames();
+                    updateVersionTotals(versionCard);
                 } else {
                     alert("You must have at least one meal per version.");
                 }
             });
-
 
             // Add Food Item to Meal
             $('#versionsContainer').on('click', '.add-food-item', function () {
@@ -529,7 +638,8 @@
                     calculateItemMacros(newRow);
                     updateMealTotals($(this).closest('.meal-card'));
 
-                    foodItemSelector.val('');
+                    // Clear and reset the Select2 dropdown after adding item
+                    foodItemSelector.val('').trigger('change');
                 } else {
                     alert("Please select a food item to add.");
                 }
@@ -558,7 +668,7 @@
             $('.meal-card').each(function() {
                 updateMealTotals($(this));
             });
-            // Added: Initial calculation on page load for existing versions
+            // Initial calculation on page load for existing versions
             $('.version-card').each(function () {
                 updateVersionTotals($(this));
             });
