@@ -367,7 +367,7 @@ FodyWeavers.xsd
 SavedPlans/
 
 # Client Secret file
-# client_secret.jsonwwwroot/images/exercises/
+client_secret.json
 
 # exercises and fooditems
 GYM-System/wwwroot/images/fooditems/
