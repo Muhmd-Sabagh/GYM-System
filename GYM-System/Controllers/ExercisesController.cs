@@ -3,7 +3,7 @@ using GYM_System.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace SuperSheets.Controllers
+namespace GYM_System.Controllers
 {
     public class ExercisesController : Controller
     {

@@ -41,14 +41,14 @@ namespace GYM_System.Services
                 {
                     // The fileDataStore is used to cache the user's credentials
                     // This means the user only has to authenticate once.
-                    // The token is stored in a subfolder named 'SuperSheets.Auth.Store'
+                    // The token is stored in a subfolder named 'GYM_System.Auth.Store'
                     // in the user's application data directory.
                     credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                         GoogleClientSecrets.FromStream(stream).Secrets,
                         Scopes,
                         "user", // User identity (can be any string, but typically 'user')
                         CancellationToken.None,
-                        new FileDataStore("SuperSheets.Auth.Store") // Directory to store credentials
+                        new FileDataStore("GYM_System.Auth.Store") // Directory to store credentials
                     );
                 }
 

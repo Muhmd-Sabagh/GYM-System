@@ -5,7 +5,7 @@ using GYM_System.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace SuperSheets.Controllers
+namespace GYM_System.Controllers
 {
     public class DietPlanMakerController : Controller
     {

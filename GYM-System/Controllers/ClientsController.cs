@@ -750,7 +750,7 @@ namespace GYM_System.Controllers
             }
             catch (FileNotFoundException)
             {
-                TempData["ErrorMessage"] = "client_secret.json not found. Please place it in the SuperSheets project root directory.";
+                TempData["ErrorMessage"] = "client_secret.json not found. Please place it in the GYM-System project root directory.";
             }
             catch (Exception ex)
             {
