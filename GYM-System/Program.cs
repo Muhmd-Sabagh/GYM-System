@@ -1,6 +1,7 @@
 using GYM_System.Data;
 using GYM_System.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +21,10 @@ builder.Services.AddSingleton<GoogleSheetsService>();
 builder.Services.AddScoped<PdfService>(); // Changed from Singleton to Scoped for better practice, though Singleton would also work here.
 
 // Configure Kestrel to listen on port 5129 and any IP address
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.Listen(IPAddress.Any, 5129);
-//});
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Listen(IPAddress.Any, 5129);
+});
 
 // Automatically open the browser to the application URL when it starts
 //System.Diagnostics.Process.Start(new ProcessStartInfo
