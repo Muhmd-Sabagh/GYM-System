@@ -1,7 +1,6 @@
 ﻿using GYM_System.Models;
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
-using QuestPDF.Infrastructure;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;

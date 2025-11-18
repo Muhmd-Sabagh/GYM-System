@@ -1,9 +1,6 @@
-using GYM_System.Controllers;
 using GYM_System.Data;
 using GYM_System.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 

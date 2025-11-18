@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting; // For IWebHostEnvironment
+﻿using GYM_System.Data;
+using GYM_System.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using GYM_System.Data;
-using GYM_System.Models;
 
 namespace GYM_System.Controllers
 {

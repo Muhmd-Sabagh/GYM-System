@@ -1,5 +1,4 @@
 ﻿using GYM_System.Data;
-using GYM_System.Models;
 using GYM_System.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
