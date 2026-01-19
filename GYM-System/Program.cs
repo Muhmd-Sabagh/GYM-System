@@ -14,11 +14,10 @@ builder.Services.AddDbContext<GymDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Google Sheets Service to the DI container as a Singleton
-// This means one instance will be created and reused across the application
 builder.Services.AddSingleton<GoogleSheetsService>();
 
 // Add PdfService to the DI container as a Scoped service
-builder.Services.AddScoped<PdfService>(); // Changed from Singleton to Scoped for better practice, though Singleton would also work here.
+builder.Services.AddScoped<PdfService>();
 
 // Configure Kestrel to listen on port 5129 and any IP address
 builder.WebHost.ConfigureKestrel(serverOptions =>
@@ -37,20 +36,12 @@ var app = builder.Build();
 
 
 // Apply pending EF Core migrations at startup
-using (var scope = app.Services.CreateScope())
+if (args.Contains("--migrate"))
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        var db = services.GetRequiredService<GymDbContext>();
-        db.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while applying database migrations.");
-        throw;
-    }
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+    db.Database.Migrate();
+    return;
 }
 
 // Configure the HTTP request pipeline.
