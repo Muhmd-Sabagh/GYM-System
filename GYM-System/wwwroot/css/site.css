@@ -460,6 +460,40 @@ h3 {
     border-bottom-right-radius: 0;
 }
 
+/* Exercise and Food Item Input Group Styles */
+.exercise-input-group,
+.food-item-input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.exercise-input-group .exercise-selector,
+.food-item-input-group .food-item-selector {
+    flex: 1;
+    min-width: 250px;
+}
+
+.exercise-input-group .add-exercise,
+.food-item-input-group .add-food-item {
+    flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+    .exercise-input-group,
+    .food-item-input-group {
+        flex-direction: column;
+    }
+
+    .exercise-input-group .exercise-selector,
+    .food-item-input-group .food-item-selector,
+    .exercise-input-group .add-exercise,
+    .food-item-input-group .add-food-item {
+        width: 100%;
+    }
+}
+
 /* Custom styling for Select2 dropdowns to match Bootstrap theme */
 .select2-container--bootstrap-5 .select2-selection {
     min-height: 50px;

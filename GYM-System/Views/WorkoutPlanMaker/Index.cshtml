@@ -28,8 +28,8 @@
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="ClientId" class="form-label">Client Name:</label>
-                        <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(clients, "Id", "Name"))">
-                            <option value="">-- Select Client (Optional) --</option>
+                        <select asp-for="ClientId" class="form-control client-dropdown" asp-items="@(new SelectList(clients, "Id", "Name"))" data-placeholder="-- Search and Select Client (Optional) --">
+                            <option value="">-- Search and Select Client (Optional) --</option>
                         </select>
                         <span asp-validation-for="ClientId" class="text-danger"></span>
                     </div>
@@ -115,17 +115,22 @@
                                     </div>
                                 }
                             </div>
-                            <div class="input-group mt-3">
+                            <div class="exercise-input-group mt-3">
                                 <select class="form-select exercise-selector" data-day-index="@i">
-                                    <option value="">Select Exercise...</option>
+                                    <option value="">Search Exercises...</option>
                                     @foreach (var item in exercises)
                                     {
-                                        <option value="@item.Id" data-name="@item.Name" data-youtube="@item.YouTubeLink">
+                                        <option value="@item.Id" 
+                                                data-name="@item.Name" 
+                                                data-youtube="@item.YouTubeLink"
+                                                data-search="@item.Name">
                                             @item.Name
                                         </option>
                                     }
                                 </select>
-                                <button type="button" class="btn btn-success add-exercise">Add Exercise</button>
+                                <button type="button" class="btn btn-success add-exercise mt-2">
+                                    <i class="bi bi-plus-lg me-1"></i>Add Exercise
+                                </button>
                             </div>
                         </div>
                         <div class="card-footer text-end">
@@ -150,6 +155,95 @@
     }
     <script>
         $(document).ready(function () {
+
+            // Initialize searchable dropdowns on page load
+            initializeSearchableDropdowns();
+
+            // Function to initialize Select2 on all relevant dropdowns
+            function initializeSearchableDropdowns() {
+                // Initialize client dropdown with search functionality
+                $('.client-dropdown').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: '-- Search and Select Client (Optional) --',
+                    width: '100%'
+                });
+
+                // Initialize exercise dropdowns with enhanced search
+                $('.exercise-selector').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: 'Search Exercises...',
+                    width: '100%',
+                    // Custom matcher for better search functionality
+                    matcher: function(params, data) {
+                        // If there are no search terms, return all data
+                        if ($.trim(params.term) === '') {
+                            return data;
+                        }
+
+                        // Skip if there is no 'text' property
+                        if (typeof data.text === 'undefined') {
+                            return null;
+                        }
+
+                        // Search in text, data-search attribute, and data-name
+                        var searchText = data.text.toLowerCase();
+                        var searchTerms = params.term.toLowerCase();
+                        var dataSearch = $(data.element).data('search') || '';
+                        var dataName = $(data.element).data('name') || '';
+
+                        var combinedSearchText = (searchText + ' ' + dataSearch + ' ' + dataName).toLowerCase();
+
+                        if (combinedSearchText.indexOf(searchTerms) > -1) {
+                            return data;
+                        }
+
+                        // Return null if the term should not be displayed
+                        return null;
+                    }
+                });
+            }
+
+            // Helper function to reinitialize exercise dropdowns after DOM changes
+            function reinitializeExerciseDropdowns() {
+                // Destroy existing Select2 instances on exercise selectors
+                $('.exercise-selector').each(function() {
+                    if ($(this).hasClass('select2-hidden-accessible')) {
+                        $(this).select2('destroy');
+                    }
+                });
+
+                // Reinitialize with search functionality
+                $('.exercise-selector').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: 'Search Exercises...',
+                    width: '100%',
+                    matcher: function(params, data) {
+                        if ($.trim(params.term) === '') {
+                            return data;
+                        }
+
+                        if (typeof data.text === 'undefined') {
+                            return null;
+                        }
+
+                        var searchText = data.text.toLowerCase();
+                        var searchTerms = params.term.toLowerCase();
+                        var dataSearch = $(data.element).data('search') || '';
+                        var dataName = $(data.element).data('name') || '';
+
+                        var combinedSearchText = (searchText + ' ' + dataSearch + ' ' + dataName).toLowerCase();
+
+                        if (combinedSearchText.indexOf(searchTerms) > -1) {
+                            return data;
+                        }
+
+                        return null;
+                    }
+                });
+            }
 
             // Function to update the naming of inputs/selects after adding/removing elements
             function updateElementNames() {
@@ -186,6 +280,9 @@
                         });
                     });
                 });
+
+                // Re-initialize Select2 on exercise dropdowns after name updates
+                reinitializeExerciseDropdowns();
             }
 
             // Add new Day
@@ -193,10 +290,16 @@
                 var currentDayCount = $('#workoutDaysContainer .workout-day-card').length;
                 var newDayIndex = currentDayCount;
 
+                // Enhanced exercise options generation with search data
                 var exercisesHtmlOptions = '';
-                var exercisesData = @Html.Raw(Json.Serialize(exercises)); // Pass exercises from ViewBag to JS
+                var exercisesData = @Html.Raw(Json.Serialize(exercises));
                 exercisesData.forEach(function(item) {
-                    exercisesHtmlOptions += `<option value="${item.id}" data-name="${item.name}" data-youtube="${item.youTubeLink}">${item.name}</option>`;
+                    exercisesHtmlOptions += `<option value="${item.id}" 
+                        data-name="${item.name}" 
+                        data-youtube="${item.youTubeLink || ''}"
+                        data-search="${item.name}">
+                        ${item.name}
+                    </option>`;
                 });
 
                 var newDayHtml = `
@@ -232,12 +335,14 @@
                             <h5 class="mt-4 mb-3">Exercises for this Day</h5>
                             <div id="exercisesContainer_${newDayIndex}">
                             </div>
-                            <div class="input-group mt-3">
+                            <div class="exercise-input-group mt-3">
                                 <select class="form-select exercise-selector" data-day-index="${newDayIndex}">
-                                    <option value="">Select Exercise...</option>
+                                    <option value="">Search Exercises...</option>
                                     ${exercisesHtmlOptions}
                                 </select>
-                                <button type="button" class="btn btn-success add-exercise">Add Exercise</button>
+                                <button type="button" class="btn btn-success add-exercise mt-2">
+                                    <i class="bi bi-plus-lg me-1"></i>Add Exercise
+                                </button>
                             </div>
                         </div>
                         <div class="card-footer text-end">
@@ -261,8 +366,8 @@
 
             // Add Exercise to Day
             $('#workoutDaysContainer').on('click', '.add-exercise', function () {
-                var dayIndex = $(this).siblings('.exercise-selector').data('day-index');
                 var exerciseSelector = $(this).siblings('.exercise-selector');
+                var dayIndex = exerciseSelector.data('day-index');
                 var selectedExerciseId = exerciseSelector.val();
 
                 if (selectedExerciseId) {
@@ -311,7 +416,8 @@
                     exercisesContainer.append(newExerciseHtml);
                     updateElementNames();
 
-                    exerciseSelector.val('');
+                    // Clear and reset the Select2 dropdown after adding item
+                    exerciseSelector.val('').trigger('change');
                 } else {
                     alert("Please select an exercise to add.");
                 }
