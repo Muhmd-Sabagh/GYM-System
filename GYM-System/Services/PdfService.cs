@@ -5,7 +5,11 @@ using QuestPDF.Infrastructure;
 
 namespace GYM_System.Services
 {
-    public class PdfService
+    /// <summary>
+    /// QuestPDF-based PDF generation service.
+    /// This is the original implementation using QuestPDF library.
+    /// </summary>
+    public class PdfService : IPdfService
     {
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IConfiguration _configuration;

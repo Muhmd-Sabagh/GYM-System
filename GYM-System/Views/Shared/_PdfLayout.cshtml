@@ -1,0 +1,358 @@
+@{
+    // PDF Layout - Shared layout for all PDF views
+    // Requires ViewData["Title"], ViewData["ClientName"], ViewData["LogoBase64"]
+    // and font Base64 strings: ViewData["TajawalRegularBase64"], ViewData["TajawalMediumBase64"], ViewData["TajawalBoldBase64"]
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        /* Tajawal Font - Embedded as Base64 for offline/portable PDF generation */
+        @@font-face {
+            font-family: 'Tajawal';
+            src: url('@ViewData["TajawalRegularBase64"]') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @@font-face {
+            font-family: 'Tajawal';
+            src: url('@ViewData["TajawalMediumBase64"]') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @@font-face {
+            font-family: 'Tajawal';
+            src: url('@ViewData["TajawalBoldBase64"]') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @@font-face {
+            font-family: 'Tajawal';
+            src: url('@ViewData["TajawalBoldBase64"]') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        /* ===== Reset and Base Styles ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333;
+            background: #fff;
+            direction: rtl;
+        }
+
+        /* ===== Page Setup for A4 ===== */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* ===== Header Styles ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        .header-logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1565C0;
+        }
+
+        .header-spacer {
+            width: 70px;
+        }
+
+        /* ===== General Notes ===== */
+        .general-notes {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: right;
+            background: #fafafa;
+        }
+
+        .general-notes-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        /* ===== Totals Table ===== */
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            border: 1px solid #1565C0;
+        }
+
+        .totals-table th,
+        .totals-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .totals-table th {
+            font-weight: 600;
+            border-bottom: 1px solid #1565C0;
+        }
+
+        /* Totals Table Color Classes */
+        .totals-table th.calories,
+        .totals-table td.calories,
+        .totals-table th.days,
+        .totals-table td.days { color: #1565C0; }
+
+        .totals-table th.protein,
+        .totals-table td.protein,
+        .totals-table th.exercises,
+        .totals-table td.exercises { color: #C62828; }
+
+        .totals-table th.carbs,
+        .totals-table td.carbs { color: #795548; }
+
+        .totals-table th.fat,
+        .totals-table td.fat,
+        .totals-table th.plan-name,
+        .totals-table td.plan-name { color: #2E7D32; }
+
+        /* ===== Separator ===== */
+        .separator {
+            border: none;
+            border-top: 0.5px solid #e0e0e0;
+            margin: 10px 0;
+        }
+
+        /* ===== Section Styles (Meals / Days) ===== */
+        .section-item {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .section-header {
+            background: #1976D2;
+            color: white;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-name {
+            font-size: 11pt;
+            font-weight: 600;
+        }
+
+        .section-subtitle {
+            font-size: 10pt;
+            font-style: italic;
+            margin-right: 5px;
+        }
+
+        .section-info {
+            font-size: 11pt;
+            font-weight: 600;
+        }
+
+        .section-content {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        /* ===== Notes Column ===== */
+        .notes-column {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            padding: 8px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .notes-column.narrow {
+            max-width: 100px;
+        }
+
+        .notes-title {
+            font-weight: 600;
+            font-size: 10pt;
+            margin-bottom: 5px;
+        }
+
+        .notes-text {
+            font-size: 9pt;
+            color: #666;
+        }
+
+        /* ===== Items Column ===== */
+        .items-column {
+            flex: 2;
+        }
+
+        .items-column.wide {
+            flex: 4;
+        }
+
+        /* ===== Data Tables (Food Items / Exercises) ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 5px 8px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table th {
+            font-weight: 600;
+            font-size: 9pt;
+            border-bottom: 1px solid #999;
+        }
+
+        .data-table td {
+            font-size: 9pt;
+        }
+
+        .data-table.center-align th,
+        .data-table.center-align td {
+            text-align: center;
+            padding: 5px 6px;
+        }
+
+        .data-table.center-align td.text-right {
+            text-align: right;
+        }
+
+        /* ===== Food Image ===== */
+        .food-image {
+            width: 25px;
+            height: 25px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+
+        .food-image-cell {
+            text-align: center;
+            width: 40px;
+        }
+
+        /* ===== Version Section ===== */
+        .version-section {
+            margin-bottom: 20px;
+        }
+
+        .version-header {
+            text-align: right;
+            margin-bottom: 5px;
+        }
+
+        .version-name {
+            font-size: 12pt;
+            font-weight: 600;
+        }
+
+        .version-name-value {
+            color: #1976D2;
+        }
+
+        .version-notes {
+            font-size: 10pt;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        /* ===== Links ===== */
+        .link {
+            color: #1565C0;
+            text-decoration: underline;
+            font-size: 9pt;
+        }
+
+        /* ===== Inline Notes ===== */
+        .inline-notes {
+            display: block;
+            font-size: 8pt;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            padding: 2px 4px;
+            margin-top: 3px;
+            background: #fafafa;
+        }
+
+        /* ===== Page Break ===== */
+        .page-break {
+            page-break-before: always;
+        }
+
+        /* ===== Print Styles ===== */
+        @@media print {
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .page {
+                width: 100%;
+                min-height: auto;
+                padding: 0;
+            }
+
+            .section-item {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* ===== Additional Page-Specific Styles ===== */
+        @RenderSection("Styles", required: false)
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-spacer"></div>
+            <div class="header-title">@ViewData["Title"]</div>
+            @if (!string.IsNullOrEmpty(ViewData["LogoBase64"]?.ToString()))
+            {
+                <img src="@ViewData["LogoBase64"]" alt="Logo" class="header-logo" />
+            }
+            else
+            {
+                <div class="header-spacer"></div>
+            }
+        </div>
+
+        <!-- Page Content -->
+        @RenderBody()
+    </div>
+</body>
+</html>

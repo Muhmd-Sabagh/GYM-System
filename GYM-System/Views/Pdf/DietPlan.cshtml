@@ -1,0 +1,121 @@
+﻿@using GYM_System.Services
+@model DietPlanPdfViewModel
+@{
+    Layout = "~/Views/Shared/_PdfLayout.cshtml";
+    ViewData["Title"] = $"{Model.ClientName} - Diet Plan";
+    ViewData["LogoBase64"] = Model.LogoBase64;
+    ViewData["TajawalRegularBase64"] = Model.TajawalRegularBase64;
+    ViewData["TajawalMediumBase64"] = Model.TajawalMediumBase64;
+    ViewData["TajawalBoldBase64"] = Model.TajawalBoldBase64;
+}
+
+<!-- General Notes -->
+@if (!string.IsNullOrEmpty(Model.GeneralNotes))
+{
+    <div class="general-notes">
+        <span class="general-notes-label">ملاحظات عامة: </span>
+        <span>@Model.GeneralNotes</span>
+    </div>
+}
+
+<!-- Versions -->
+@for (int vIndex = 0; vIndex < Model.Versions.Count; vIndex++)
+{
+    var version = Model.Versions[vIndex];
+    
+    @if (vIndex > 0)
+    {
+        <div class="page-break"></div>
+    }
+
+    <div class="version-section">
+        <!-- Version Header (only show if multiple versions) -->
+        @if (Model.ShowVersionHeaders)
+        {
+            <div class="version-header">
+                <span class="version-name">النسخة: </span>
+                <span class="version-name version-name-value">@version.VersionName</span>
+            </div>
+            @if (!string.IsNullOrEmpty(version.VersionNotes))
+            {
+                <div class="version-notes">
+                    <span style="font-weight: 600;">ملاحظات النسخة: </span>
+                    <span>@version.VersionNotes</span>
+                </div>
+            }
+        }
+
+        <!-- Version Totals Table -->
+        <table class="totals-table">
+            <thead>
+                <tr>
+                    <th class="calories">السعرات</th>
+                    <th class="protein">بروتين</th>
+                    <th class="carbs">كاربوهيدرات</th>
+                    <th class="fat">دهون</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="calories">@version.TotalCalories.ToString("F1")</td>
+                    <td class="protein">@version.TotalProtein.ToString("F1")</td>
+                    <td class="carbs">@version.TotalCarbs.ToString("F1")</td>
+                    <td class="fat">@version.TotalFat.ToString("F1")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr class="separator" />
+
+        <!-- Meals -->
+        @foreach (var meal in version.Meals)
+        {
+            <div class="section-item">
+                <!-- Meal Header -->
+                <div class="section-header">
+                    <span class="section-name">@meal.MealName</span>
+                    <span class="section-info">السعرات: @meal.TotalCalories.ToString("F1")</span>
+                </div>
+
+                <!-- Meal Content -->
+                <div class="section-content">
+                    <!-- Food Items Table -->
+                    <div class="items-column">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="food-image-cell">صورة</th>
+                                    <th>النوع</th>
+                                    <th>الكمية</th>
+                                    <th>الوحدة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var foodItem in meal.FoodItems)
+                                {
+                                    <tr>
+                                        <td class="food-image-cell">
+                                            @if (!string.IsNullOrEmpty(foodItem.ImageBase64))
+                                            {
+                                                <img src="@foodItem.ImageBase64" alt="@foodItem.FoodItemName" class="food-image" />
+                                            }
+                                        </td>
+                                        <td>@foodItem.FoodItemName</td>
+                                        <td>@foodItem.Quantity.ToString("F1")</td>
+                                        <td>@foodItem.Unit</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Meal Notes -->
+                    <div class="notes-column">
+                        <div class="notes-title">ملاحظات</div>
+                        <div class="notes-text">@(meal.MealNotes ?? "لا توجد ملاحظات")</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

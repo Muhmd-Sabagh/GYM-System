@@ -10,9 +10,9 @@ namespace GYM_System.Controllers
     public class DietPlanMakerController : Controller
     {
         private readonly GymDbContext _context;
-        private readonly PdfService _pdfService;
+        private readonly IPdfService _pdfService;
 
-        public DietPlanMakerController(GymDbContext context, PdfService pdfService)
+        public DietPlanMakerController(GymDbContext context, IPdfService pdfService)
         {
             _context = context;
             _pdfService = pdfService;

@@ -1,0 +1,112 @@
+﻿@using GYM_System.Services
+@model WorkoutPlanPdfViewModel
+@{
+    Layout = "~/Views/Shared/_PdfLayout.cshtml";
+    ViewData["Title"] = $"{Model.ClientName} - Workout Plan";
+    ViewData["LogoBase64"] = Model.LogoBase64;
+    ViewData["TajawalRegularBase64"] = Model.TajawalRegularBase64;
+    ViewData["TajawalMediumBase64"] = Model.TajawalMediumBase64;
+    ViewData["TajawalBoldBase64"] = Model.TajawalBoldBase64;
+}
+
+<!-- General Notes -->
+@if (!string.IsNullOrEmpty(Model.GeneralNotes))
+{
+    <div class="general-notes">
+        <span class="general-notes-label">ملاحظات عامة: </span>
+        <span>@Model.GeneralNotes</span>
+    </div>
+}
+
+<!-- Plan Totals Table -->
+<table class="totals-table">
+    <thead>
+        <tr>
+            <th class="days">إجمالي الأيام</th>
+            <th class="exercises">إجمالي التمارين</th>
+            <th class="plan-name">اسم الخطة</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="days">@Model.TotalDays</td>
+            <td class="exercises">@Model.TotalExercises</td>
+            <td class="plan-name">@Model.PlanName</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr class="separator" />
+
+<!-- Workout Days -->
+@foreach (var day in Model.WorkoutDays)
+{
+    <div class="section-item">
+        <!-- Day Header -->
+        <div class="section-header">
+            <span>
+                <span class="section-name">@day.DayName</span>
+                @if (!string.IsNullOrEmpty(day.Subtitle))
+                {
+                    <span class="section-subtitle">(@day.Subtitle)</span>
+                }
+            </span>
+            <span class="section-info">إجمالي التمارين: @day.ExerciseCount</span>
+        </div>
+
+        <!-- Day Content -->
+        <div class="section-content">
+            <!-- Exercises Table -->
+            <div class="items-column wide">
+                <table class="data-table center-align">
+                    <thead>
+                        <tr>
+                            <th>التمرين</th>
+                            <th>المجموعات</th>
+                            <th>التكرارات</th>
+                            <th>الراحة</th>
+                            <th>الإيقاع</th>
+                            <th>RIR</th>
+                            <th>فيديو</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var exercise in day.Exercises)
+                        {
+                            <tr>
+                                <td class="text-right">
+                                    @exercise.ExerciseName
+                                    @if (!string.IsNullOrEmpty(exercise.ExerciseNotes))
+                                    {
+                                        <span class="inline-notes">@exercise.ExerciseNotes</span>
+                                    }
+                                </td>
+                                <td>@exercise.Sets</td>
+                                <td>@exercise.Reps</td>
+                                <td>@exercise.Rest</td>
+                                <td>@exercise.Tempo</td>
+                                <td>@exercise.RpeRir</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(exercise.YouTubeLink))
+                                    {
+                                        <a href="@exercise.YouTubeLink" class="link" target="_blank">فيديو</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Day Notes -->
+            <div class="notes-column narrow">
+                <div class="notes-title">ملاحظات اليوم</div>
+                <div class="notes-text">@(day.DayNotes ?? "لا توجد ملاحظات")</div>
+            </div>
+        </div>
+    </div>
+}

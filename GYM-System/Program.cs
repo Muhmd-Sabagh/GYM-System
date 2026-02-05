@@ -1,3 +1,5 @@
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using GYM_System.Data;
 using GYM_System.Services;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +18,29 @@ builder.Services.AddDbContext<GymDbContext>(options =>
 // Add Google Sheets Service to the DI container as a Singleton
 builder.Services.AddSingleton<GoogleSheetsService>();
 
-// Add PdfService to the DI container as a Scoped service
-builder.Services.AddScoped<PdfService>();
+// --- PDF Service Configuration ---
+// Read the PDF provider setting from appsettings.json
+// Options: "QuestPDF" (default) or "DinkToPdf"
+var pdfProvider = builder.Configuration["AppSettings:PdfProvider"] ?? "QuestPDF";
+
+if (pdfProvider.Equals("DinkToPdf", StringComparison.OrdinalIgnoreCase))
+{
+    // Register DinkToPdf services
+    // The SynchronizedConverter is thread-safe for web applications.
+    builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+    
+    // Register the Razor view to string renderer
+    builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
+    
+    // Register DinkToPdfService as the IPdfService implementation
+    builder.Services.AddScoped<IPdfService, DinkToPdfService>();
+}
+else
+{
+    // Default: Use QuestPDF
+    // Register QuestPDF-based PdfService as the IPdfService implementation
+    builder.Services.AddScoped<IPdfService, PdfService>();
+}
 
 // Configure Kestrel to listen on port 5129 and any IP address
 builder.WebHost.ConfigureKestrel(serverOptions =>
