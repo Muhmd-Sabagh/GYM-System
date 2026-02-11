@@ -140,8 +140,7 @@ namespace GYM_System.Controllers
                 clientsQuery = clientsQuery.Where(c =>
                     c.Name.Contains(searchTerm) ||
                     c.Phone.Contains(searchTerm) ||
-                    c.Email.Contains(searchTerm) ||
-                    c.ClientCode.Contains(searchTerm));
+                    c.FormCode.Contains(searchTerm));
             }
 
             if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse<SubscriptionStatus>(statusFilter, out var status))

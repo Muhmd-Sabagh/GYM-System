@@ -81,16 +81,16 @@
     </div>
     <div class="card-body">
         <form method="get" asp-action="Index" id="searchFilterForm">
-            <div class="row">
+            <div class="row g-3 align-items-end">
                 <!-- Search Term Input -->
-                <div class="col-md-3 mb-3">
+                <div class="col-12 col-md-3">
                     <label for="searchTerm" class="form-label">Search:</label>
                     <input type="text" id="searchTerm" name="searchTerm" class="form-control"
-                           value="@ViewBag.SearchTerm" placeholder="Name, Phone, Email, or Code" />
+                           value="@ViewBag.SearchTerm" placeholder="Name, Phone, Email, or Form Code" />
                 </div>
 
                 <!-- Subscription Status Filter -->
-                <div class="col-md-2 mb-3">
+                <div class="col-12 col-md-2">
                     <label for="statusFilter" class="form-label">Status:</label>
                     <select id="statusFilter" name="statusFilter" class="form-select clientsFilter">
                         <option value="">All Statuses</option>
@@ -104,26 +104,26 @@
                 </div>
 
                 <!-- Join Date From Filter -->
-                <div class="col-md-2 mb-3">
+                <div class="col-12 col-md-2">
                     <label for="joinDateFrom" class="form-label">Join From:</label>
                     <input type="date" id="joinDateFrom" name="joinDateFrom" class="form-control clientsFilter"
                            value="@ViewBag.JoinDateFrom" />
                 </div>
 
                 <!-- Join Date To Filter -->
-                <div class="col-md-2 mb-3">
+                <div class="col-12 col-md-2">
                     <label for="joinDateTo" class="form-label">Join To:</label>
                     <input type="date" id="joinDateTo" name="joinDateTo" class="form-control clientsFilter"
                            value="@ViewBag.JoinDateTo" />
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="col-md-3 mb-3 d-flex align-items-end gap-2">
-                    @* <button type="button" id="applyFiltersBtn" class="btn btn-primary">
+                <div class="col-12 col-md-3 d-flex gap-2">
+                    <button type="button" id="applyFiltersBtn" class="btn btn-primary border-2">
                         <span class="spinner-border spinner-border-sm d-none" id="loadingSpinner" role="status" aria-hidden="true"></span>
-                        Apply Filters
-                    </button> *@
-                    <button type="button" id="clearFiltersBtn" class="btn btn-outline-secondary">Clear All</button>
+                        Apply
+                    </button>
+                    <button type="button" id="clearFiltersBtn" class="btn btn-outline-secondary">Clear</button>
                 </div>
             </div>
         </form>
@@ -137,7 +137,7 @@
      !string.IsNullOrEmpty(ViewBag.JoinDateTo as string))
 {
     <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i>
+        <i class="bi bi-info-circle me-1"></i>
         Showing @Model.Count() client(s) matching your search criteria.
         <a asp-action="Index" class="alert-link">View all clients</a>
     </div>
@@ -210,14 +210,14 @@
         });
 
         // AJAX search and filter functionality
-        // document.getElementById('applyFiltersBtn').addEventListener('click', function() {
-        //     applyFiltersWithAjax();
-        // });
-
-        // Apply filters when any filter input changes
-        document.getElementById('searchTerm').addEventListener('input', function() {
+        document.getElementById('applyFiltersBtn').addEventListener('click', function() {
             applyFiltersWithAjax();
         });
+
+        // Apply filters when any filter input changes
+        // document.getElementById('searchTerm').addEventListener('input', function() {
+        //     applyFiltersWithAjax();
+        // });
 
         document.querySelectorAll('.clientsFilter').forEach(function(element) {
             element.addEventListener('change', function() {
@@ -239,12 +239,12 @@
 
         // Function to apply filters using AJAX
         function applyFiltersWithAjax() {
-            // const button = document.getElementById('applyFiltersBtn');
-            // const spinner = document.getElementById('loadingSpinner');
+            const button = document.getElementById('applyFiltersBtn');
+            const spinner = document.getElementById('loadingSpinner');
 
             // Show loading state
-            // button.disabled = true;
-            // spinner.classList.remove('d-none');
+            button.disabled = true;
+            spinner.classList.remove('d-none');
 
             // Collect form data
             const searchTerm = document.getElementById('searchTerm').value;
@@ -303,12 +303,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
                 document.querySelector('#clientsTableContainer').before(alertDiv);
-            });
-            // .finally(() => {
+            })
+            .finally(() => {
                 // Hide loading state
-                // button.disabled = false;
-                // spinner.classList.add('d-none');
-            // });
+                button.disabled = false;
+                spinner.classList.add('d-none');
+            });
         }
 
         // Optional: Add Enter key support for search input
