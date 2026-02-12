@@ -1,20 +1,22 @@
-using DinkToPdf;
-using DinkToPdf.Contracts;
+using Microsoft.Playwright;
 using GYM_System.ViewModels;
 
 namespace GYM_System.Services
 {
     /// <summary>
-    /// DinkToPdf-based PDF generation service.
-    /// Uses wkhtmltopdf via DinkToPdf to convert HTML (rendered from Razor views) to PDF.
+    /// Playwright-based PDF generation service.
+    /// Uses headless Chromium via Microsoft.Playwright to convert HTML (rendered from Razor views) to PDF.
     /// This implementation embeds images and fonts as Base64 for portability.
     /// </summary>
-    public class DinkToPdfService : IPdfService
+    public class PlaywrightService : IPdfService
     {
+        private static readonly SemaphoreSlim _browserLock = new(1, 1);
+        private static IPlaywright? _playwright;
+        private static IBrowser? _browser;
+
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IConfiguration _configuration;
         private readonly IRazorViewToStringRenderer _razorRenderer;
-        private readonly IConverter _pdfConverter;
         private readonly string _savedPlansPath;
         private readonly string _logoPath;
         private readonly string _placeholderLogoPath;
@@ -25,16 +27,14 @@ namespace GYM_System.Services
         private readonly Lazy<string> _tajawalMediumBase64;
         private readonly Lazy<string> _tajawalBoldBase64;
 
-        public DinkToPdfService(
+        public PlaywrightService(
             IWebHostEnvironment hostEnvironment,
             IConfiguration configuration,
-            IRazorViewToStringRenderer razorRenderer,
-            IConverter pdfConverter)
+            IRazorViewToStringRenderer razorRenderer)
         {
             _hostEnvironment = hostEnvironment;
             _configuration = configuration;
             _razorRenderer = razorRenderer;
-            _pdfConverter = pdfConverter;
 
             // Get the path where PDFs will be saved from appsettings.json
             _savedPlansPath = Path.Combine(_hostEnvironment.ContentRootPath, _configuration["AppSettings:SavedPlansFolder"] ?? "SavedPlans");
@@ -132,40 +132,82 @@ namespace GYM_System.Services
         /// </summary>
         private byte[] ConvertHtmlToPdf(string htmlContent, string documentTitle)
         {
-            var globalSettings = new GlobalSettings
-            {
-                ColorMode = ColorMode.Color,
-                Orientation = Orientation.Portrait,
-                PaperSize = PaperKind.A4,
-                Margins = new MarginSettings { Top = 10, Bottom = 15, Left = 10, Right = 10 },
-                DocumentTitle = documentTitle
-            };
+            // Playwright APIs are async; keep the public interface sync for compatibility.
+            return ConvertHtmlToPdfAsync(htmlContent, documentTitle).GetAwaiter().GetResult();
+        }
 
-            var objectSettings = new ObjectSettings
+        /// <summary>
+        /// Converts HTML content to PDF bytes using DinkToPdf (async version).
+        /// </summary>
+        private async Task<byte[]> ConvertHtmlToPdfAsync(string htmlContent, string documentTitle)
+        {
+            await EnsureBrowserAsync();
+
+            var browser = _browser!;
+            var context = await browser.NewContextAsync(new BrowserNewContextOptions
             {
-                PagesCount = true,
-                HtmlContent = htmlContent,
-                WebSettings = new WebSettings
+                Locale = "en-US"
+            });
+
+            try
+            {
+                var page = await context.NewPageAsync();
+
+                // Ensure proper encoding + allow embedded base64 assets.
+                await page.SetContentAsync(htmlContent, new PageSetContentOptions
                 {
-                    DefaultEncoding = "utf-8",
-                    EnableIntelligentShrinking = true,
-                    PrintMediaType = true
-                },
-                FooterSettings = new FooterSettings
+                    WaitUntil = WaitUntilState.NetworkIdle
+                });
+
+                return await page.PdfAsync(new PagePdfOptions
                 {
-                    FontSize = 9,
-                    Center = "[page] / [toPage]", // Shows "1 / 5" format
-                    Line = false
-                }
-            };
-
-            var pdfDocument = new HtmlToPdfDocument
+                    PrintBackground = true,
+                    Format = "A4",
+                    DisplayHeaderFooter = false,
+                    Margin = new Margin
+                    {
+                        Top = "10mm",
+                        Bottom = "15mm",
+                        Left = "10mm",
+                        Right = "10mm"
+                    }
+                });
+            }
+            finally
             {
-                GlobalSettings = globalSettings,
-                Objects = { objectSettings }
-            };
+                await context.CloseAsync();
+            }
+        }
 
-            return _pdfConverter.Convert(pdfDocument);
+        /// <summary>
+        /// Ensures that the Playwright browser is available (lazy initialization).
+        /// </summary>
+        private static async Task EnsureBrowserAsync()
+        {
+            if (_browser is not null)
+                return;
+
+            await _browserLock.WaitAsync();
+            try
+            {
+                if (_browser is not null)
+                    return;
+
+                _playwright ??= await Playwright.CreateAsync();
+
+                var baseDir = AppContext.BaseDirectory;
+                var chromiumExePath = Path.Combine(baseDir, "ms-playwright", "chromium-1208", "chrome-win", "chrome.exe");
+
+                _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = true,
+                    ExecutablePath = File.Exists(chromiumExePath) ? chromiumExePath : null
+                });
+            }
+            finally
+            {
+                _browserLock.Release();
+            }
         }
 
         /// <summary>

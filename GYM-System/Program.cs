@@ -1,5 +1,3 @@
-using DinkToPdf;
-using DinkToPdf.Contracts;
 using GYM_System.Data;
 using GYM_System.Services;
 using Microsoft.EntityFrameworkCore;
@@ -20,26 +18,23 @@ builder.Services.AddSingleton<GoogleSheetsService>();
 
 // --- PDF Service Configuration ---
 // Read the PDF provider setting from appsettings.json
-// Options: "QuestPDF" (default) or "DinkToPdf"
+// Options: "QuestPDF" (default) or "Playwright"
 var pdfProvider = builder.Configuration["AppSettings:PdfProvider"] ?? "QuestPDF";
 
-if (pdfProvider.Equals("DinkToPdf", StringComparison.OrdinalIgnoreCase))
+if (pdfProvider.Equals("Playwright", StringComparison.OrdinalIgnoreCase)
+    // Backwards compatibility if the old setting is still used
+    || pdfProvider.Equals("DinkToPdf", StringComparison.OrdinalIgnoreCase))
 {
-    // Register DinkToPdf services
-    // The SynchronizedConverter is thread-safe for web applications.
-    builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
-    
-    // Register the Razor view to string renderer
+    // Register the Razor view to string renderer (used by PlaywrightService)
     builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
-    
-    // Register DinkToPdfService as the IPdfService implementation
-    builder.Services.AddScoped<IPdfService, DinkToPdfService>();
+
+    // Register PlaywrightService as the IPdfService implementation
+    builder.Services.AddScoped<IPdfService, PlaywrightService>();
 }
 else
 {
     // Default: Use QuestPDF
-    // Register QuestPDF-based PdfService as the IPdfService implementation
-    builder.Services.AddScoped<IPdfService, PdfService>();
+    builder.Services.AddScoped<IPdfService, QuestPdfService>();
 }
 
 // Configure Kestrel to listen on port 5129 and any IP address
@@ -57,7 +52,6 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 var app = builder.Build();
 
-
 // Apply pending EF Core migrations at startup
 if (args.Contains("--migrate"))
 {
@@ -71,7 +65,6 @@ if (args.Contains("--migrate"))
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
     app.UseHttpsRedirection();
 }

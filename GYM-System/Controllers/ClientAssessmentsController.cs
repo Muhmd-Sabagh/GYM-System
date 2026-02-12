@@ -111,15 +111,15 @@ namespace GYM_System.Controllers
             // --- Manually handle multiple-choice checkbox values from Request.Form ---
             // These fields are not directly bound by [Bind] because they come as multiple values.
             // They need to be joined into a single comma-separated string.
-            clientAssessment.PreferredProteinTypes = Request.Form["PreferredProteinTypes"].Any() ? string.Join(",", Request.Form["PreferredProteinTypes"]) : string.Empty;
-            clientAssessment.PreferredCarbohydrateTypes = Request.Form["PreferredCarbohydrateTypes"].Any() ? string.Join(",", Request.Form["PreferredCarbohydrateTypes"]) : string.Empty;
-            clientAssessment.PreferredHealthyFatTypes = Request.Form["PreferredHealthyFatTypes"].Any() ? string.Join(",", Request.Form["PreferredHealthyFatTypes"]) : string.Empty;
-            clientAssessment.AvailableWorkoutDays = Request.Form["AvailableWorkoutDays"].Any() ? string.Join(",", Request.Form["AvailableWorkoutDays"]) : string.Empty;
+            clientAssessment.PreferredProteinTypes = Request.Form["PreferredProteinTypes"].Any() ? string.Join(",", Request.Form["PreferredProteinTypes"].ToArray()) : string.Empty;
+            clientAssessment.PreferredCarbohydrateTypes = Request.Form["PreferredCarbohydrateTypes"].Any() ? string.Join(",", Request.Form["PreferredCarbohydrateTypes"].ToArray()) : string.Empty;
+            clientAssessment.PreferredHealthyFatTypes = Request.Form["PreferredHealthyFatTypes"].Any() ? string.Join(",", Request.Form["PreferredHealthyFatTypes"].ToArray()) : string.Empty;
+            clientAssessment.AvailableWorkoutDays = Request.Form["AvailableWorkoutDays"].Any() ? string.Join(",", Request.Form["AvailableWorkoutDays"].ToArray()) : string.Empty;
             // Note: WorkoutGoals and AvailableEquipment are not in your latest ClientAssessment.cs,
             // but were in my previous version. Removing them here to match your provided model.
             // If you intend to add them back, ensure they are in your ClientAssessment.cs first.
-            // clientAssessment.WorkoutGoals = Request.Form["WorkoutGoals"].Any() ? string.Join(",", Request.Form["WorkoutGoals"]) : string.Empty;
-            // clientAssessment.AvailableEquipment = Request.Form["AvailableEquipment"].Any() ? string.Join(",", Request.Form["AvailableEquipment"]) : string.Empty;
+            // clientAssessment.WorkoutGoals = Request.Form["WorkoutGoals"].Any() ? string.Join(",", Request.Form["WorkoutGoals"].ToArray()) : string.Empty;
+            // clientAssessment.AvailableEquipment = Request.Form["AvailableEquipment"].Any() ? string.Join(",", Request.Form["AvailableEquipment"].ToArray()) : string.Empty;
 
 
             if (ModelState.IsValid)
@@ -178,13 +178,13 @@ namespace GYM_System.Controllers
             ModelState.Remove("Client"); // Remove validation for navigation property
 
             // --- Manually handle multiple-choice checkbox values from Request.Form ---
-            clientAssessment.PreferredProteinTypes = Request.Form["PreferredProteinTypes"].Any() ? string.Join(",", Request.Form["PreferredProteinTypes"]) : string.Empty;
-            clientAssessment.PreferredCarbohydrateTypes = Request.Form["PreferredCarbohydrateTypes"].Any() ? string.Join(",", Request.Form["PreferredCarbohydrateTypes"]) : string.Empty;
-            clientAssessment.PreferredHealthyFatTypes = Request.Form["PreferredHealthyFatTypes"].Any() ? string.Join(",", Request.Form["PreferredHealthyFatTypes"]) : string.Empty;
-            clientAssessment.AvailableWorkoutDays = Request.Form["AvailableWorkoutDays"].Any() ? string.Join(",", Request.Form["AvailableWorkoutDays"]) : string.Empty;
+            clientAssessment.PreferredProteinTypes = Request.Form["PreferredProteinTypes"].Any() ? string.Join(",", Request.Form["PreferredProteinTypes"].ToArray()) : string.Empty;
+            clientAssessment.PreferredCarbohydrateTypes = Request.Form["PreferredCarbohydrateTypes"].Any() ? string.Join(",", Request.Form["PreferredCarbohydrateTypes"].ToArray()) : string.Empty;
+            clientAssessment.PreferredHealthyFatTypes = Request.Form["PreferredHealthyFatTypes"].Any() ? string.Join(",", Request.Form["PreferredHealthyFatTypes"].ToArray()) : string.Empty;
+            clientAssessment.AvailableWorkoutDays = Request.Form["AvailableWorkoutDays"].Any() ? string.Join(",", Request.Form["AvailableWorkoutDays"].ToArray()) : string.Empty;
             // Note: WorkoutGoals and AvailableEquipment were removed to match your latest ClientAssessment.cs
-            // clientAssessment.WorkoutGoals = Request.Form["WorkoutGoals"].Any() ? string.Join(",", Request.Form["WorkoutGoals"]) : string.Empty;
-            // clientAssessment.AvailableEquipment = Request.Form["AvailableEquipment"].Any() ? string.Join(",", Request.Form["AvailableEquipment"]) : string.Empty;
+            // clientAssessment.WorkoutGoals = Request.Form["WorkoutGoals"].Any() ? string.Join(",", Request.Form["WorkoutGoals"].ToArray()) : string.Empty;
+            // clientAssessment.AvailableEquipment = Request.Form["AvailableEquipment"].Any() ? string.Join(",", Request.Form["AvailableEquipment"].ToArray()) : string.Empty;
 
 
             if (ModelState.IsValid)

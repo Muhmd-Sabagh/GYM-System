@@ -9,7 +9,7 @@ namespace GYM_System.Services
     /// QuestPDF-based PDF generation service.
     /// This is the original implementation using QuestPDF library.
     /// </summary>
-    public class PdfService : IPdfService
+    public class QuestPdfService : IPdfService
     {
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IConfiguration _configuration;
@@ -17,7 +17,7 @@ namespace GYM_System.Services
         private readonly string _logoPath;
         private readonly string _placeholderLogoPath;
 
-        public PdfService(IWebHostEnvironment hostEnvironment, IConfiguration configuration)
+        public QuestPdfService(IWebHostEnvironment hostEnvironment, IConfiguration configuration)
         {
             _hostEnvironment = hostEnvironment;
             _configuration = configuration;
