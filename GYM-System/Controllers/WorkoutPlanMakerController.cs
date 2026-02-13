@@ -170,8 +170,8 @@ namespace GYM_System.Controllers
 
             try
             {
-                byte[] pdfBytes = _pdfService.GenerateWorkoutPlanPdf(viewModel); // Call new PDF method
-                string filePath = _pdfService.SaveWorkoutPlanPdf(pdfBytes, viewModel.PlanName); // New save method
+                byte[] pdfBytes = await _pdfService.GenerateWorkoutPlanPdfAsync(viewModel);
+                string filePath = await _pdfService.SaveWorkoutPlanPdfAsync(pdfBytes, viewModel.PlanName);
 
                 TempData["SuccessMessage"] = $"PDF for '{viewModel.PlanName}' generated and saved to '{filePath}'!";
                 return File(pdfBytes, "application/pdf", $"{viewModel.PlanName.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
@@ -180,7 +180,7 @@ namespace GYM_System.Controllers
             {
                 TempData["ErrorMessage"] = $"Error generating PDF: {ex.Message}";
                 Console.WriteLine($"PDF Generation Error: {ex}");
-                return RedirectToAction(nameof(Index), new { id = id });
+                return RedirectToAction(nameof(Index), new { id });
             }
         }
 

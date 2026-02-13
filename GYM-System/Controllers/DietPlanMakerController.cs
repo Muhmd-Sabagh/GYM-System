@@ -201,8 +201,8 @@ namespace GYM_System.Controllers
 
             try
             {
-                byte[] pdfBytes = _pdfService.GenerateDietPlanPdf(viewModel);
-                string filePath = _pdfService.SaveDietPlanPdf(pdfBytes, viewModel.PlanName);
+                byte[] pdfBytes = await _pdfService.GenerateDietPlanPdfAsync(viewModel);
+                string filePath = await _pdfService.SaveDietPlanPdfAsync(pdfBytes, viewModel.PlanName);
 
                 TempData["SuccessMessage"] = $"PDF for '{viewModel.PlanName}' generated and saved to '{filePath}'!";
                 return File(pdfBytes, "application/pdf", $"{viewModel.PlanName.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");

@@ -72,74 +72,65 @@ namespace GYM_System.Services
         public string TajawalBoldBase64 => _tajawalBoldBase64.Value;
 
         /// <summary>
-        /// Generates a Diet Plan PDF using DinkToPdf.
+        /// Generates a Diet Plan PDF asynchronously.
         /// </summary>
-        public byte[] GenerateDietPlanPdf(DietPlanViewModel dietPlan)
+        public async Task<byte[]> GenerateDietPlanPdfAsync(DietPlanViewModel dietPlan)
         {
             // Prepare the view model with Base64 images and fonts for portability
             var pdfModel = PrepareDietPlanForPdf(dietPlan);
 
             // Render the Razor view to HTML
-            var htmlContent = _razorRenderer.RenderViewToStringAsync("~/Views/Pdf/DietPlan.cshtml", pdfModel).GetAwaiter().GetResult();
+            var htmlContent = await _razorRenderer.RenderViewToStringAsync("~/Views/Pdf/DietPlan.cshtml", pdfModel);
 
             // Convert HTML to PDF
-            return ConvertHtmlToPdf(htmlContent, $"{dietPlan.Client?.Name ?? "Client"} - Diet Plan");
+            return await ConvertHtmlToPdfAsync(htmlContent);
         }
 
         /// <summary>
-        /// Generates a Workout Plan PDF using DinkToPdf.
+        /// Generates a Workout Plan PDF asynchronously.
         /// </summary>
-        public byte[] GenerateWorkoutPlanPdf(WorkoutPlanViewModel workoutPlan)
+        public async Task<byte[]> GenerateWorkoutPlanPdfAsync(WorkoutPlanViewModel workoutPlan)
         {
             // Prepare the view model with Base64 images and fonts for portability
             var pdfModel = PrepareWorkoutPlanForPdf(workoutPlan);
 
             // Render the Razor view to HTML
-            var htmlContent = _razorRenderer.RenderViewToStringAsync("~/Views/Pdf/WorkoutPlan.cshtml", pdfModel).GetAwaiter().GetResult();
+            var htmlContent = await _razorRenderer.RenderViewToStringAsync("~/Views/Pdf/WorkoutPlan.cshtml", pdfModel);
 
             // Convert HTML to PDF
-            return ConvertHtmlToPdf(htmlContent, $"{workoutPlan.Client?.Name ?? "Client"} - Workout Plan");
+            return await ConvertHtmlToPdfAsync(htmlContent);
         }
 
         /// <summary>
-        /// Saves a diet plan PDF to disk.
+        /// Saves a diet plan PDF to disk asynchronously.
         /// </summary>
-        public string SaveDietPlanPdf(byte[] pdfBytes, string planName)
+        public async Task<string> SaveDietPlanPdfAsync(byte[] pdfBytes, string planName)
         {
             string safePlanName = string.Join("_", planName.Split(Path.GetInvalidFileNameChars()));
             string fileName = $"{safePlanName}_DietPlan_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             string filePath = Path.Combine(_savedPlansPath, fileName);
 
-            File.WriteAllBytes(filePath, pdfBytes);
+            await File.WriteAllBytesAsync(filePath, pdfBytes);
             return filePath;
         }
 
         /// <summary>
-        /// Saves a workout plan PDF to disk.
+        /// Saves a workout plan PDF to disk asynchronously.
         /// </summary>
-        public string SaveWorkoutPlanPdf(byte[] pdfBytes, string planName)
+        public async Task<string> SaveWorkoutPlanPdfAsync(byte[] pdfBytes, string planName)
         {
             string safePlanName = string.Join("_", planName.Split(Path.GetInvalidFileNameChars()));
             string fileName = $"{safePlanName}_WorkoutPlan_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             string filePath = Path.Combine(_savedPlansPath, fileName);
 
-            File.WriteAllBytes(filePath, pdfBytes);
+            await File.WriteAllBytesAsync(filePath, pdfBytes);
             return filePath;
         }
 
         /// <summary>
-        /// Converts HTML content to PDF bytes using DinkToPdf.
+        /// Converts HTML content to PDF bytes asynchronously.
         /// </summary>
-        private byte[] ConvertHtmlToPdf(string htmlContent, string documentTitle)
-        {
-            // Playwright APIs are async; keep the public interface sync for compatibility.
-            return ConvertHtmlToPdfAsync(htmlContent, documentTitle).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Converts HTML content to PDF bytes using DinkToPdf (async version).
-        /// </summary>
-        private async Task<byte[]> ConvertHtmlToPdfAsync(string htmlContent, string documentTitle)
+        private async Task<byte[]> ConvertHtmlToPdfAsync(string htmlContent)
         {
             await EnsureBrowserAsync();
 
@@ -405,98 +396,4 @@ namespace GYM_System.Services
             return $"data:font/truetype;base64,{Convert.ToBase64String(fontBytes)}";
         }
     }
-
-    #region PDF-Specific ViewModels (for Base64 image and font embedding)
-
-    /// <summary>
-    /// ViewModel specifically for Diet Plan PDF generation with Base64 images and fonts.
-    /// </summary>
-    public class DietPlanPdfViewModel
-    {
-        public string ClientName { get; set; } = string.Empty;
-        public string PlanName { get; set; } = string.Empty;
-        public string? GeneralNotes { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public string LogoBase64 { get; set; } = string.Empty;
-        public bool ShowVersionHeaders { get; set; }
-        public List<DietPlanVersionPdfViewModel> Versions { get; set; } = new();
-
-        // Font Base64 strings for embedding in HTML
-        public string TajawalRegularBase64 { get; set; } = string.Empty;
-        public string TajawalMediumBase64 { get; set; } = string.Empty;
-        public string TajawalBoldBase64 { get; set; } = string.Empty;
-    }
-
-    public class DietPlanVersionPdfViewModel
-    {
-        public string VersionName { get; set; } = string.Empty;
-        public string? VersionNotes { get; set; }
-        public decimal TotalCalories { get; set; }
-        public decimal TotalProtein { get; set; }
-        public decimal TotalCarbs { get; set; }
-        public decimal TotalFat { get; set; }
-        public List<MealPdfViewModel> Meals { get; set; } = new();
-    }
-
-    public class MealPdfViewModel
-    {
-        public string MealName { get; set; } = string.Empty;
-        public string? MealNotes { get; set; }
-        public decimal TotalCalories { get; set; }
-        public decimal TotalProtein { get; set; }
-        public decimal TotalCarbs { get; set; }
-        public decimal TotalFat { get; set; }
-        public List<MealFoodItemPdfViewModel> FoodItems { get; set; } = new();
-    }
-
-    public class MealFoodItemPdfViewModel
-    {
-        public string FoodItemName { get; set; } = string.Empty;
-        public string Unit { get; set; } = string.Empty;
-        public decimal Quantity { get; set; }
-        public string ImageBase64 { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// ViewModel specifically for Workout Plan PDF generation with Base64 images and fonts.
-    /// </summary>
-    public class WorkoutPlanPdfViewModel
-    {
-        public string ClientName { get; set; } = string.Empty;
-        public string PlanName { get; set; } = string.Empty;
-        public string? GeneralNotes { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public string LogoBase64 { get; set; } = string.Empty;
-        public int TotalDays { get; set; }
-        public int TotalExercises { get; set; }
-        public List<WorkoutDayPdfViewModel> WorkoutDays { get; set; } = new();
-
-        // Font Base64 strings for embedding in HTML
-        public string TajawalRegularBase64 { get; set; } = string.Empty;
-        public string TajawalMediumBase64 { get; set; } = string.Empty;
-        public string TajawalBoldBase64 { get; set; } = string.Empty;
-    }
-
-    public class WorkoutDayPdfViewModel
-    {
-        public string DayName { get; set; } = string.Empty;
-        public string? Subtitle { get; set; }
-        public string? DayNotes { get; set; }
-        public int ExerciseCount { get; set; }
-        public List<WorkoutExercisePdfViewModel> Exercises { get; set; } = new();
-    }
-
-    public class WorkoutExercisePdfViewModel
-    {
-        public string ExerciseName { get; set; } = string.Empty;
-        public string Sets { get; set; } = "-";
-        public string Reps { get; set; } = "-";
-        public string Rest { get; set; } = "-";
-        public string Tempo { get; set; } = "-";
-        public string RpeRir { get; set; } = "-";
-        public string? ExerciseNotes { get; set; }
-        public string? YouTubeLink { get; set; }
-    }
-
-    #endregion
 }

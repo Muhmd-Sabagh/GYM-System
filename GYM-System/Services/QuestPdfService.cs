@@ -22,33 +22,51 @@ namespace GYM_System.Services
             _hostEnvironment = hostEnvironment;
             _configuration = configuration;
 
-            // --- ADD THIS LINE TO SET THE QUESTPDF LICENSE TYPE ---
             QuestPDF.Settings.License = LicenseType.Community;
-            // If your organization's annual gross revenue exceeds $1M USD,
-            // you would need a commercial license and would set:
-            // QuestPDF.Settings.License = LicenseType.Professional; // Or other commercial types
 
-            // Get the path where PDFs will be saved from appsettings.json
             _savedPlansPath = Path.Combine(_hostEnvironment.ContentRootPath, _configuration["AppSettings:SavedPlansFolder"] ?? "SavedPlans");
             if (!Directory.Exists(_savedPlansPath))
             {
                 Directory.CreateDirectory(_savedPlansPath);
             }
 
-            // Paths for images (assuming they are in wwwroot/images)
             _logoPath = Path.Combine(_hostEnvironment.WebRootPath, "images/logo", "logo.jpg");
             _placeholderLogoPath = Path.Combine(_hostEnvironment.WebRootPath, "images/logo", "placeholder_logo.png");
-
-            // Register Inter font for better Arabic rendering if available
-            // You might need to place Inter.ttf in a 'fonts' folder within wwwroot
-            // Or ensure it's a system font on the server.
-            // For example: FontManager.RegisterFont(File.OpenRead(Path.Combine(_hostEnvironment.WebRootPath, "fonts", "Inter-Regular.ttf")));
-            // For now, relying on QuestPDF's default font or system fonts if not explicitly registered.
         }
 
-        public byte[] GenerateDietPlanPdf(DietPlanViewModel dietPlan)
+        public Task<byte[]> GenerateDietPlanPdfAsync(DietPlanViewModel dietPlan)
         {
-            // Calculate overall totals for the entire diet plan
+            // Generate synchronously (QuestPDF is sync) but expose async API.
+            return Task.FromResult(GenerateDietPlanPdfInternal(dietPlan));
+        }
+
+        public Task<byte[]> GenerateWorkoutPlanPdfAsync(WorkoutPlanViewModel workoutPlan)
+        {
+            return Task.FromResult(GenerateWorkoutPlanPdfInternal(workoutPlan));
+        }
+
+        public async Task<string> SaveDietPlanPdfAsync(byte[] pdfBytes, string planName)
+        {
+            string safePlanName = string.Join("_", planName.Split(Path.GetInvalidFileNameChars()));
+            string fileName = $"{safePlanName}_DietPlan_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            string filePath = Path.Combine(_savedPlansPath, fileName);
+
+            await File.WriteAllBytesAsync(filePath, pdfBytes);
+            return filePath;
+        }
+
+        public async Task<string> SaveWorkoutPlanPdfAsync(byte[] pdfBytes, string planName)
+        {
+            string safePlanName = string.Join("_", planName.Split(Path.GetInvalidFileNameChars()));
+            string fileName = $"{safePlanName}_WorkoutPlan_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            string filePath = Path.Combine(_savedPlansPath, fileName);
+
+            await File.WriteAllBytesAsync(filePath, pdfBytes);
+            return filePath;
+        }
+
+        private byte[] GenerateDietPlanPdfInternal(DietPlanViewModel dietPlan)
+        {
             var allMeals = dietPlan.Versions?.Where(v => v.IsActiveForPdf).SelectMany(v => v.Meals).ToList() ?? new List<MealViewModel>();
             var totalPlanCalories = allMeals.Sum(m => m.TotalCalories);
             var totalPlanProtein = allMeals.Sum(m => m.TotalProtein);
@@ -62,7 +80,7 @@ namespace GYM_System.Services
                     page.Size(PageSizes.A4);
                     page.Margin(30);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter")); // Using Inter as requested
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter"));
 
                     page.Header()
                         .PaddingBottom(7)
@@ -70,7 +88,6 @@ namespace GYM_System.Services
                         {
                             column.Item().Row(row =>
                             {
-                                // Left side: Logo
                                 row.RelativeItem(1)
                                     .Column(clientInfoColumn =>
                                     {
@@ -81,7 +98,6 @@ namespace GYM_System.Services
                                         });
                                     });
 
-                                // Center: Client Name - Diet Plan
                                 row.RelativeItem(4)
                                     .AlignCenter()
                                     .Column(clientInfoColumn =>
@@ -108,19 +124,15 @@ namespace GYM_System.Services
                             }
 
                             var activeVersions = dietPlan.Versions.Where(v => v.IsActiveForPdf).ToList();
-                            DietPlanVersionViewModel version;
 
-                            // Render each active version
                             for (int i = 0; i < activeVersions.Count; i++)
                             {
-                                version = activeVersions[i];
+                                var version = activeVersions[i];
 
                                 if (activeVersions.Count > 1)
                                 {
                                     if (i > 0)
-                                    {
-                                        column.Item().PageBreak(); // Start new version on a new page
-                                    }
+                                        column.Item().PageBreak();
 
                                     column.Item().AlignRight().PaddingTop(10).Text(text =>
                                     {
@@ -138,21 +150,19 @@ namespace GYM_System.Services
                                     }
                                 }
 
-                                // Calculate totals for the current version
                                 var totalVersionCalories = version.Meals.Sum(m => m.TotalCalories);
                                 var totalVersionProtein = version.Meals.Sum(m => m.TotalProtein);
                                 var totalVersionCarbs = version.Meals.Sum(m => m.TotalCarbs);
                                 var totalVersionFat = version.Meals.Sum(m => m.TotalFat);
 
-                                // Version Totals Table
                                 column.Item().PaddingTop(10).Border(1).BorderColor(Colors.Black.Blue).Padding(5).Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
                                     {
-                                        columns.RelativeColumn(); // Calories
-                                        columns.RelativeColumn(); // Protein
-                                        columns.RelativeColumn(); // Carbs
-                                        columns.RelativeColumn(); // Fat
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
                                     });
 
                                     table.Header(header =>
@@ -169,15 +179,12 @@ namespace GYM_System.Services
                                     table.Cell().PaddingVertical(2).Text(totalVersionFat.ToString("F1")).AlignCenter().FontColor(Colors.Green.Darken1);
                                 });
 
-
                                 column.Item().PaddingTop(10).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten1);
 
-                                // Render each meal in the version
                                 foreach (var meal in version.Meals)
                                 {
                                     column.Item().PaddingVertical(7).Column(mealColumn =>
                                     {
-                                        // Meal Header Bar
                                         mealColumn.Item().Background(Colors.Blue.Medium).Padding(8).Row(mealHeaderRow =>
                                         {
                                             mealHeaderRow.RelativeItem().AlignLeft().Text($"السعرات: {meal.TotalCalories:F1}").SemiBold().FontSize(11).FontColor(Colors.White);
@@ -186,7 +193,6 @@ namespace GYM_System.Services
 
                                         mealColumn.Item().PaddingTop(5).Row(mealContentRow =>
                                         {
-                                            // Left Column: Meal Notes and Image Placeholder
                                             mealContentRow.RelativeItem(1)
                                                 .Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
                                                 .Column(leftCol =>
@@ -195,17 +201,16 @@ namespace GYM_System.Services
                                                     leftCol.Item().AlignCenter().Text(meal.MealNotes ?? "لا توجد ملاحظات").FontSize(9);
                                                 });
 
-                                            // Right Column: Meal Food Items Table
                                             mealContentRow.RelativeItem(2)
-                                                .PaddingLeft(10) // Space between columns
+                                                .PaddingLeft(10)
                                                 .Table(table =>
                                                 {
                                                     table.ColumnsDefinition(columns =>
                                                     {
-                                                        columns.RelativeColumn(1); // Unit
-                                                        columns.RelativeColumn(1); // Quantity
-                                                        columns.RelativeColumn(3); // Food Item Name
-                                                        columns.ConstantColumn(60); // Food Image
+                                                        columns.RelativeColumn(1);
+                                                        columns.RelativeColumn(1);
+                                                        columns.RelativeColumn(3);
+                                                        columns.ConstantColumn(60);
                                                     });
 
                                                     table.Header(header =>
@@ -247,7 +252,7 @@ namespace GYM_System.Services
             }).GeneratePdf();
         }
 
-        public byte[] GenerateWorkoutPlanPdf(WorkoutPlanViewModel workoutPlan)
+        private byte[] GenerateWorkoutPlanPdfInternal(WorkoutPlanViewModel workoutPlan)
         {
             return Document.Create(container =>
             {
@@ -256,7 +261,7 @@ namespace GYM_System.Services
                     page.Size(PageSizes.A4);
                     page.Margin(30);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter")); // Using Inter as requested
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Inter"));
 
                     page.Header()
                         .PaddingBottom(7)
@@ -264,7 +269,6 @@ namespace GYM_System.Services
                         {
                             column.Item().Row(row =>
                             {
-                                // Left side: Logo
                                 row.RelativeItem(1)
                                     .Column(clientInfoColumn =>
                                     {
@@ -275,7 +279,6 @@ namespace GYM_System.Services
                                         });
                                     });
 
-                                // Center: Client Name - Workout Plan
                                 row.RelativeItem(4)
                                     .AlignCenter()
                                     .Column(clientInfoColumn =>
@@ -301,18 +304,16 @@ namespace GYM_System.Services
                                 });
                             }
 
-                            // Calculate workout plan totals
                             var totalExercises = workoutPlan.WorkoutDays.Sum(d => d.WorkoutExercises.Count());
                             var totalDays = workoutPlan.WorkoutDays.Count();
 
-                            // Plan Totals Table
                             column.Item().PaddingTop(10).Border(1).BorderColor(Colors.Black.Blue).Padding(5).Table(table =>
                             {
                                 table.ColumnsDefinition(columns =>
                                 {
-                                    columns.RelativeColumn(); // Total Days
-                                    columns.RelativeColumn(); // Total Exercises
-                                    columns.RelativeColumn(); // Plan Name
+                                    columns.RelativeColumn();
+                                    columns.RelativeColumn();
+                                    columns.RelativeColumn();
                                 });
 
                                 table.Header(header =>
@@ -329,12 +330,10 @@ namespace GYM_System.Services
 
                             column.Item().PaddingTop(10).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten1);
 
-                            // Render each workout day
                             foreach (var day in workoutPlan.WorkoutDays)
                             {
                                 column.Item().PaddingVertical(7).Column(dayColumn =>
                                 {
-                                    // Day Header Bar (similar to meal header)
                                     dayColumn.Item().Background(Colors.Blue.Medium).Padding(8).Row(dayHeaderRow =>
                                     {
                                         dayHeaderRow.RelativeItem().AlignLeft().Text($"إجمالي التمارين: {day.WorkoutExercises.Count()}").SemiBold().FontSize(11).FontColor(Colors.White);
@@ -347,7 +346,6 @@ namespace GYM_System.Services
 
                                     dayColumn.Item().PaddingTop(5).Row(dayContentRow =>
                                     {
-                                        // Left Column: Day Notes
                                         dayContentRow.RelativeItem(1)
                                             .Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
                                             .Column(leftCol =>
@@ -356,20 +354,19 @@ namespace GYM_System.Services
                                                 leftCol.Item().AlignCenter().Text(day.DayNotes ?? "لا توجد ملاحظات").FontSize(9);
                                             });
 
-                                        // Right Column: Exercises Table
                                         dayContentRow.RelativeItem(4)
                                             .PaddingLeft(10)
                                             .Table(table =>
                                             {
                                                 table.ColumnsDefinition(columns =>
                                                 {
-                                                    columns.RelativeColumn(1); // Exercise Video Link
-                                                    columns.RelativeColumn(1); // RIR
-                                                    columns.RelativeColumn(1); // Tempo
-                                                    columns.RelativeColumn(1); // Rest
-                                                    columns.RelativeColumn(1); // Reps
-                                                    columns.RelativeColumn(1); // Sets
-                                                    columns.RelativeColumn(2); // Exercise Name
+                                                    columns.RelativeColumn(1);
+                                                    columns.RelativeColumn(1);
+                                                    columns.RelativeColumn(1);
+                                                    columns.RelativeColumn(1);
+                                                    columns.RelativeColumn(1);
+                                                    columns.RelativeColumn(1);
+                                                    columns.RelativeColumn(2);
                                                 });
 
                                                 table.Header(header =>
@@ -417,28 +414,6 @@ namespace GYM_System.Services
                         });
                 });
             }).GeneratePdf();
-        }
-
-        public string SaveDietPlanPdf(byte[] pdfBytes, string planName)
-        {
-            // Sanitize plan name for file system
-            string safePlanName = string.Join("_", planName.Split(Path.GetInvalidFileNameChars()));
-            string fileName = $"{safePlanName}_DietPlan_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-            string filePath = Path.Combine(_savedPlansPath, fileName);
-
-            File.WriteAllBytes(filePath, pdfBytes);
-            return filePath; // Return the full path where the file was saved
-        }
-
-        public string SaveWorkoutPlanPdf(byte[] pdfBytes, string planName)
-        {
-            // Sanitize plan name for file system
-            string safePlanName = string.Join("_", planName.Split(Path.GetInvalidFileNameChars()));
-            string fileName = $"{safePlanName}_WorkoutPlan_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-            string filePath = Path.Combine(_savedPlansPath, fileName);
-
-            File.WriteAllBytes(filePath, pdfBytes);
-            return filePath; // Return the full path where the file was saved
         }
     }
 }

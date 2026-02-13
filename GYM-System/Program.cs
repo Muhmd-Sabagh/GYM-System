@@ -17,23 +17,21 @@ builder.Services.AddDbContext<GymDbContext>(options =>
 builder.Services.AddSingleton<GoogleSheetsService>();
 
 // --- PDF Service Configuration ---
-// Read the PDF provider setting from appsettings.json
-// Options: "QuestPDF" (default) or "Playwright"
 var pdfProvider = builder.Configuration["AppSettings:PdfProvider"] ?? "QuestPDF";
 
-if (pdfProvider.Equals("Playwright", StringComparison.OrdinalIgnoreCase)
-    // Backwards compatibility if the old setting is still used
-    || pdfProvider.Equals("DinkToPdf", StringComparison.OrdinalIgnoreCase))
+if (pdfProvider.Equals("wkhtmltopdf", StringComparison.OrdinalIgnoreCase))
 {
-    // Register the Razor view to string renderer (used by PlaywrightService)
+    // wkhtmltopdf (direct exe) requires Razor rendering to HTML.
     builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
-
-    // Register PlaywrightService as the IPdfService implementation
+    builder.Services.AddScoped<IPdfService, WkHtmlToPdfService>();
+}
+else if (pdfProvider.Equals("playwright", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
     builder.Services.AddScoped<IPdfService, PlaywrightService>();
 }
 else
 {
-    // Default: Use QuestPDF
     builder.Services.AddScoped<IPdfService, QuestPdfService>();
 }
 

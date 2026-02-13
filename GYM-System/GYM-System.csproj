@@ -9,6 +9,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="libwkhtmltox.dll" />
+	  <None Remove="PdfTools\wkhtmltopdf.exe" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="PdfTools\wkhtmltopdf.exe">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.13" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,17 +30,23 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.13" />
-		<PackageReference Include="Google.Apis.Sheets.v4" Version="1.70.0.3819" />
+		<PackageReference Include="Google.Apis.Sheets.v4" Version="1.72.0.3966" />
 		<PackageReference Include="Microsoft.Playwright" Version="1.58.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="QRCoder" Version="1.7.0" />
-		<PackageReference Include="QuestPDF" Version="2025.7.0" />
+		<PackageReference Include="QuestPDF" Version="2025.12.4" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Folder Include="wwwroot\images\fooditems\" />
 		<Folder Include="wwwroot\images\exercises\" />
 		<Folder Include="SavedPlans\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="PdfTools\wkhtmltox.exe">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 	
 </Project>
