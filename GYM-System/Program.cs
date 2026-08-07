@@ -35,18 +35,7 @@ else
     builder.Services.AddScoped<IPdfService, QuestPdfService>();
 }
 
-// Configure Kestrel to listen on port 5129 and any IP address
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.Listen(IPAddress.Any, 5129);
-});
 
-// Automatically open the browser to the application URL when it starts
-//System.Diagnostics.Process.Start(new ProcessStartInfo
-//{
-//    FileName = $"http://{HomeController.GetLocalIpAddress()}:5129",
-//    UseShellExecute = true
-//});
 
 var app = builder.Build();
 
@@ -64,9 +53,9 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
-    app.UseHttpsRedirection();
 }
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

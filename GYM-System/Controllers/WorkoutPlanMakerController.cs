@@ -56,7 +56,7 @@ namespace GYM_System.Controllers
         // POST: WorkoutPlanMaker/Save
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save(WorkoutPlanViewModel viewModel)
+        public async Task<IActionResult> Save(WorkoutPlanViewModel viewModel, bool saveAsNew)
         {
             // Manually remove validation errors for properties that are not directly bound
             ModelState.Remove("Client");
@@ -78,6 +78,11 @@ namespace GYM_System.Controllers
             }
 
             // Map ViewModel to Entity Models
+            if (saveAsNew)
+            {
+                viewModel.Id = 0;
+            }
+
             WorkoutPlan workoutPlan;
             if (viewModel.Id == 0) // New plan
             {
@@ -171,9 +176,9 @@ namespace GYM_System.Controllers
             try
             {
                 byte[] pdfBytes = await _pdfService.GenerateWorkoutPlanPdfAsync(viewModel);
-                string filePath = await _pdfService.SaveWorkoutPlanPdfAsync(pdfBytes, viewModel.PlanName);
+                //string filePath = await _pdfService.SaveWorkoutPlanPdfAsync(pdfBytes, viewModel.PlanName);
 
-                TempData["SuccessMessage"] = $"PDF for '{viewModel.PlanName}' generated and saved to '{filePath}'!";
+                TempData["SuccessMessage"] = $"PDF for '{viewModel.PlanName}' generated and saved successfully!";
                 return File(pdfBytes, "application/pdf", $"{viewModel.PlanName.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
             }
             catch (Exception ex)
